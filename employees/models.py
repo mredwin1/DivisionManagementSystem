@@ -255,10 +255,16 @@ class Employee(AbstractBaseUser, PermissionsMixin):
 
         if years and months:
             tenure_str = f'{years_str} {months_str}'
+        elif years:
+            tenure_str = f'{years_str}'
         elif months and weeks:
             tenure_str = f'{months_str} {weeks_str}'
+        elif months:
+            tenure_str = f'{months_str}'
         elif weeks and days:
             tenure_str = f'{weeks_str} {days_str}'
+        elif weeks:
+            tenure_str = f'{weeks_str}'
         else:
             tenure_str = days_str
 
