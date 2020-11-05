@@ -60,6 +60,11 @@ coverage.xml
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+**/migrations/**
+!**/migrations
+!**/migrations/__init__.py
+_site/static
+_site/media
 
 # Flask stuff:
 instance/
@@ -131,10 +136,6 @@ dmypy.json
 # file: ~/.gitignore_global
 .DS_Store
 .idea
-
-# media and static
-static
-media
 
 # config file
 config.json
