@@ -1,0 +1,31 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+celery = "~=5.0.2"
+django-bootstrap-daterangepicker = "~=1.0.6"
+django-cleanup = "~=5.1.0"
+django-crispy-forms = "~=1.9.2"
+django-imagekit = "~=4.0.2"
+django-notifications-hq = "~=1.6.0"
+django-phonenumber-field = "~=5.0.0"
+openpyxl = "~=3.0.5"
+phonenumbers = "~=8.12.12"
+reportlab = "~=3.5.55"
+titlecase = "~=1.1.1"
+Django = "~=3.1.1"
+Pillow = "~=8.0.1"
+PyPDF2 = "~=1.26.0"
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"
+
+[scripts]
+start = "python manage.py startapp"
+test = "python manage.py test"
+makemigrations = "python manage.py makemigrations"
+migrate = "python manage.py migrate"
