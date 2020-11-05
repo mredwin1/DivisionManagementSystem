@@ -25,7 +25,7 @@ PyPDF2 = "~=1.26.0"
 python_version = "3.8"
 
 [scripts]
-start = "python manage.py startapp"
+start = "python manage.py runserver"
 test = "python manage.py test"
 makemigrations = "python manage.py makemigrations"
 migrate = "python manage.py migrate"
