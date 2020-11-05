@@ -135,3 +135,6 @@ dmypy.json
 # media and static
 static
 media
+
+# config file
+config.json
