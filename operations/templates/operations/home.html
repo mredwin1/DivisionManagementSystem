@@ -1,0 +1,15 @@
+{% extends "main/base.html" %}
+{% load employee_filters %}
+{% block content%}
+    <h1 style="text-align:center">Operations Home Page Under Construction</h1>
+    <script>
+        {% if download %}
+            window.onload = function(e){
+                let protocol = window.location.protocol
+                let url = '{{ download|bulk_attendance_download:request.get_host }}'
+                window.location.href = protocol + '//' + url
+            return false;
+            }
+        {% endif %}
+    </script>
+{% endblock %}

@@ -1,0 +1,293 @@
+{% load static %}
+{% load employee_filters %}
+{% load notifications_tags %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+        <!-- Font Awesome Icons -->
+        <script src="https://kit.fontawesome.com/09db1f97d7.js" crossorigin="anonymous"></script>
+
+        <!--Bootstrap Modals-->
+        <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+
+        <!-- MultiDate Picker CSS -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.css" rel="stylesheet"/>
+
+        <!--Date Range CSS and JS-->
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="{% static 'main/main.css' %}">
+
+        <!-- favicon -->
+        <link rel="shortcut icon" type="image/png" href="{% static 'main/favicon.ico' %}"/>
+
+        {% if title %}
+            <title>{{ title }} - Division 12 Management System</title>
+        {% else %}
+            <title>Division 12 Management System</title>
+        {% endif %}
+    </head>
+    <body>
+        <script src="{% static 'notifications/notify.js' %}" type="text/javascript"></script>
+        <script>
+            function generate_notification_list(data) {
+                let time_str;
+                let notification_list = document.getElementById('notification_list')
+                let settings = document.createElement("DIV")
+                let link = document.createElement("A");
+                let gear = document.createElement("I")
+
+                notification_list.textContent = '';
+
+                settings.classList.add("nav-link")
+                settings.classList.add("border-bottom");
+                settings.classList.add("border-dark");
+                settings.classList.add("text-right");
+
+                link.classList.add("nav-link")
+                link.classList.add("p-0")
+                link.href = "{% url 'employee-notification-settings' %}"
+
+                gear.classList.add("fas")
+                gear.classList.add("fa-cog")
+                gear.classList.add("fa-lg")
+
+                link.appendChild(gear)
+                settings.appendChild(link)
+                notification_list.appendChild(settings)
+
+                if (data.unread_list.length === 0) {
+                    let notification = document.createElement("A");
+
+                    notification.innerHTML = 'No Unread Notifications'
+                    notification.classList.add("nav-link");
+                    notification.classList.add("notification");
+                    notification.classList.add("p-2");
+
+                    notification_list.appendChild(notification)
+
+                } else {
+                    for (var i=0; i < data.unread_list.length; i++) {
+                    let msg = data.unread_list[i];
+                    let notification = document.createElement("A");
+
+                    let time_stamp = msg.timestamp;
+                    let now = new Date();
+                    let date_time = new Date(time_stamp.slice(0,4), parseInt(time_stamp.slice(5,7))-1, time_stamp.slice(8,10), parseInt(time_stamp.slice(11,13))-4, time_stamp.slice(14,16), time_stamp.slice(17,19));
+                    let duration = new Date((now - date_time));
+                    let hours = duration.getUTCHours();
+                    let minutes = duration.getUTCMinutes();
+                    let seconds = duration.getUTCSeconds();
+
+                    if (seconds) {
+                        time_str = seconds.toString() + ' seconds ago';
+                    }if (minutes) {
+                        time_str = minutes.toString() + ' minutes ago'
+                    }if (hours) {
+                        time_str = hours.toString() + ' hours ago'
+                    }
+
+                    let div = document.createElement("DIV")
+                    div.classList.add("text-right")
+                    let time_msg = document.createElement("SMALL")
+                    time_msg.innerHTML = time_str
+
+
+                    br = document.createElement('BR')
+
+                    notification.innerHTML = msg.verb;
+                    notification.href = msg.data.url
+                    notification.classList.add("nav-link");
+                    notification.classList.add("notification");
+                    notification.classList.add("p-2");
+                    notification.classList.add("border-bottom");
+                    notification.classList.add("border-dark");
+
+                    div.appendChild(time_msg)
+                    notification.appendChild(div)
+                    notification_list.appendChild(notification);
+
+                }
+                }
+            }
+        </script>
+        {% register_notify_callbacks callbacks='generate_notification_list,fill_notification_badge' %}
+        <!-- Primary Modal -->
+        <div class="modal fade" id="mainModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title font-weight-bold" id="mainModalTitle"></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        {% block modal-body %}{% endblock %}
+                    </div>
+                    <div class="modal-footer">
+                        {% block modal-footer %}{% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% block secondary-modal %}{% endblock %}
+        <header class="site-header">
+            <nav class="navbar navbar-expand-lg fixed-top navbar-light bg-light p-1 px-5 shadow-sm">
+                <div class="container-fluid px-5 mx-5">
+                    <a class="navbar-brand p-0" href="/">
+                        <div class="d-flex justify-content-start align-items-center">
+                            <img src="{% static 'main/MV_Transportation_logo.png' %}" alt="" width="40%">
+                            <p class="pl-3 m-0 navbar-title">
+                                Division 12
+                            </p>
+                        </div>
+                    </a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <!-- Navbar Right Side -->
+                    <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                        <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'main-employee-info' %}">Employee Information</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Operations</a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                    <a class="nav-link font-weight-normal p-1" href="{% url 'operations-add-employee' %}">Add Employee</a>
+                                    <a class="nav-link font-weight-normal p-1" href="{% url 'operations-hold-list' %}">Hold List</a>
+                                    <a class="nav-link font-weight-normal p-1" href="{% url 'operations-bulk-assign-attendance' %}">Assign Attendance Points</a>
+                                    <a class="nav-link font-weight-normal p-1" href="{% url 'operations-attendance-reports' %}">Attendance Reports</a>
+                                    <a class="nav-link font-weight-normal p-1" href="{% url 'operations-counseling-reports' %}">Counseling Reports</a>
+                                    <a class="nav-link font-weight-normal p-1" href="{% url 'operations-make-time-off-request' %}">Time Off Request</a>
+                                    <a class="nav-link font-weight-normal p-1" href="{% url 'operations-time-off-reports' %}">Time Off Reports</a>
+                                    <a class="nav-link font-weight-normal p-1" href="{% url 'operations-termination-reports' %}">Termination Reports</a>
+                                </div>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="" aria-haspopup="true" aria-expanded="false">Safety</a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+
+                                </div>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="" aria-haspopup="true" aria-expanded="false">Maintenance</a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+
+                                </div>
+                            </li>
+                            <li class="nav-item dropdown nav-border">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="" aria-haspopup="true" aria-expanded="false">Dispatch</a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+
+                                </div>
+                            </li>
+                            {% if user.is_authenticated %}
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="profileDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fas fa-user fa-lg"></i>
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                        {% if user.is_superuser %}
+                                            <a class="nav-link font-weight-normal p-1" href="{% url 'admin:index' %}">Admin</a>
+                                            <a class="nav-link font-weight-normal p-1" href="{% url 'main-import-data' %}">Import Data</a>
+                                        {% endif %}
+                                        <a class="nav-link font-weight-normal p-1" href="{% url 'employee-account' request.user.employee_id %}">{{ request.user.username }}</a>
+                                        <a class="nav-link font-weight-normal p-1" href="{% url 'logout' %}">Logout</a>
+                                    </div>
+                                </li>
+                                <li class="nav-item dropdown dropleft">
+                                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="notificationDropdownMenuLink" aria-haspopup="true" aria-expanded="false">
+                                        {% live_notify_badge badge_class="badge badge-danger"%}
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-right p-0" aria-labelledby="notificationDropdownMenuLink" id="notification_list">
+
+                                    </div>
+                                </li>
+                            {% else %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'login' %}">Login</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+        {% if request.resolver_match.url_name == 'main-employee-info' or request.resolver_match.url_name == 'operations-attendance-reports' or request.resolver_match.url_name == 'operations-counseling-reports' or request.resolver_match.url_name == 'operations-time-off-reports' or request.resolver_match.url_name == 'operations-termination-reports' %}
+            <main role="main" class="fluid-container pt-3 mx-5 px-5" id="main">
+        {% elif request.resolver_match.url_name == 'employee-account' or request.resolver_match.url_name == 'operations-hold-list' %}
+            <main role="main" class="container-fluid pt-3" id="main">
+        {% else %}
+            <main role="main" class="container pt-3" id="main">
+        {% endif %}
+
+        {% if messages %}
+            <div class="row" id="message">
+                <div class="col">
+                    {% for message in messages%}
+                        <div class="custom-alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif%}
+        {% block content %}{% endblock %}
+        {% if page_obj %}
+            <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center mt-2">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% param_replace page=page_obj.previous_page_number %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                    </li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <a class="page-link" href="#">{{ page_obj.number }}<span class="sr-only">(current)</span></a>
+                        </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?{% param_replace page=num %}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% param_replace page=page_obj.next_page_number %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        </main>
+        <div class="loader" id="preloader">Loading...</div>
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.5/dist/latest/bootstrap-autocomplete.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.js"></script>
+    </body>
+</html>

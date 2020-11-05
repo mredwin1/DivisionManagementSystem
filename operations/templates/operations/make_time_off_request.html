@@ -1,0 +1,53 @@
+{% extends "main/base.html" %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block content%}
+    <script>
+        $(document).ready(function() {
+            $('.basicAutoComplete').autoComplete();
+            $('#date-picker input').datepicker({
+                "orientation": "bottom auto",
+                "multidate": true,
+                });
+        });
+    </script>
+    <script src="{% static 'JS/form_preloader.js' %}"></script>
+    <h1 class="mt-4">Time Off Request</h1>
+    <div class="row mt-3">
+        <div class="col">
+            <form method="POST" role="form" autocomplete="off" action="{% url 'operations-make-time-off-request' %}">
+                {% csrf_token %}
+                <div class="form-row">
+                    <div class="form-group col-4">
+                        {{ form.employee_name|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-4">
+                        {{ form.time_off_type|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-4">
+                        {{ form.status|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-4">
+                        {{ form.request_date|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-4" id="date-picker">
+                        {{ form.requested_dates|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-6">
+                        {{ form.reason|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-6">
+                        {{ form.comments|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary" type="submit" value="Submit">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

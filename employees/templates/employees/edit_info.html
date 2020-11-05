@@ -1,0 +1,63 @@
+{% extends "main/base.html" %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block content %}
+    <script src="{% static 'JS/form_preloader.js' %}"></script>
+    <h1 class="mt-5">Edit General Information</h1>
+    <div class="row mt-3">
+        <div class="col">
+            <form method="POST" role="form">
+                {% csrf_token %}
+                <div class="form-row justify-content-start">
+                    <div class="form-group col-4">
+                        {{ e_form.first_name|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-4">
+                        {{ e_form.last_name|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-4">
+                        {{ e_form.company|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="form-row justify-content-start">
+                    <div class="form-group col-4">
+                        {{ e_form.employee_id|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-4">
+                        {{ e_form.primary_phone|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-4">
+                        {{ e_form.secondary_phone|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="form-row justify-content-start">
+                    <div class="form-group col-4">
+                        {{ e_form.application_date|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-4">
+                        {{ e_form.hire_date|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-4">
+                        {{ e_form.classroom_date|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="form-row justify-content-start">
+                    <div class="form-group col-2">
+                        {{ e_form.is_part_time|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-2">
+                        {{ e_form.is_neighbor_link|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <a href="{% url 'employee-account' employee.employee_id %}" class="account-content mr-2">
+                        <div class="btn btn-secondary">
+                            Cancel
+                        </div>
+                    </a>
+                    <button class="btn btn-primary" type="submit" value="Submit">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

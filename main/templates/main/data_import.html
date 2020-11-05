@@ -1,0 +1,44 @@
+{% extends "main/base.html" %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block content%}
+    <script src="{% static 'js/form_preloader.js' %}"></script>
+    <div class="row">
+        <div class="col-4">
+            <h1 class="mt-4">Import Driver Data</h1>
+            <div class="row mt-2">
+                <div class="col justify-content-center">
+                    <form method="POST" enctype="multipart/form-data" action="{% url 'main-import-driver-data' %}" id="driverImportForm">
+                        {% csrf_token %}
+                        {{ d_form.driver_file_import|as_crispy_field }}
+                        <button class="btn btn-primary" type="submit" value="Submit" form="driverImportForm">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <h1 class="mt-4">Import Attendance Data</h1>
+            <div class="row mt-2">
+                <div class="col justify-content-center">
+                    <form method="POST" enctype="multipart/form-data" action="{% url 'main-import-attendance-data' %}" id="attendanceImportForm">
+                        {% csrf_token %}
+                        {{ a_form.attendance_file_import|as_crispy_field }}
+                        <button class="btn btn-primary" type="submit" value="Submit" form="attendanceImportForm">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <h1 class="mt-4">Import Safety Point Data</h1>
+            <div class="row mt-2">
+                <div class="col justify-content-center">
+                    <form method="POST" enctype="multipart/form-data" action="{% url 'main-import-safety-point-data' %}" id="safetyImportForm">
+                        {% csrf_token %}
+                        {{ s_form.safety_point_file_import|as_crispy_field }}
+                        <button class="btn btn-primary" type="submit" value="Submit" form="safetyImportForm">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

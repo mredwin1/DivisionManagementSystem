@@ -1,0 +1,96 @@
+{% extends "main/base.html" %}
+{% load employee_filters %}
+{% load crispy_forms_filters %}
+{% block content%}
+    <form method="GET" id="filter-form" autocomplete="off">
+       {% csrf_token %}
+        <div class="row mt-3 align-items-center justify-content-center">
+            <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                <h1 class="text-center mb-0">{{ page_obj.paginator.count }}</h1>
+                <h3 class="text-center mt-0">Employees</h3>
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2">
+                {{ f_form.sort_by|as_crispy_field }}
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2">
+                {{ f_form.company|as_crispy_field }}
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2">
+                {{ f_form.position|as_crispy_field }}
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2">
+                {{ f_form.search|as_crispy_field }}
+            </div>
+            <input type=submit hidden>
+       </div>
+    </form>
+    <div class="row justify-content-center">
+        <div class="col-2">
+            <a class="btn btn-primary btn-block" href="{% url 'main-export-phone-list' %}" title="Downloads Driver Phone List">Phone List</a>
+        </div>
+        <div class="col-2">
+            <a class="btn btn-primary btn-block" href="{% url 'main-export-seniority-list' %}" title="Downloads Driver Seniority List">Seniority List</a>
+        </div>
+        <div class="col-2">
+            <a class="btn btn-primary btn-block" href="{% url 'main-export-driver-list' %}" title="Downloads Driver Driver List">Driver List</a>
+        </div>
+        <div class="col-2">
+            <button class="btn btn-primary btn-block" formmethod="POST" formaction="{% url 'main-export-custom-list' %}" type="submit" form="filter-form" title="Downloads The List Below">Custom List</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="row mt-2 align-items-end justify-content-center">
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    <h3>EMPLOYEE NAME</h3>
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1">
+                    <h3>ID</h3>
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1">
+                    <h3 class="text-center">COMPANY</h3>
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1">
+                    <h3 class="text-center">HIRE DATE</h3>
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1">
+                    <h3 class="text-center">POSITION</h3>
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    <h3 class="text-center">PRIMARY PHONE</h3>
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    <h3 class="text-center">OTHER PHONE</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr class="my-0">
+    {% for employee in page_obj %}
+        <a class="employee-row" href="{% url 'employee-account' employee_id=employee.employee_id %}">
+            <div class="row py-2 justify-content-center employee-row" >
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    <h4 class="m-0">{{ employee|full_name }}</h4>
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1">
+                    <h4 class="m-0">{{ employee.employee_id }}</h4>
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1">
+                    <h4 class="m-0 text-center">{{ employee.company }}</h4>
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1">
+                    <h4 class="m-0 text-center">{{ employee.hire_date|pretty_date }}</h4>
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1">
+                    <h4 class="m-0 text-center">{{ employee.position|pretty_position }}</h4>
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    <h4 class="m-0 text-center">{{ employee.primary_phone|pretty_phone }}</h4>
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    <h4 class="m-0 text-center">{{ employee.secondary_phone|pretty_phone }}</h4>
+                </div>
+            </div>
+        </a>
+    {% endfor %}
+{% endblock %}

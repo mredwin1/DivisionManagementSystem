@@ -1,0 +1,54 @@
+{% extends "main/base.html" %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block content %}
+    <script src="{% static 'JS/form_preloader.js' %}"></script>
+    <h3 class="mt-5">Terminate</h3>
+    <div class="row px-5 pt-3 pb-0">
+        <div class="col">
+            <form method="POST" role="form" action="{% url 'employee-terminate' employee.employee_id %}" id="terminateForm">
+                {% csrf_token %}
+                <div class="form-row justify-content-start">
+                    <div class="form-group col">
+                        {{ t_form.termination_type|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col">
+                        {{ t_form.termination_comments|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <a href="{% url 'employee-account' employee.employee_id %}" class="account-content mr-2">
+                        <div class="btn btn-secondary">
+                            Cancel
+                        </div>
+                    </a>
+                    <button class="btn btn-primary" type="submit" value="Submit" form="terminateForm">Terminate</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <hr>
+    <h3>Settlement</h3>
+    <div class="row mt-3 px-5 pt-3 pb-2">
+        <div class="col">
+            <form method="POST" role="form" action="{% url 'employee-create-settlement' employee.employee_id %}" id="settlementForm">
+                {% csrf_token %}
+                <div class="form-row justify-content-start">
+                    <div class="form-group col">
+                        {{ s_form.details|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <a href="{% url 'employee-account' employee.employee_id %}" class="account-content mr-2">
+                        <div class="btn btn-secondary">
+                            Cancel
+                        </div>
+                    </a>
+                    <button class="btn btn-primary" type="submit" value="Submit" form="settlementForm">Create Settlement</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

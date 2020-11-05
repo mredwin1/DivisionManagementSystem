@@ -1,0 +1,77 @@
+{% extends "main/base.html" %}
+{% load employee_filters %}
+{% load crispy_forms_filters %}
+{% block content%}
+    <script>
+        $(document).ready(function(){
+            $('#id_date_range').daterangepicker({
+                ranges: {
+                    'Last Month': [moment().subtract(1, 'month'), moment()],
+                    'Last 6 Months': [moment().subtract(6, 'month'), moment()],
+                    'Last Year': [moment().subtract(1, 'year'), moment()]
+                },
+                "autoApply": true,
+                "startDate": "{{ start_date }}",
+                "endDate": "{{ end_date }}",
+                "opens": "left"
+                });
+            $('#id_date_range').on('apply.daterangepicker', function(ev, picker) {
+              $('#filter-form').submit();
+            });
+        });
+    </script>
+    <form method="GET" id="filter-form" autocomplete="off">
+       {% csrf_token %}
+        <div class="row mt-3 align-items-center justify-content-center">
+            <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                <h1 class="text-center mb-0">{{ page_obj.paginator.count }}</h1>
+                <h3 class="text-center mt-0">Employees</h3>
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2">
+                {{ f_form.company_name|as_crispy_field }}
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2">
+                {{ f_form.date_range|as_crispy_field }}
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2">
+                {{ f_form.search|as_crispy_field }}
+            </div>
+            <input type=submit hidden>
+       </div>
+    </form>
+    <div class="row">
+        <div class="col">
+            <div class="row mt-2 align-items-end justify-content-center">
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    <h3>EMPLOYEE NAME</h3>
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1">
+                    <h3 class="text-center">COMPANY</h3>
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    <h3 class="text-center">TERMINATION DATE</h3>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-4">
+                    <h3 class="text-center">TERMINATION COMMENTS</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr class="my-0">
+    {% for employee in page_obj %}
+        <div class="row py-2 justify-content-center employee-row" >
+            <div class="col-lg-3 col-md-3 col-sm-3">
+                <h4 class="m-0">{{ employee.get_full_name }}</h4>
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-1">
+                <h4 class="m-0 text-center">{{ employee.company }}</h4>
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2">
+                <h4 class="m-0 text-center">{{ employee.termination_date|pretty_date }}</h4>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-4">
+                <h4 class="m-0 text-center">{{ employee.termination_comments }}</h4>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}

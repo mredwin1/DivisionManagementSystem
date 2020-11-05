@@ -1,0 +1,28 @@
+{% extends "main/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <script src="{% static 'JS/form_preloader.js' %}"></script>
+    <h1 class="mt-5">Settlement Details</h1>
+    <div class="row mt-3">
+        <div class="col">
+            <form method="POST" role="form" id="settlementForm" enctype="multipart/form-data" onsubmit="return confirm('If no file is uploaded a new document will be created, are you sure you would like to continue?');">
+                {% csrf_token %}
+                {% crispy s_form %}
+                <div class="form-row">
+                    <a href="{% url 'employee-account' employee.employee_id %}" class="account-content mr-2">
+                        <div class="btn btn-secondary">
+                            Cancel
+                        </div>
+                    </a>
+                    <a href="{% url 'employee-delete-settlement' s_form.instance.id %}" class="account-content mr-2">
+                        <div class="btn btn-secondary">
+                            Delete
+                        </div>
+                    </a>
+                    <button class="btn btn-primary" type="submit" value="Submit" form="settlementForm">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

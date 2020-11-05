@@ -1,0 +1,43 @@
+{% extends "main/base.html" %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block content %}
+    <script src="{% static 'JS/form_preloader.js' %}"></script>
+    <h1 class="mt-5">Edit Attendance Point</h1>
+    <div class="row mt-3">
+        <div class="col">
+            <form method="POST" role="form" enctype="multipart/form-data" onsubmit="return confirm('If you have not uploaded a PDF a new document will be created with the new information! (Including Counseling if Applicable)');">
+                {% csrf_token %}
+                <div class="form-row justify-content-start">
+                    <div class="form-group col-4">
+                        {{ a_form.incident_date|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-4">
+                        {{ a_form.issued_date|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="form-row justify-content-start">
+                    <div class="form-group col-4">
+                        {{ a_form.reason|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-4">
+                        {{ a_form.exemption|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="form-row justify-content-start">
+                    <div class="form-group col-4">
+                        {{ a_form.document|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <a href="{% url 'employee-account' employee.employee_id %}" class="account-content mr-2">
+                        <div class="btn btn-secondary">
+                            Cancel
+                        </div>
+                    </a>
+                    <button class="btn btn-primary" type="submit" value="Submit">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

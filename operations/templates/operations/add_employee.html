@@ -1,0 +1,64 @@
+{% extends "main/base.html" %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block content%}
+    <script src="{% static 'JS/form_preloader.js' %}"></script>
+    <h1 class="mt-4">Add Employee</h1>
+    <div class="row mt-2">
+        <div class="col">
+            <form method="POST" role="form" autocomplete="off">
+                {% csrf_token %}
+                <div class="form-row">
+                    <div class="form-group col-lg-3 col-md-3 col-sm-3">
+                        {{ form.first_name|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-lg-3 col-md-3 col-sm-3">
+                        {{ form.last_name|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-lg-3 col-md-3 col-sm-3">
+                        {{ form.position|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-lg-3 col-md-3 col-sm-3">
+                        {{ form.company|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-lg-3 col-md-3 col-sm-3">
+                        {{ form.last4_ss|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-lg-3 col-md-3 col-sm-3">
+                        {{ form.employee_id|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-lg-3 col-md-3 col-sm-3">
+                        {{ form.primary_phone|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-lg-3 col-md-3 col-sm-3">
+                        {{ form.secondary_phone|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-lg-4 col-md-4 col-sm-4">
+                        {{ form.application_date|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-lg-4 col-md-4 col-sm-4">
+                        {{ form.hire_date|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-lg-4 col-md-4 col-sm-4">
+                        {{ form.classroom_date|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-lg-2 col-md-2 col-sm-2">
+                        {{ form.is_part_time|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-lg-2 col-md-2 col-sm-2">
+                        {{ form.is_neighbor_link|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary" type="submit" value="Submit">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends "main/base.html" %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block content%}
+    <script>
+        $(document).ready(function() {
+            $('.basicAutoComplete').autoComplete();
+
+        });
+        function addRow(event) {
+            let attendanceForm = $('#attendanceForm')
+            let id = parseInt(attendanceForm.attr('data-counter'))
+
+            let orig_employee_name = $('#id_employee_name' + id.toString()).val()
+            let orig_incident_date = $('#id_incident_date' + id.toString()).val()
+            let orig_reason = $('#id_reason' + id.toString()).val()
+
+            let current_id = event['id'][event['id'].length - 1]
+
+            let current_employee_name = $('#id_employee_name' + current_id)
+            let current_incident_date = $('#id_incident_date' + current_id)
+            let current_reason = $('#id_reason' + current_id)
+
+            if (current_employee_name.val() !== '' || current_incident_date.val() !== '' || current_reason.val() !== '') {
+                current_employee_name.prop('required', true)
+                current_incident_date.prop('required', true)
+                current_reason.prop('required', true)
+            }else {
+                current_employee_name.prop('required', false)
+                current_incident_date.prop('required', false)
+                current_reason.prop('required', false)
+            }
+
+            id += 1
+
+            let next_row = $('#attendanceFormRow' + id.toString()).length
+
+            if (orig_employee_name !== '' && orig_incident_date !== '' && orig_reason !== '' && next_row === 0) {
+                let clone = $('#attendanceFormRow1').clone()
+                let new_row_id = 'attendanceFormRow' + (id).toString()
+
+                clone.attr({'id': new_row_id})
+
+                clone.insertBefore('#formButtons')
+
+                let employee_name = $('#' + new_row_id + ' #id_employee_name1')
+                let incident_date_div = $('#' + new_row_id + ' #div_id_incident_date1')
+                let incident_date = $('#' + new_row_id + ' #id_incident_date1')
+                let reason_div = $('#' + new_row_id + ' #div_id_reason1')
+                let reason = $('#' + new_row_id + ' #id_reason1')
+                let exemption_div = $('#' + new_row_id + ' #div_id_exemption1')
+                let exemption = $('#' + new_row_id + ' #id_exemption1')
+
+                employee_name.val('')
+                incident_date.val('')
+                reason.val('')
+                exemption.val('')
+
+                employee_name.prop('required', false)
+                incident_date.prop('required', false)
+                reason.prop('required', false)
+
+                employee_name.attr('id', 'id_employee_name' + id.toString())
+                employee_name.attr('name', 'employee_name' + id.toString())
+                incident_date_div.attr('id', 'div_id_incident_date' + id.toString())
+                incident_date.attr('name', 'incident_date' + id.toString())
+                incident_date.attr('id', 'id_incident_date' + id.toString())
+                reason_div.attr('id', 'div_id_reason' + id.toString())
+                reason.attr('id', 'id_reason' + id.toString())
+                reason.attr('name', 'reason' + id.toString())
+                exemption_div.attr('id', 'div_id_exemption' + id.toString())
+                exemption.attr('id', 'id_exemption' + id.toString())
+                exemption.attr('name', 'exemption' + id.toString())
+
+                attendanceForm.attr({'data-counter': id})
+                $('.basicAutoComplete').autoComplete();
+            }
+        }
+    </script>
+    <script src="{% static 'JS/form_preloader.js' %}"></script>
+    <h1 class="mt-4">Assign Attendance Points</h1>
+    <div class="row justify-content-center mt-5">
+        <div class="col-lg-3 col-md-3 col-sm-3">
+            <h3>EMPLOYEE NAME</h3>
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3">
+            <h3>INCIDENT DATE</h3>
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3">
+            <h3>REASON</h3>
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3">
+            <h3>EXEMPTION</h3>
+        </div>
+    </div>
+    <hr class="my-0">
+    <div class="row mt-2">
+        <div class="col">
+            <form method="POST" role="form" id="attendanceForm" data-counter="1">
+                {% csrf_token %}
+                {% for field_set in form.get_all_fields %}
+                    <div class="form-row justify-content-center" id="attendanceFormRow{{ forloop.counter }}">
+                        <div class="form-group col-lg-3 col-md-3 col-sm-3 mb-0">
+                            {{ field_set.0|as_crispy_field }}
+                        </div>
+                        <div class="form-group col-lg-3 col-md-3 col-sm-3 mb-0">
+                            {{ field_set.1|as_crispy_field }}
+                        </div>
+                        <div class="form-group col-lg-3 col-md-3 col-sm-3 mb-0">
+                            {{ field_set.2|as_crispy_field }}
+                        </div>
+                        <div class="form-group col-lg-3 col-md-3 col-sm-3 mb-0">
+                            {{ field_set.3|as_crispy_field }}
+                        </div>
+                    </div>
+                {% endfor %}
+                <div class="form-group" id="formButtons">
+                    <button class="btn btn-primary" type="submit" value="Submit">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

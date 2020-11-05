@@ -1,0 +1,483 @@
+{% extends "main/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load employee_filters %}
+{% block content %}
+    <div class="row py-2">
+        <div class="col-3">
+            <div class="row px-3">
+                <div class="col shadow bg-white round">
+                    <div class="row justify-content-center">
+                        <div class="col-11">
+                            <a class="{% if not perms.employees.can_edit_employee_info %}cursor-default{% else %}{% endif %}" href="{% if perms.employees.can_edit_employee_info %}{% url 'employee-upload-profile-picture' employee.employee_id %}{% else %}#{% endif %}">
+                                {% if perms.employees.can_edit_employee_info %}
+                                    <div class="h-100 w-100 img-edit-container rounded-circle p-3">
+                                        <i class="fas fa-pen fa-lg img-edit"></i>
+                                    </div>
+                                {% endif %}
+                                <img src="{% if employee.profile_picture %}{{ employee.profile_picture.url }}{% else %}{% static 'main/blank-profile-picture.png' %}{% endif %}" alt="" class="rounded-circle p-3 img-profile" width="100%">
+                                {% if employee.hold %}
+                                    <img src="{% static 'main/on-hold-stamp.png' %}" alt="" class="rounded-circle stamp p-3" width="100%">
+                                {% endif %}
+                            </a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="px-4 py-1">
+                                <div class="d-flex justify-content-between">
+                                    <h3 class="text-left">{{ employee.get_full_name }}</h3>
+                                    {% if perms.employees.can_edit_employee_info %}
+                                        <a href="{% url 'employee-edit-info' employee_id=employee.employee_id %}">
+                                    {% else %}
+                                        <a href="{% url 'employee-edit-phonenumbers' employee_id=employee.employee_id %}">
+                                    {% endif %}
+                                        <i class="fas fa-user-edit fa-lg icon-link" title="Edit Information"></i>
+                                    </a>
+                                </div>
+                                <div class="px-3">
+                                    <h5 class="pt-2" title="Employee ID"><i class="fas fa-id-card pr-3"></i>{{ employee.employee_id }}</h5>
+                                    <h5 class="pt-2" title="Primary Phone"><i class="fas fa-phone pr-3"></i>{{ employee.primary_phone|pretty_phone }}</h5>
+                                    <h5 class="pt-2" title="Other Phone"><i class="fas fa-phone pr-3"></i>{{ employee.secondary_phone|pretty_phone }}</h5>
+                                    <h5 class="pt-2" title="Email"><i class="fas fa-envelope-open-text pr-3"></i>{{ employee.email }}</h5>
+                                    <h5 class="pt-2" title="Hire Date"><i class="far fa-calendar-alt pr-3"></i>{{ employee.hire_date|pretty_date }}</h5>
+                                    <h5 class="pt-2" title="Company Name"><i class="far fa-building pr-3"></i>{{ employee.company }}</h5>
+                                    <h5 class="pt-2" title="Position"><i class="fas fa-user-tag pr-3"></i>{{ employee.position|pretty_position }}</h5>
+                                    {% if employee.position == 'driver' %}
+                                        <h5 class="pt-2">Paid Sick: {{ employee.paid_sick }}</h5>
+                                        <h5 class="pt-2">Unpaid Sick: {{ employee.unpaid_sick }}</h5>
+                                        <h5 class="pt-2">Floating Holiday: {{ employee.floating_holiday }}</h5>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% if user.position != "driver" %}
+                        <div class="row">
+                            <div class="col px-3 border-top border-dark">
+                                <div class="d-flex justify-content-between p-3">
+                                    {% if employee.hold %}
+                                        <a class="cursor-default" href="{% if perms.employees.can_place_hold %}{% if not employee.is_pending_term %}{% url 'employee-remove-hold' employee_id=employee.employee_id hold_id=employee.hold.id %}{% else %}#{% endif %}{% endif %}">
+                                            <i class="far fa-play-circle fa-lg{% if perms.employees.can_place_hold %}{% if not employee.is_pending_term %} cursor-pointer{% endif %}{% endif %} icon-link" title="Remove Hold"></i>
+                                        </a>
+                                    {% else %}
+                                        <a href="{% if perms.employees.can_place_hold %}{% url 'employee-place-hold' employee_id=employee.employee_id %}{% else %}#{% endif %}">
+                                            <i class="far fa-pause-circle fa-lg{% if perms.employees.can_place_hold %} cursor-pointer{% endif %} icon-link" title="Place Hold"></i>
+                                        </a>
+                                    {% endif %}
+                                    <a class="cursor-default" href="{% if perms.employees.can_export_profile %}{% else %}#{% endif %}">
+                                        <i class="fas fa-file-export fa-lg{% if perms.employees.can_export_profile %} cursor-pointer{% endif %} icon-link" title="Export Profile"></i>
+                                    </a>
+                                    <i class="far fa-file-alt fa-lg{% if perms.employees.can_view_settlement and settlements %} cursor-pointer{% endif %} icon-link" title="View Settlements"{% if perms.employees.can_view_settlement and settlements %} data-toggle="modal" data-target="#secondaryModal"{% endif %}></i>
+                                    <a class="cursor-default" href="{% if perms.employees.can_terminate %}{% if employee.is_pending_term %}{% url 'employee-terminate-settlement' employee_id=employee.employee_id %}{% else %}#{% endif %}{% endif %}">
+                                        <i class="fas fa-walking fa-lg{% if perms.employees.can_terminate %}{% if employee.is_pending_term %} cursor-pointer{% endif %}{% endif %} icon-link" title="Terminate"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-9">
+            <div class="row h-50">
+                <div class="col-6 pb-3 px-3 h-100">
+                    <div class="shadow bg-white round p-3 h-100">
+                        <div class="d-flex justify-content-between">
+                            <h3 class="text-left">Attendance History</h3>
+                            <a class="cursor-default" href="{% if perms.employees.can_assign_attendance %}{% url 'employee-assign-attendance' employee_id=employee.employee_id %}{% else %}#{% endif %}">
+                                <i class="fas fa-plus fa-sm icon-link{% if perms.employees.can_assign_attendance %} cursor-pointer{% endif %}"  title="Assign Attendance Point"></i>
+                            </a>
+                        </div>
+                        <div class="card scroll1 my-3">
+                            <ul class="list-group list-group-flush h-100">
+                                {% for record in attendance %}
+                                    <li class="list-group-item cursor-pointer" data-toggle="modal" data-target="#mainModal" data-title="Attendance Point" data-document-href="{% url 'employee-attendance-download' employee_id=employee.employee_id attendance_id=record.id %}" data-secondary-href="{% url 'employee-remove-attendance' employee_id=employee.employee_id attendance_id=record.id %}" data-primary-href="{% url 'employee-edit-attendance' employee_id=employee.employee_id attendance_id=record.id %}" data-row1col1="Incident Date" data-row1col2="Issued Date" data-row2col1="{{ record.incident_date|pretty_date }}" data-row2col2="{{ record.issued_date|pretty_date }}" data-row3col1="Document" data-row3col2="Assigned By" data-row4col1="Attendace PDF File" data-row4col2="{{ record.assigned_by }}" data-row5col1="Reason" data-row5col2="Points" data-row6col1="{{ record.reason|attendance_reason_return }}" data-row6col2="{{ record.points|points_return }}" data-row6col3="" data-row7col1="Exemption" data-row7col2="Counseling" data-row8col1="{{ record.exemption|exemption_return }}" data-row8col2="{{ record.counseling.action_type|action_type_return }}" data-row8col3="" data-row9col1="{% if record.edited_date %}Edited Date{% endif %}" data-row9col2="{% if record.edited_by %}Edited By{% endif %}" data-row10col1="{% if record.edited_date %}{{ record.edited_date|pretty_date }}{% endif %}" data-row10col2="{% if record.edited_by %}{{ record.edited_by }}{% endif %}" data-row10col3="">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <small><b>Incident Date:</b> {{ record.incident_date|pretty_date }}</small>
+                                            </div>
+                                            <div class="col-6">
+                                                <small><b>Reason:</b> {{ record.reason|attendance_reason_return }}</small>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <small><b>Points:</b> {{ record.points|points_return }}</small>
+                                            </div>
+                                            <div class="col-6">
+                                                <small><b>Assigned By:</b> {{ record.assigned_by }}</small>
+                                            </div>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a class="cursor-default" href="{% if perms.employees.can_export_attendance_history %}{% url 'employee-export-attendance-history' employee.employee_id %}{% else %}#{% endif %}">
+                                <i class="fas fa-file-export fa-lg icon-link pt-2 pl-2{% if perms.employees.can_export_attendance_history %} cursor-pointer{% endif %}"></i>
+                            </a>
+                            <h3 class="text-right">Total Points: {{ attendance|total_points|points_return }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 pb-3 px-3 h-100">
+                    <div class="shadow bg-white round p-3 h-100">
+                        <div class="d-flex justify-content-between">
+                            <h3 class="text-left">Safety History</h3>
+                            <a class="cursor-default" href="{% if perms.employees.can_assign_safety_point %}{% url 'employee-assign-safety-point' employee.employee_id %}{% else %}#{% endif %}">
+                                <i class="fas fa-plus fa-sm icon-link{% if perms.employees.can_assign_safety_point %} cursor-pointer{% endif %}" title="Assign Safety Point"></i>
+                            </a>
+                        </div>
+                        <div class="card scroll1 my-3">
+                            <ul class="list-group list-group-flush h-100">
+                                {% for record in safety_point %}
+                                    <li class="list-group-item cursor-pointer" data-toggle="modal" data-target="#mainModal" data-title="Safety Point" data-document-href="{% url 'employee-safety-point-download' employee_id=employee.employee_id safety_point_id=record.id %}" data-secondary-href="{% url 'employee-remove-safety-point' employee_id=employee.employee_id safety_point_id=record.id %}" data-primary-href="{% url 'employee-edit-safety-point' employee_id=employee.employee_id safety_point_id=record.id %}" data-row1col1="Incident Date" data-row1col2="Issued Date" data-row2col1="{{ record.incident_date|pretty_date }}" data-row2col2="{{ record.issued_date|pretty_date }}" data-row3col1="Document" data-row3col2="Points" data-row4col1="Safety Point PDF File" data-row4col2="{{ record.points }}" data-row5col1="Reason" data-row5col2="Assigned By" data-row6col1="{{ record.reason|safety_point_reason_return }}" data-row6col2="{{ record.assigned_by }}" data-row6col3="" data-row7col1="" data-row7col2="" data-row8col1="" data-row8col2="" data-row8col3="" data-row9col1="" data-row9col2="" data-row10col1="" data-row10col2="" data-row10col3="">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <small><b>Incident Date:</b> {{ record.incident_date|pretty_date }}</small>
+                                            </div>
+                                            <div class="col-6">
+                                                <small><b>Reason:</b> {{ record.reason|safety_point_reason_return }}</small>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <small><b>Points:</b> {{ record.points|points_return }}</small>
+                                            </div>
+                                            <div class="col-6">
+                                                <small><b>Assigned By:</b> {{ record.assigned_by }}</small>
+                                            </div>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a class="cursor-default" href="{% if perms.employees.can_export_safety_history %}{% else %}#{% endif %}">
+                                <i class="fas fa-file-export fa-lg icon-link pt-2 pl-2{% if perms.employees.can_export_safety_history %} cursor-pointer{% endif %}"></i>
+                            </a>
+                            <h3 class="text-right">Total Points: {{ safety_point|total_points }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row h-50">
+                <div class="col-6 pt-3 px-3 h-100">
+                    <div class="shadow bg-white round p-3 h-100">
+                        <div class="d-flex justify-content-between">
+                            <h3 class="text-left">Counseling History</h3>
+                            <a class="cursor-default" href="{% if perms.employees.can_assign_counseling %}{% url 'employee-assign-counseling' employee_id=employee.employee_id %}{% else %}#{% endif %}">
+                                <i class="fas fa-plus fa-sm icon-link{% if perms.employees.can_assign_counseling %} cursor-pointer{% endif %}"  title="Counsel Driver"></i>
+                            </a>
+                        </div>
+                        <div class="card scroll1 my-3">
+                            <ul class="list-group list-group-flush h-100">
+                                {% for record in counseling %}
+                                    <li class="list-group-item cursor-pointer" data-toggle="modal" data-target="#mainModal" data-title="Counseling" data-document-href="{% url 'employee-counseling-download' employee_id=employee.employee_id counseling_id=record.id %}" data-secondary-href="{% url 'employee-remove-counseling' employee_id=employee.employee_id counseling_id=record.id %}" data-primary-href="{% url 'employee-edit-counseling' employee_id=employee.employee_id counseling_id=record.id %}" data-row1col1="Assigned By" data-row1col2="Issued Date" data-row2col1="{{ record.assigned_by }}" data-row2col2="{{ record.issued_date|pretty_date }}" data-row3col1="Document" data-row3col2="Hearing Date" data-row4col1="Counseling PDF File" data-row4col2="{{ record.hearing_datetime|pretty_datetime }}" data-row5col1="Type of Action" data-row5col2="" data-row6col1="" data-row6col2="" data-row6col3="{{ record.action_type|action_type_return }}" data-row7col1="Employee Conduct" data-row7col2="" data-row8col1="" data-row8col2="" data-row8col3="{{ record.conduct }}" data-row9col1="Conversation" data-row9col2="" data-row10col1="" data-row10col2="" data-row10col3="{{ record.conversation }}">
+                                        <div class="row">
+                                            <div class="col-5">
+                                                <small><b>Issued Date:</b> {{ record.issued_date|pretty_date }}</small>
+                                            </div>
+                                            <div class="col-7">
+                                                <small><b>Action Type:</b> {{ record.action_type|action_type_return }}</small>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-5">
+                                                <small><b>Hearing:</b> {{ record.hearing_datetime|pretty_datetime }}</small>
+                                            </div>
+                                            <div class="col-7">
+                                                <small><b>Assigned By:</b> {{ record.assigned_by }}</small>
+                                            </div>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="d-flex justify-content-start">
+                            <a class="cursor-default" href="{% if perms.employees.can_export_counseling_history %}{% url 'employee-export-counseling-history' employee.employee_id %}{% else %}#{% endif %}">
+                                <i class="fas fa-file-export fa-lg icon-link pt-2 pl-2{% if perms.employees.can_export_counseling_history %} cursor-pointer{% endif %}"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 pt-3 px-3 h-100">
+                    <div class="shadow bg-white round p-3 h-100">
+                        <div class="d-flex justify-content-between">
+                            <h3 class="text-left">Time Off Request</h3>
+                            <a class="cursor-default" href="{% if request.user.id == employee.id or perms.employees.can_add_time_off_request %}{% url 'employee-time-off-request' employee.employee_id %}{% else %}#{% endif %}">
+                                <i class="fas fa-plus fa-sm icon-link{% if request.user.id == employee.id or perm.employees.can_add_time_off_request %} cursor-pointer{% endif %}" title="Add Time Off Request"></i>
+                            </a>
+                        </div>
+                        <div class="h-90 mt-3 pb-3">
+                            <div class="card scroll2">
+                                <ul class="list-group list-group-flush h-100">
+                                    {% for record in time_off %}
+                                        <li class="list-group-item cursor-pointer"  data-toggle="modal" data-target="#mainModal" data-title="Time Off Request" data-document-href="" data-secondary-href="{% url 'operations-remove-time-off' record.id %}" data-primary-href="" data-row1col1="Requested Date" data-row1col2="Status" data-row2col1="{{ record.request_date|pretty_date }}" data-row2col2="{{ record.status|status_return }}" data-row3col1="" data-row3col2="" data-row3col3="Type" data-row4col1="" data-row4col2="" data-row4col3="{{ record.time_off_type|time_off_return }}" data-row5col1="Requested Dates" data-row5col2="" data-row6col1="" data-row6col2="" data-row6col3="{{ record|pretty_requested_dates }}" data-row7col1="{% if record.reason %}Reason{% endif %}" data-row7col2="" data-row8col1="" data-row8col2="" data-row8col3="{{ record.reason }}" data-row9col1="{% if record.comments %}Comments{% endif %}" data-row9col2="" data-row10col1="" data-row10col2="" data-row10col3="{{ record.comments }}">
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <small><b>Date Requested:</b> {{ record.request_date|pretty_date }}</small>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small><b>Type:</b> {{ record.time_off_type|time_off_return }}</small>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <small><b>Number of Days Requested:</b> {{ record|requested_dates_return|length }}</small>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small><b>Status:</b> {{ record.status|status_return }}</small>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            setTimeout(fade_out, 3000);
+
+            function fade_out() {
+              $("#message").fadeOut().empty();
+            }
+        });
+        {% if download == 'Attendance' and attendance.first.downloaded == False %}
+            window.onload = async function(e){
+                let protocol = window.location.protocol
+                let url = ''
+                let full_url = ''
+                {% for url in attendance.first|attendance_download:request.get_host %}
+                    {% if url %}
+                        url = '{{ url }}'
+                        full_url = protocol + '//' + url
+                        window.location.href = full_url
+                        await new Promise(r => setTimeout(r, 2000));
+                    {% endif %}
+                {% endfor %}
+            return false;
+        }
+        {% endif %}
+        {% if download == 'Counseling' and counseling.first.downloaded == False %}
+            window.onload = function(e){
+                let protocol = window.location.protocol
+                let url = '{{ counseling.first|counseling_download:request.get_host }}'
+                window.location.href = protocol + '//' + url
+            return false;
+        }
+        {% endif %}
+        {% if download == 'Safety Point' and safety_point.first.downloaded == False %}
+            window.onload = function(e){
+                let protocol = window.location.protocol
+                let url = '{{ safety_point.first|safety_point_download:request.get_host }}'
+                window.location.href = protocol + '//' + url
+            return false;
+        }
+        {% endif %}
+        $(document).ready(function(){
+
+            $("#mainModal").on('show.bs.modal', function(event){
+                let button = $(event.relatedTarget) // Button that triggered the modal
+                let title = button.data('title')
+
+                let row1col1 = button.data('row1col1')
+                let row1col2 = button.data('row1col2')
+                let row2col1 = button.data('row2col1')
+                let row2col2 = button.data('row2col2')
+                let row3col1 = button.data('row3col1')
+                let row3col2 = button.data('row3col2')
+                let row4col1 = button.data('row4col1')
+                let row4col2 = button.data('row4col2')
+                let row5col1 = button.data('row5col1')
+                let row5col2 = button.data('row5col2')
+                let row6col1 = button.data('row6col1')
+                let row6col2 = button.data('row6col2')
+                let row7col1 = button.data('row7col1')
+                let row7col2 = button.data('row7col2')
+                let row8col1 = button.data('row8col1')
+                let row8col2 = button.data('row8col2')
+                let row9col1 = button.data('row9col1')
+                let row9col2 = button.data('row9col2')
+                let row10col1 = button.data('row10col1')
+                let row10col2 = button.data('row10col2')
+
+                let row3col3 = button.data('row3col3')
+                let row4col3 = button.data('row4col3')
+                let row6col3 = button.data('row6col3')
+                let row8col3 = button.data('row8col3')
+                let row10col3 = button.data('row10col3')
+
+                let primary_button_href = button.data('primary-href')
+                let secondary_button_href = button.data('secondary-href')
+                let document_href = button.data('document-href')
+
+                document.getElementById("primaryButton").innerText = "Edit"
+                document.getElementById("primaryButtonAnchor").href = primary_button_href
+                document.getElementById("secondaryButton").innerText = "Delete"
+                document.getElementById("secondaryButtonForm").action = secondary_button_href
+                document.getElementById("row4col1").href = document_href
+
+                if (primary_button_href === "") {
+                    document.getElementById("primaryButtonAnchor").style.display = "none"
+                }else {
+                    document.getElementById("primaryButtonAnchor").style.display = "block"
+                }
+
+                modal = $(this)
+
+                modal.find('.modal-title').text(title)
+                modal.find('#row1col1').text(row1col1)
+                modal.find('#row1col2').text(row1col2)
+                modal.find('#row2col1').text(row2col1)
+                modal.find('#row2col2').text(row2col2)
+                modal.find('#row3col1').text(row3col1)
+                modal.find('#row3col2').text(row3col2)
+                modal.find('#row4col1').text(row4col1)
+                modal.find('#row4col2').text(row4col2)
+                modal.find('#row5col1').text(row5col1)
+                modal.find('#row5col2').text(row5col2)
+                modal.find('#row6col1').text(row6col1)
+                modal.find('#row6col2').text(row6col2)
+                modal.find('#row7col1').text(row7col1)
+                modal.find('#row7col2').text(row7col2)
+                modal.find('#row8col1').text(row8col1)
+                modal.find('#row8col2').text(row8col2)
+                modal.find('#row9col1').text(row9col1)
+                modal.find('#row9col2').text(row9col2)
+                modal.find('#row10col1').text(row10col1)
+                modal.find('#row10col2').text(row10col2)
+
+                modal.find('#row3col3').text(row3col3)
+                modal.find('#row4col3').text(row4col3)
+                modal.find('#row8col3').text(row8col3)
+                modal.find('#row10col3').text(row10col3)
+                modal.find('#row6col3').text(row6col3)
+
+            });
+        });
+    </script>
+{% endblock content %}
+{% block modal-body %}
+    <div class="container-fluid">
+        <div class="row justify-content-center" id="row1">
+            <div class="col-6 modal-body-header" id="row1col1">
+            </div>
+            <div class="col-6 modal-body-header" id="row1col2">
+            </div>
+        </div>
+        <div class="row justify-content-center" id="row2">
+            <div class="col-6 modal-body-content" id="row2col1">
+            </div>
+            <div class="col-6 modal-body-content" id="row2col2">
+            </div>
+        </div>
+        <div class="row justify-content-center mt-3" id="row3">
+            <div class="col-6 modal-body-header" id="row3col1">
+            </div>
+            <div class="col-6 modal-body-header" id="row3col2">
+            </div>
+            <div class="col-12 modal-body-header" id="row3col3">
+            </div>
+        </div>
+        <div class="row justify-content-center" id="row4">
+            <div class="col-6 modal-body-content"><a class="account-content" href="" id="row4col1"></a></div>
+            <div class="col-6 modal-body-content"  id="row4col2">
+            </div>
+            <div class="col-12 modal-body-content" id="row4col3">
+            </div>
+        </div>
+        <div class="row justify-content-center mt-3" id="row5">
+            <div class="col-6 modal-body-header" id="row5col1">
+            </div>
+            <div class="col-6 modal-body-header" id="row5col2">
+            </div>
+        </div>
+        <div class="row justify-content-center" id="row6">
+            <div class="col-6 modal-body-content" id="row6col1">
+            </div>
+            <div class="col-6 modal-body-content" id="row6col2">
+            </div>
+            <div class="col-12 modal-body-content" id="row6col3">
+
+            </div>
+        </div>
+        <div class="row justify-content-center mt-3" id="row7">
+            <div class="col-6 modal-body-header" id="row7col1">
+            </div>
+            <div class="col-6 modal-body-header" id="row7col2">
+            </div>
+        </div>
+        <div class="row justify-content-center" id="row8">
+            <div class="col-6 modal-body-content" id="row8col1">
+            </div>
+            <div class="col-6 modal-body-content" id="row8col2">
+            </div>
+            <div class="col-12 modal-body-content" id="row8col3">
+
+            </div>
+        </div>
+        <div class="row justify-content-center mt-3" id="row9">
+            <div class="col-6 modal-body-header" id="row9col1">
+            </div>
+            <div class="col-6 modal-body-header" id="row9col2">
+            </div>
+        </div>
+        <div class="row justify-content-center" id="row10">
+            <div class="col-6 modal-body-content" id="row10col1">
+            </div>
+            <div class="col-6 modal-body-content" id="row10col2">
+            </div>
+            <div class="col-12 modal-body-content" id="row10col3">
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block modal-footer %}
+    <button type="button" class="form-control btn btn-secondary ml-auto" data-dismiss="modal">Close</button>
+    <form action="" id="secondaryButtonForm" onsubmit="return confirm('Are you sure you would like to delete this record?');">
+        <button type="submit" class="btn btn-primary" id="secondaryButton"></button>
+    </form>
+    <a href="#" class="account-content mr-2" id="primaryButtonAnchor">
+        <div class="btn btn-primary" id="primaryButton"></div>
+    </a>
+{% endblock modal-footer %}
+{% block secondary-modal %}
+    <div class="modal fade" id="secondaryModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title font-weight-bold">Settlements</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="card">
+                            <ul class="list-group list-group-flush h-100">
+                                {% for record in settlements %}
+                                    <li class="list-group-item cursor-pointer">
+                                        <a href="{% url 'employee-view-settlement' record.id %}" class="settlement-display">
+                                            <div class="d-flex justify-content-between">
+                                                <small><b>Created Date:</b> {{ record.created_date|pretty_date }}</small>
+                                                <small><b>Created By:</b> {{ record.assigned_by }}</small>
+                                            </div>
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="form-control btn btn-secondary ml-auto" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}

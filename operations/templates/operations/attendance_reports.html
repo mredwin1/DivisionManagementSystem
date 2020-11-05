@@ -1,0 +1,124 @@
+{% extends "main/base.html" %}
+{% load employee_filters %}
+{% load crispy_forms_filters %}
+{% block content%}
+    <script>
+        $(document).ready(function(){
+            $('#id_date_range').daterangepicker({
+                ranges: {
+                    'Last 180 Days': [moment().subtract(6, 'month'), moment()],
+                    'Last Year': [moment().subtract(1, 'year'), moment()]
+                },
+                "alwaysShowCalendars": true,
+                "autoApply": true,
+                "startDate": "{{ start_date }}",
+                "endDate": "{{ end_date }}",
+                "opens": "left"
+                });
+            $('#id_date_range').on('apply.daterangepicker', function(ev, picker) {
+              $('#filter-form').submit();
+            });
+        });
+    </script>
+    <form method="GET" id="filter-form">
+       <div class="row mt-3 align-items-center justify-content-center">
+            <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                <h1 class="text-center mb-0">{{ page_obj.paginator.count }}</h1>
+                <h3 class="text-center mt-0">Records</h3>
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2">
+                {{ f_form.sort_by|as_crispy_field }}
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2">
+                {{ f_form.reasons|as_crispy_field }}
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2">
+                {{ f_form.company|as_crispy_field }}
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2">
+                {{ f_form.date_range }}
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2">
+                {{ f_form.search|as_crispy_field }}
+            </div>
+            <input type=submit hidden>
+       </div>
+    </form>
+    <div class="row">
+        <div class="col">
+            <div class="row mt-2 align-items-end justify-content-center">
+                <div class="col-lg-2 col-md-2 col-sm-2 p-0">
+                    <h3 class="pl-3">EMPLOYEE NAME</h3>
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                    <h3 class="text-center">COMPANY</h3>
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                    <h3 class="text-center">INCIDENT DATE</h3>
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                    <h3 class="text-center">DATE ISSUED</h3>
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                    <h3 class="text-center">REASON</h3>
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                    <h3 class="text-center">POINTS</h3>
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                    <h3 class="text-center">DOCUMENT</h3>
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                    <h3 class="text-center">ASSIGNED BY</h3>
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                    <h3 class="text-center">EXEMPTION</h3>
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                    <h3>EDITED BY</h3>
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                    <h3 class="text-center">EDITED DATE</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr class="my-0">
+    {% for record in page_obj %}
+        <div class="row py-2 justify-content-center attendance-row" >
+            <div class="col-lg-2 col-md-2 col-sm-2 p-0">
+                <h4 class="m-0 pl-3">{{ record.employee|full_name }}</h4>
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                <h4 class="text-center m-0">{{ record.employee.company }}</h4>
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                <h4 class="text-center m-0">{{ record.incident_date|pretty_date }}</h4>
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                <h4 class="text-center m-0">{{ record.issued_date|pretty_date }}</h4>
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                <h4 class="text-center m-0">{{ record.reason|attendance_reason_return }}</h4>
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                <h4 class="text-center m-0">{{ record.points|points_return }}</h4>
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                <h4 class="text-center m-0"><a class="attendance-document" href="{% url 'employee-attendance-download' employee_id=record.employee.employee_id attendance_id=record.id %}" id="row4col1">PDF File</a></h4>
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                <h4 class="text-center m-0">{{ record.assigned_by }}</h4>
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                <h4 class="text-center m-0">{{ record.exemption|exemption_return }}</h4>
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                <h4 class="m-0">{{ record.edited_by }}</h4>
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                <h4 class="text-center m-0">{{ record.edited_date|pretty_date }}</h4>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}

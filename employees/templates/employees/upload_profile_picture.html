@@ -1,0 +1,23 @@
+{% extends "main/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <script src="{% static 'JS/form_preloader.js' %}"></script>
+    <h1 class="mt-5">Upload Profile Picture</h1>
+    <div class="row mt-3">
+        <div class="col">
+            <form method="POST" role="form" id="uploadProfilePicForm" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% crispy p_form %}
+                <div class="form-row">
+                    <a href="{% url 'employee-account' employee.employee_id %}" class="account-content mr-2">
+                        <div class="btn btn-secondary">
+                            Cancel
+                        </div>
+                    </a>
+                    <button class="btn btn-primary" type="submit" value="Submit" form="uploadProfilePicForm">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,201 @@
+{% extends "main/base.html" %}
+{% load employee_filters %}
+{% load crispy_forms_filters %}
+{% block content%}
+    <script>
+        $(document).ready(function(){
+            $('#id_date_range').daterangepicker({
+                "autoApply": true,
+                "startDate": "{{ start_date }}",
+                "endDate": "{{ end_date }}"
+                });
+            $('#id_date_range').on('apply.daterangepicker', function(ev, picker) {
+              $('#filter-form').submit();
+            });
+
+            $( ".time-off-row" ).click(function() {
+                let row_clicked = $(this)
+                let modal = $('#mainModal')
+                let name = row_clicked.data('name')
+                let company = row_clicked.data('company')
+                let date_requested = row_clicked.data('date-requested')
+                let status = row_clicked.data('status')
+                let requested_dates = row_clicked.data('requested-dates')
+                let time_off_type = row_clicked.data('time-off-type')
+                let reason = row_clicked.data('reason')
+                let comments = row_clicked.data('comments')
+                let time_off_id = row_clicked.data('time-off-id')
+                let base_url = "{% url 'operations-change-time-off-status' 1234 'status_type'%}"
+
+                modal.modal('show')
+
+                modal.find('.modal-title').text('Time Off Request')
+                modal.find('#name').text(name)
+                modal.find('#company').text(company)
+                modal.find('#dateRequested').text(date_requested)
+                modal.find('#status').text(status)
+                modal.find('#datesRequestedOff').text(requested_dates)
+                modal.find('#timeOffType').text(time_off_type)
+                modal.find('#reason').text(reason)
+                modal.find('#comments').text(comments)
+
+                document.getElementById("primaryButton").innerText = "Approve"
+                document.getElementById("primaryButtonAnchor").href = base_url.replace('1234', time_off_id).replace('status_type', '1')
+                document.getElementById("secondaryButton").innerText = "Deny"
+                document.getElementById("secondaryButtonForm").action = base_url.replace('1234', time_off_id).replace('status_type', '2')
+                $('#secondaryButtonForm').removeAttr('onsubmit')
+            });
+        });
+    </script>
+    <form method="GET" id="filter-form">
+       <div class="row mt-3 align-items-center justify-content-center">
+            <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                <h1 class="text-center mb-0">{{ page_obj.paginator.count }}</h1>
+                <h3 class="text-center mt-0">Records</h3>
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2">
+                {{ f_form.sort_by|as_crispy_field }}
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                {{ f_form.status|as_crispy_field }}
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2">
+                {{ f_form.time_off_type|as_crispy_field }}
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2">
+                {{ f_form.company|as_crispy_field }}
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2">
+                {{ f_form.date_range }}
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2">
+                {{ f_form.search|as_crispy_field }}
+            </div>
+            <input type=submit hidden>
+       </div>
+    </form>
+    <div class="row">
+        <div class="col">
+            <div class="row mt-2 align-items-end justify-content-center">
+                <div class="col-lg-2 col-md-2 col-sm-2 p-0">
+                    <h3 class="pl-3">EMPLOYEE NAME</h3>
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                    <h3 class="text-center">COMPANY</h3>
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2 p-0">
+                    <h3 class="text-center">DATE REQUESTED</h3>
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2 p-0">
+                    <h3 class="text-center">TIME OFF TYPE</h3>
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                    <h3 class="text-center">STATUS</h3>
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2 p-0">
+                    <h3 class="text-center">STATUS CHANGE BY</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr class="my-0">
+    {% for record in page_obj %}
+        <div class="row py-2 justify-content-center time-off-row" data-name="{{ record.employee|full_name }}" data-company="{{ record.employee.company }}" data-date-requested="{{ record.request_date|pretty_date }}" data-status="{{ record.status|status_return }}" data-requested-dates="{{ record|pretty_requested_dates }}" data-time-off-type="{{ record.time_off_type|time_off_return }}" data-reason="{{ record.reason }}" data-comments="{{ record.comments }}" data-time-off-id="{{ record.id }}">
+            <div class="col-lg-2 col-md-2 col-sm-2 p-0">
+                <h4 class="m-0 pl-3">{{ record.employee|full_name }}</h4>
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                <h4 class="text-center m-0">{{ record.employee.company }}</h4>
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2 p-0">
+                <h4 class="text-center m-0">{{ record.request_date|pretty_date }}</h4>
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2 p-0">
+                <h4 class="text-center m-0">{{ record.time_off_type|time_off_return }}</h4>
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                <h4 class="text-center m-0">{{ record.status|status_return }}</h4>
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2 p-0">
+                <h4 class="text-center m-0">{{ record.status_change_by }}</h4>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}
+{% block modal-body %}
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-6 modal-body-header">
+                Name
+            </div>
+            <div class="col-6 modal-body-header">
+                Company
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-6 modal-body-content" id="name">
+            </div>
+            <div class="col-6 modal-body-content" id="company">
+            </div>
+        </div>
+        <div class="row justify-content-center mt-2">
+            <div class="col-6 modal-body-header">
+                Date Requested
+            </div>
+            <div class="col-6 modal-body-header">
+                Status
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-6 modal-body-content" id="dateRequested">
+            </div>
+            <div class="col-6 modal-body-content" id="status">
+            </div>
+        </div>
+        <div class="row justify-content-center mt-2">
+            <div class="col-12 modal-body-header">
+                Dates Requested Off
+            </div>
+        </div>
+        <div class="row justify-content-start">
+            <div class="col-12 modal-body-content" id="datesRequestedOff">
+            </div>
+        </div>
+        <div class="row justify-content-center mt-2">
+            <div class="col-12 modal-body-header">
+                Type of Time Off
+            </div>
+        </div>
+        <div class="row justify-content-start">
+            <div class="col-12 modal-body-content" id="timeOffType">
+            </div>
+        </div>
+        <div class="row justify-content-center mt-2">
+            <div class="col-12 modal-body-header">
+                Reason
+            </div>
+        </div>
+        <div class="row justify-content-start">
+            <div class="col-12 modal-body-content" id="reason">
+            </div>
+        </div>
+        <div class="row justify-content-center mt-2">
+            <div class="col-12 modal-body-header">
+                Comments
+            </div>
+        </div>
+        <div class="row justify-content-start">
+            <div class="col-12 modal-body-content" id="comments">
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block modal-footer %}
+    <button type="button" class="form-control btn btn-secondary ml-auto" data-dismiss="modal">Close</button>
+    <form action="" id="secondaryButtonForm" onsubmit="return confirm('Are you sure you would like to delete this record?');">
+        <button type="submit" class="btn btn-primary" id="secondaryButton"></button>
+    </form>
+    <a href="#" class="account-content mr-2" id="primaryButtonAnchor">
+        <div class="btn btn-primary" id="primaryButton"></div>
+    </a>
+{% endblock modal-footer %}
