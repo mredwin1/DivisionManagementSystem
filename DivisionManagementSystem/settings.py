@@ -27,8 +27,10 @@ SECRET_KEY = os.environ['SECRET_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ['DEBUG'])
 
-ALLOWED_HOSTS = ['127.0.0.1']
-
+if DEBUG:
+    ALLOWED_HOSTS = ['127.0.0.1']
+else:
+    ALLOWED_HOSTS = ['mvbachman.com', 'www.mvbachman.com']
 
 # Application definition
 
