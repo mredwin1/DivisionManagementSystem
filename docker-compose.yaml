@@ -1,0 +1,28 @@
+version: '3.7'
+
+services:
+  dms:
+    # image: /dms:latest
+    build:
+      context: .
+      dockerfile: dms.Dockerfile
+    container_name: dms
+    restart: always
+    ports:
+      - 8000:8000
+    env_file:
+      - .env
+  db:
+    image: mysql:5.7.12
+    restart: always
+    container_name: mysql5
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_DATABASE: 'dms-db'
+      MYSQL_USER: 'root'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+    volumes:
+      - ${mysql_data}:/var/lib/msql
+      - ${mysql_conf}:/etc/mysql/conf.d
