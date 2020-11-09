@@ -17,11 +17,5 @@ def main():
         ) from exc
     execute_from_command_line(sys.argv)
 
-    if len(sys.argv) > 1 and sys.argv[1] == "start":
-        from django.core.management import call_command
-        call_command("migrate")
-        call_command("collectstatic", interactive=False, clear=True)
-        execute_from_command_line("runserver")
-
 if __name__ == '__main__':
     main()
