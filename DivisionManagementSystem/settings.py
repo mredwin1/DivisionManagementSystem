@@ -89,14 +89,14 @@ WSGI_APPLICATION = 'DivisionManagementSystem.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'dms-db',
-        'USER': 'root',
-        'PASSWORD': 'password',
-        'PORT': 3306,
+    "default": {
+        "ENGINE": 'django.db.backends.postgresql',
+        "NAME": os.environ['SQL_DATABASE'],
+        "USER": os.environ['SQL_USER'],
+        "PASSWORD": os.environ['SQL_PASSWORD'],
+        "HOST": os.environ['SQL_HOST'],
+        "PORT": os.environ['SQL_PORT'],
     }
 }
 

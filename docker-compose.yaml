@@ -12,17 +12,19 @@ services:
       - 8000:8000
     env_file:
       - .env
+    depends_on:
+      - db
   db:
-    image: mysql:5.7.12
+    image: postgres:12.0-alpine
     restart: always
-    container_name: mysql5
+    container_name: postgres
     ports:
-      - 3306:3306
+      - 5432:5432
     environment:
-      MYSQL_DATABASE: 'dms-db'
-      MYSQL_USER: 'root'
-      MYSQL_PASSWORD: 'password'
-      MYSQL_ROOT_PASSWORD: 'password'
+      - POSTGRES_USER=dms
+      - POSTGRES_PASSWORD=admin123
+      - POSTGRES_DB=dms-db
     volumes:
-      - ${mysql_data}:/var/lib/msql
-      - ${mysql_conf}:/etc/mysql/conf.d
+      - postgres_data:/var/lib/postgresql/data/
+volumes:
+  postgres_data:
