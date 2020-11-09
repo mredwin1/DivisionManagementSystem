@@ -18,6 +18,7 @@ titlecase = "~=1.1.1"
 Django = "~=3.1.1"
 Pillow = "~=8.0.1"
 PyPDF2 = "~=1.26.0"
+mysqlclient = "~=2.0.1"
 
 [dev-packages]
 
