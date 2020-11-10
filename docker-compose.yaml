@@ -30,18 +30,18 @@ services:
   db:
     image: postgres:12.0-alpine
     restart: always
-    container_name: postgres
+    container_name: postgres_dms
     environment:
       - POSTGRES_USER=dms
       - POSTGRES_PASSWORD=admin123
       - POSTGRES_DB=dms-db
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - ${POSTGRES_DATA}:/var/lib/postgresql/data/
+    ports:
+      - 5432:5432
   redis:
     image: redis
     restart: always
-    container_name: redis
+    container_name: redis_dms
     ports:
       - 6379:6379
-volumes:
-  postgres_data:
