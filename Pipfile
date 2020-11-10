@@ -18,7 +18,8 @@ titlecase = "~=1.1.1"
 Django = "~=3.1.1"
 Pillow = "~=8.0.1"
 PyPDF2 = "~=1.26.0"
-psycopg2 = "~=2.8.6"
+psycopg2-binary = "~=2.8.6"
+gunicorn = "~=20.0.0"
 
 [dev-packages]
 

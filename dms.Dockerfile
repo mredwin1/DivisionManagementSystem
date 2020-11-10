@@ -11,9 +11,6 @@ ENV PIP_NO_CACHE_DIR=false \
 # Install project dependencies
 RUN pip install -U pipenv
 
-# install psycopg2 dependencies
-RUN apt update && apt -y install postgresql gcc libpq-dev postgresql-client postgresql-client-common
-
 # Copy the project files into working directory
 COPY . .
 
