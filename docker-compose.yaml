@@ -36,7 +36,7 @@ services:
       - POSTGRES_PASSWORD=admin123
       - POSTGRES_DB=dms-db
     volumes:
-      - ${POSTGRES_DATA}:/var/lib/postgresql/data/
+      - postgres_db:/var/lib/postgresql/data/
     ports:
       - 5432:5432
   redis:
@@ -45,3 +45,5 @@ services:
     container_name: redis_dms
     ports:
       - 6379:6379
+volumes:
+  postgres_db:
