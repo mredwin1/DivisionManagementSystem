@@ -6,6 +6,7 @@ import os
 from django.core.management.base import BaseCommand
 from django.core.management import call_command
 
+
 class Command(BaseCommand):
     help = 'An alternative to runserver which will run migrate and collectstatic beforehand'
 
@@ -24,11 +25,11 @@ class Command(BaseCommand):
             except socket.error:
                 attempts_left -= 1
                 print("Not ready yet, retrying.")
-                time.sleep(1)
+                time.sleep(0.5)
         else:
             print("Database could not be found, exiting.")
             sys.exit(1)
 
         call_command("migrate")
-        # call_command("collectstatic", interactive=False, clear=True)
+        call_command("collectstatic", interactive=False, clear=True)
         call_command("runserver")
