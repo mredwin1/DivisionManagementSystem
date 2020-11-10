@@ -8,8 +8,11 @@ services:
       dockerfile: dms.Dockerfile
     container_name: dms
     restart: always
+
+    # Usually a good idea to not use 8000, other services may want it.
     ports:
-      - 8000:8000
+      - 8001:8001
+
     env_file:
       - .env
     depends_on:
