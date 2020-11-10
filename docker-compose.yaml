@@ -17,6 +17,16 @@ services:
       - .env
     depends_on:
       - db
+
+    # Bind volumes to enable hot-reloads.
+    # e.g. when a file is changed in this folder, the change is
+    # also applied to the same file inside the docker container.
+    volumes:
+      - ./DivisionManagementSystem/:/DivisionManagementSystem/
+      - ./employees/:/employees/
+      - ./main/:/main/
+      - ./operations/:/operations/
+      - ./templates/:/templates/
   db:
     image: postgres:12.0-alpine
     restart: always
