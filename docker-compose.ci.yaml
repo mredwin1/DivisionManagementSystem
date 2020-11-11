@@ -18,6 +18,7 @@ services:
       - SQL_PORT=${SQL_PORT}
       - SQL_USER=${SQL_USER}
       - SQL_PASSWORD=${SQL_PASSWORD}
+      - SECRET_KEY=${SECRET_KEY}
     depends_on:
       - db
 
