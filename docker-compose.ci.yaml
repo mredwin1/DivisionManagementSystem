@@ -40,6 +40,7 @@ services:
       - SQL_HOST=${SQL_HOST}
       - SQL_PORT=${SQL_PORT}
       - SQL_USER=${SQL_USER}
+      - SQL_DATABASE=${SQL_DATABASE}
       - SQL_PASSWORD=${SQL_PASSWORD}
     volumes:
       - postgres_db:/var/lib/postgresql/data/

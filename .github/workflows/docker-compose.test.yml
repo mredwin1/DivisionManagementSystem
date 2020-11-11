@@ -15,6 +15,7 @@ jobs:
      SQL_HOST: db
      SQL_PORT: 5432
      SQL_USER: test
+     SQL_DATABASE: test-db
      SQL_PASSWORD: testing321
      SECRET_KEY: ${{ secrets.SECRET_KEY }}
      DEBUG: 0
