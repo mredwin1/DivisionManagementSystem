@@ -12,9 +12,9 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     env:
-     SQL_USER : test
-     SQL_PASSWORD: testing321  
-     SQL_HOST : db
+     SQL_USER: test
+     SQL_PASSWORD: testing321
+     SQL_HOST: db
      SQL_PORT: 5432
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
