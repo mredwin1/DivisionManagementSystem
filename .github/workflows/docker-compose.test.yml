@@ -21,4 +21,4 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v1
       - name: Build docker-compose stack
-        run: docker-compose run dms test
+        run: docker-compose --file docker-compose.ci.yaml run dms test
