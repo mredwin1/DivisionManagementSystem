@@ -214,7 +214,6 @@ def import_safety_point_data(request):
         return JsonResponse(s_form.errors, status=400)
 
 
-
 @login_required
 @permission_required('employees.can_view_import_data', raise_exception=True)
 def import_data(request):
