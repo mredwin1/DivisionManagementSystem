@@ -149,6 +149,22 @@ def export_custom_list(request):
 
 
 @login_required
+@permission_required('employees.can_view_import_data', raise_exception=True)
+def import_data(request):
+    d_form = DriverImportForm()
+    a_form = AttendanceImportForm()
+    s_form = SafetyPointImportForm()
+
+    data = {
+        'd_form': d_form,
+        'a_form': a_form,
+        's_form': s_form
+    }
+
+    return render(request, 'main/data_import.html', data)
+
+
+@login_required
 @permission_required('employees.can_import_driver_data', raise_exception=True)
 def import_driver_data(request):
     d_form = DriverImportForm(request.POST, request.FILES)
@@ -212,19 +228,3 @@ def import_safety_point_data(request):
         return JsonResponse(data, status=200)
     else:
         return JsonResponse(s_form.errors, status=400)
-
-
-@login_required
-@permission_required('employees.can_view_import_data', raise_exception=True)
-def import_data(request):
-    d_form = DriverImportForm()
-    a_form = AttendanceImportForm()
-    s_form = SafetyPointImportForm()
-
-    data = {
-        'd_form': d_form,
-        'a_form': a_form,
-        's_form': s_form
-    }
-
-    return render(request, 'main/data_import.html', data)
