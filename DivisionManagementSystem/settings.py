@@ -91,7 +91,7 @@ WSGI_APPLICATION = 'DivisionManagementSystem.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": 'django.db.backends.postgresql',
-        "NAME": os.environ['SQL_DATABASE'],
+        "NAME": os.environ.get('SQL_DATABASE', None),
         "USER": os.environ['SQL_USER'],
         "PASSWORD": os.environ['SQL_PASSWORD'],
         "HOST": os.environ['SQL_HOST'],
