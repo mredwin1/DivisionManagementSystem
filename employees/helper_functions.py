@@ -297,8 +297,8 @@ def create_custom_list(employees):
 
         p.drawString(0.50 * inch, y * inch, f'{employee.last_name}, {employee.first_name}')
         p.drawString(2.20 * inch, y * inch, str(employee.employee_id))
-        p.drawString(2.95 * inch, y * inch, employee.company.display_name)
-        p.drawString(3.40 * inch, y * inch, employee.hire_date.strftime('%m-%d-%Y'))
+        p.drawString(2.95 * inch, y * inch, employee.company.display_name if employee.company else '')
+        p.drawString(3.40 * inch, y * inch, employee.hire_date.strftime('%m-%d-%Y') if employee.hire_date else '')
         p.drawString(4.35 * inch, y * inch, employee.get_position_display())
         p.drawString(5.70 * inch, y * inch, primary_phone)
         p.drawString(6.95 * inch, y * inch, secondary_phone)
