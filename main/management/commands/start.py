@@ -6,6 +6,7 @@ import logging
 
 from django.core.management.base import BaseCommand
 from django.core.management import call_command
+from django.db.utils import OperationalError
 
 
 class Command(BaseCommand):
@@ -31,9 +32,22 @@ class Command(BaseCommand):
             logging.error('Database could not be found, exiting.')
             sys.exit(1)
 
-        print('Running migrations')
-        call_command("migrate")
-        print('Running setup')
+        attempts_left = 5
+        while attempts_left:
+            try:
+                logging.info('Trying to run migrations')
+                call_command("migrate")
+                logging.info('Migrations ran')
+                break
+            except OperationalError:
+                attempts_left -= 1
+                logging.warning('Cannot run migrations, retrying.')
+                time.sleep(0.5)
+        else:
+            logging.error('Migrations could not be run, exiting.')
+            sys.exit(1)
+
+        logging.info('Running setup')
         call_command("setup")
         logging.info('Running collectstatic')
         call_command("collectstatic", interactive=False, clear=True)
