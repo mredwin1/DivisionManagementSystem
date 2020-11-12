@@ -18,7 +18,7 @@ class Command(BaseCommand):
 
             if created:
                 success_message = f'Successfully created {new_group}'
-                logging.INFO(success_message)
+                logging.info(success_message)
             else:
                 fail_message = f'Could not create {new_group}'
                 logging.warning(fail_message)
