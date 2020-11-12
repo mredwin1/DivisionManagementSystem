@@ -2,6 +2,7 @@ import socket
 import time
 import sys
 import os
+import logging
 
 from django.core.management.base import BaseCommand
 from django.core.management import call_command
@@ -20,22 +21,22 @@ class Command(BaseCommand):
                 # Ignore 'incomplete startup packet'
                 s.connect((os.environ['SQL_HOST'], int(os.environ['SQL_PORT'])))
                 s.shutdown(socket.SHUT_RDWR)
-                print("Database is ready.")
+                logging.info('Database is ready.')
                 break
             except socket.error:
                 attempts_left -= 1
-                print("Not ready yet, retrying.")
+                logging.warning('Not ready yet, retrying.')
                 time.sleep(0.5)
         else:
-            print("Database could not be found, exiting.")
+            logging.error('Database could not be found, exiting.')
             sys.exit(1)
 
         print('Running migrations')
         call_command("migrate")
         print('Running setup')
         call_command("setup")
-        print('Running collectstatic')
+        logging.info('Running collectstatic')
         call_command("collectstatic", interactive=False, clear=True)
-        print('Starting server')
+        logging.info('Starting server')
         os.system("gunicorn --preload -b 0.0.0.0:8001 DivisionManagementSystem.wsgi:application --threads 8 -w 4")
         exit()
