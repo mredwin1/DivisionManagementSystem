@@ -11,9 +11,9 @@ jobs:
 
     steps:
       - name: Publish Image
-        uses: matootie/github-docker@v3.1.0
+        uses: craftech-io/package-action@v3.1.0
+        id: url-GPR 
         with:
-          accessToken: ${{ secrets.DOCKERHUB_TOKEN }}
-          context: ..
-          contextName: dms.Dockerfile
-          containerRegistry: true
+          tags: latest
+          dockerfile: dms.Dockerfile
+          access_token: ${{ secrets.DOKERHUB_TOKEN }}  
