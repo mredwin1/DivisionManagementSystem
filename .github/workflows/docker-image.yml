@@ -30,7 +30,7 @@ jobs:
         with:
           file: ./dms.Dockerfile
           push: true
-          tags: mvbachman/dms:latest
+          tags: ghcr.io/mvbachman/dms:latest
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
