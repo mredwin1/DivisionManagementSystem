@@ -16,3 +16,4 @@ jobs:
           accessToken: ${{ secrets.DOCKERHUB_TOKEN }}
           context: ..
           contextName: dms.Dockerfile
+          containerRegistry: true
