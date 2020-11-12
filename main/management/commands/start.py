@@ -31,6 +31,7 @@ class Command(BaseCommand):
             sys.exit(1)
 
         call_command("migrate")
+        call_command("setup")
         call_command("collectstatic", interactive=False, clear=True)
         os.system("gunicorn --preload -b 0.0.0.0:8001 DivisionManagementSystem.wsgi:application --threads 8 -w 4")
         exit()
