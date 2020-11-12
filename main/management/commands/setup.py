@@ -1,5 +1,7 @@
-from django.core.management.base import BaseCommand
+import logging
+
 from django.contrib.auth.models import Group
+from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
@@ -16,7 +18,7 @@ class Command(BaseCommand):
 
             if created:
                 success_message = f'Successfully created {new_group}'
-                self.stdout.write(self.style.SUCCESS(success_message))
+                logging.INFO(success_message)
             else:
                 fail_message = f'Could not create {new_group}'
-                self.stdout.write(self.style.ERROR(fail_message))
+                logging.warning(fail_message)
