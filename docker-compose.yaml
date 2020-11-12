@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   dms:
-    image: mvbachman/dms:latest
+    image: mredwin1/dms:latest
     build:
       context: .
       dockerfile: dms.Dockerfile
