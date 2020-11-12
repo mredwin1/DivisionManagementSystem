@@ -30,8 +30,12 @@ class Command(BaseCommand):
             print("Database could not be found, exiting.")
             sys.exit(1)
 
+        print('Running migrations')
         call_command("migrate")
+        print('Running setup')
         call_command("setup")
+        print('Running collectstatic')
         call_command("collectstatic", interactive=False, clear=True)
+        print('Starting server')
         os.system("gunicorn --preload -b 0.0.0.0:8001 DivisionManagementSystem.wsgi:application --threads 8 -w 4")
         exit()
