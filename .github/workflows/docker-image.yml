@@ -1,6 +1,5 @@
 name: Docker Image CI
 
-
 on:
   push:
     branches: [ master ]
@@ -31,7 +30,7 @@ jobs:
         with:
           file: ./dms.Dockerfile
           push: true
-          tags: mredwin1/divisionmanagementsystem/dms:latest
+          tags: mredwin1/divisionmanagementsystem dms:latest
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
