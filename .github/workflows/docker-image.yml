@@ -30,7 +30,7 @@ jobs:
         with:
           file: ./dms.Dockerfile
           push: true
-          tags: ${{ github.repository }}:latest
+          tags: mredwin1/divisionmanagementsystem/dms:latest
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
