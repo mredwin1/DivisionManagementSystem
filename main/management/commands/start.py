@@ -28,7 +28,7 @@ class Command(BaseCommand):
                 break
             except socket.error:
                 attempts_left -= 1
-                logging.warning('Not ready yet, retrying.')
+                logging.warning('Database not ready yet, retrying.')
                 time.sleep(0.5)
         else:
             logging.error('Database could not be found, exiting.')
@@ -39,15 +39,18 @@ class Command(BaseCommand):
             try:
                 logging.info('Trying to run migrations...')
                 call_command("migrate")
-                logging.info('Migrations Complete')
+                logging.info('Migrations complete')
                 break
-            except OperationalError:
-                attempts_left -= 1
-                logging.warning('Cannot run migrations, retrying.')
-                time.sleep(0.5)
+            except OperationalError as error:
+                if error.args[0] == 'FATAL:  the database system is starting up\n':
+                    attempts_left -= 1
+                    logging.warning('Cannot run migrations because the database system is starting up, retrying.')
+                    time.sleep(0.5)
+                else:
+                    sys.exit(f'Migrations unsuccessful. Error: {error.args}')
         else:
             logging.error('Migrations could not be run, exiting.')
-            sys.exit('Migrations Unsuccessful')
+            sys.exit('Migrations unsuccessful')
 
         if not Employee.objects.filter(username=os.environ['SUPER_USERNAME']).exists():
             Employee.objects.create_superuser(
