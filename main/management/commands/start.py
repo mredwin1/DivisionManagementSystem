@@ -32,7 +32,7 @@ class Command(BaseCommand):
                 time.sleep(0.5)
         else:
             logging.error('Database could not be found, exiting.')
-            sys.exit(1)
+            sys.exit('Database not found')
 
         attempts_left = 5
         while attempts_left:
@@ -47,7 +47,7 @@ class Command(BaseCommand):
                 time.sleep(0.5)
         else:
             logging.error('Migrations could not be run, exiting.')
-            sys.exit(1)
+            sys.exit('Migrations Unsuccessful')
 
         if not Employee.objects.filter(username=os.environ['SUPER_USERNAME']).exists():
             Employee.objects.create_superuser(
