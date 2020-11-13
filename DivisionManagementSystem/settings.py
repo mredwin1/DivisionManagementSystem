@@ -174,8 +174,6 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 
-DATA_UPLOAD_MAX_NUMBER_FIELDS = 80000
-
 # Django Notifications
 DJANGO_NOTIFICATIONS_CONFIG = {'USE_JSONFIELD': True}
 
