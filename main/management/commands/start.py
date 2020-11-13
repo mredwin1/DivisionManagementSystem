@@ -67,6 +67,5 @@ class Command(BaseCommand):
         logging.info('Running collectstatic...')
         call_command("collectstatic", interactive=False, clear=True)
         logging.info('Starting server...')
-        os.system("celery -A DivisionManagementSystem worker -l INFO")
         os.system("gunicorn --preload -b 0.0.0.0:8001 DivisionManagementSystem.wsgi:application --threads 8 -w 4")
         exit()

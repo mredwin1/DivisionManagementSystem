@@ -1,7 +1,7 @@
 version: '3.7'
 
 services:
-  dms:
+  dms: &python
     image: mvbachman/dms:latest
     build:
       context: .
@@ -51,5 +51,15 @@ services:
     container_name: redis_dms
     ports:
       - 6379:6379
+  celery:
+    <<: *python
+    container_name: celery_dms
+    entrypoint: celery -A DivisionManagementSystem worker -l INFO
+    ports:
+      - 8002:8002
+    depends_on:
+      - redis
+      - db
+      - dms
 volumes:
   postgres_db:
