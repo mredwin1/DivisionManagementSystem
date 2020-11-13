@@ -1,9 +1,9 @@
 # DivisionManagementSystem
 A django web application geared towards the transportation industry to help organize employee data, discipline, and time off.
 
-
-## Features
 ---
+## Features
+
 #### Manage Employees
 - Add, Edit, and Remove Employees
 - Search for Any Employee with Smart Filtering
@@ -47,9 +47,9 @@ A django web application geared towards the transportation industry to help orga
 #### Export Data
 - Phone List, Seniority List, Attendance Points, etc.
 
-
-## Installation
 ---
+## Installation
+
 1. Clone repo
 2. Create a .env for all required environment variables
     - SECRET_KEY: The django secret key. [This](https://djecrety.ir/) can be used to generate a random secret key. More info on how this affects the project can be read [here](https://docs.djangoproject.com/en/3.1/ref/settings/#secret-key).
