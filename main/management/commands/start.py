@@ -50,8 +50,11 @@ class Command(BaseCommand):
             sys.exit(1)
 
         if not Employee.objects.filter(username=os.environ['SUPER_USERNAME']).exists():
-            Employee.objects.create_superuser(username=os.environ['SUPER_USERNAME'],
-                                              password=os.environ['SUPER_PASSWORD'],)
+            Employee.objects.create_superuser(
+                username=os.environ['SUPER_USERNAME'],
+                password=os.environ['SUPER_PASSWORD'],
+                employee_id=0
+            )
             logging.info('Superuser created.')
         else:
             logging.info('Superuser already created, skipping that step.')
