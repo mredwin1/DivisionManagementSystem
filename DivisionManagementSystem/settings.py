@@ -84,8 +84,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'DivisionManagementSystem.wsgi.application'
 
-# Logging
-
+# This specifies how logging will be handles throughout this application. I have set it here to ensure all messages that
+# are logged using the entry method info or above will show on the console. For more info on how this works go to
+# https://docs.djangoproject.com/en/3.1/topics/logging/
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -107,10 +108,8 @@ LOGGING = {
     },
 }
 
-
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
 DATABASES = {
     "default": {
         "ENGINE": 'django.db.backends.postgresql',
@@ -124,7 +123,6 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
