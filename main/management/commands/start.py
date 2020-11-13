@@ -39,7 +39,7 @@ class Command(BaseCommand):
             try:
                 logging.info('Trying to run migrations...')
                 call_command("migrate")
-                logging.info('Migrations ran.')
+                logging.info('Migrations Complete')
                 break
             except OperationalError:
                 attempts_left -= 1
