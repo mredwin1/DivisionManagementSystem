@@ -67,6 +67,10 @@ class Command(BaseCommand):
         call_command("setup")
         logging.info('Running collectstatic...')
         call_command("collectstatic", interactive=False, clear=True)
-        logging.info('Starting server...')
-        os.system("gunicorn --preload -b 0.0.0.0:8001 DivisionManagementSystem.wsgi:application --threads 8 -w 4")
+
+        if os.environ['DEBUG']:
+            call_command('runserver')
+        else:
+            logging.info('Starting server...')
+            os.system("gunicorn --preload -b 0.0.0.0:8001 DivisionManagementSystem.wsgi:application --threads 8 -w 4")
         exit()
