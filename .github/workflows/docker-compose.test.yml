@@ -1,4 +1,4 @@
-name: Test Docker Build & Run Django Tests
+name: Test & Build
 
 on:
   pull_request:
