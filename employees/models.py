@@ -1633,7 +1633,7 @@ class DayOff(models.Model):
 
 
 class Settlement(models.Model):
-    employee = models.OneToOneField(Employee, on_delete=models.CASCADE, null=True)
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True)
     details = models.TextField(default='', blank=False)
     created_date = models.DateField(null=True)
     assigned_by = models.CharField(default='', max_length=50)
