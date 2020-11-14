@@ -1649,7 +1649,7 @@ class Settlement(models.Model):
         p.setLineWidth(.75)
 
         # Logo
-        p.drawInlineImage(settings.STATIC_ROOT + '\main\\MV_Transportation_logo.png', 3.5 * inch, 10 * inch, 1.5 * inch,
+        p.drawInlineImage(settings.STATIC_ROOT + '/main/MV_Transportation_logo.png', 3.5 * inch, 10 * inch, 1.5 * inch,
                           .75 * inch)
 
         # Title
