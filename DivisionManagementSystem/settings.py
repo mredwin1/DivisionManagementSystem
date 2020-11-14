@@ -84,10 +84,32 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'DivisionManagementSystem.wsgi.application'
 
+# This specifies how logging will be handles throughout this application. I have set it here to ensure all messages that
+# are logged using the entry method info or above will show on the console. For more info on how this works go to
+# https://docs.djangoproject.com/en/3.1/topics/logging/
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': False,
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
 DATABASES = {
     "default": {
         "ENGINE": 'django.db.backends.postgresql',
@@ -101,7 +123,6 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -151,8 +172,6 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 
-DATA_UPLOAD_MAX_NUMBER_FIELDS = 80000
-
 # Django Notifications
 DJANGO_NOTIFICATIONS_CONFIG = {'USE_JSONFIELD': True}
 
@@ -169,5 +188,5 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 BASE_URL = 'http://10.100.12.67:8000'
 
 # Celery Settings
-CELERY_BROKER_URL = "redis://127.0.0.1:6379"
-CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379"
+CELERY_BROKER_URL = "redis://redis:6379"
+CELERY_RESULT_BACKEND = "redis://redis:6379"

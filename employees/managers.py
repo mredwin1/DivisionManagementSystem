@@ -3,21 +3,17 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class EmployeeManager(BaseUserManager):
-    def create_user(self, username, password, first_name, last_name, employee_id, **extra_fields):
-        """
-        Create and save a User with the given username and password.
-        """
+    def create_user(self, username, password, employee_id, **extra_fields):
+        """Create and save a User with the given username and password."""
         if not username:
             raise ValueError(_('The Username must be set'))
-        employee = self.model(username=username, first_name=first_name, last_name=last_name, employee_id=employee_id, **extra_fields)
+        employee = self.model(username=username, employee_id=employee_id, **extra_fields)
         employee.set_password(password)
         employee.save()
         return employee
 
-    def create_superuser(self, username, password, first_name, last_name, employee_id, **extra_fields):
-        """
-        Create and save a SuperUser with the given username and password.
-        """
+    def create_superuser(self, username, password, employee_id, **extra_fields):
+        """Create and save a SuperUser with the given username and password."""
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_active', True)
@@ -26,4 +22,4 @@ class EmployeeManager(BaseUserManager):
             raise ValueError(_('Superuser must have is_staff=True.'))
         if extra_fields.get('is_superuser') is not True:
             raise ValueError(_('Superuser must have is_superuser=True.'))
-        return self.create_user(username, password, first_name, last_name, employee_id, **extra_fields)
+        return self.create_user(username, password, employee_id, **extra_fields)
