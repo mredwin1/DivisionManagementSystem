@@ -56,7 +56,8 @@ class Command(BaseCommand):
             Employee.objects.create_superuser(
                 username=os.environ['SUPER_USERNAME'],
                 password=os.environ['SUPER_PASSWORD'],
-                employee_id=0
+                employee_id=0,
+                first_name='admin'
             )
             logging.info('Superuser created.')
         else:
