@@ -573,16 +573,12 @@ def create_settlement(request, employee_id):
 
         messages.add_message(request, messages.SUCCESS, 'Settlement successfully created')
 
-        return redirect('employee-account', employee_id)
-    else:
-        t_form = TerminateEmployee()
-        data = {
-            'employee': employee,
-            't_form': t_form,
-            's_form': s_form,
-        }
+        data = {'url': reverse('employee-account', args=[employee_id])}
 
-        return render(request, 'employees/terminate_employee.html', data)
+        return JsonResponse(data, status=200)
+    else:
+
+        return JsonResponse(s_form.errors, status=400)
 
 
 @login_required
