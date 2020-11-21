@@ -50,8 +50,9 @@ A django web application geared towards the transportation industry to help orga
 ---
 ## Installation
 
-1. Clone repo
-2. Create a .env for all required environment variables
+1. Install docker. [Windows/Mac](https://www.docker.com/products/docker-desktop)
+2. Clone repo
+3. Create a .env for all required environment variables
     - SECRET_KEY: The django secret key. [This](https://djecrety.ir/) can be used to generate a random secret key. More info on how this affects the project can be read [here](https://docs.djangoproject.com/en/3.1/ref/settings/#secret-key).
     - DEBUG: The django debug mode is used to display detailed error messages on the site. Here set it to either 1 or 0(True or False), it is reccommended to set it to 0 for production puposes. More info how this affects the application can be read [here](https://docs.djangoproject.com/en/3.1/ref/settings/#debug).
     - EMAIL_HOST_USER: The email from which notifications will be sent.
@@ -63,4 +64,4 @@ A django web application geared towards the transportation industry to help orga
     - SQL_HOST: The name of the postgresql service in the docker container which is 'db' by deafault. If you make changes to the docker-compose file then set this accordingly.
     - SQL_USER: The postgresql user that will have access to the created database.
     - SQL_PASSWORD: The password for the postgresql user
-3. Run the command 'docker-compose up' inside the main project directory where the docker-compose.yaml file is. This will make the server available throught localhost:8001 and to log in simply use what was set for SUPER_USERNAME and SUPER_PASSWORD.
+4. Run the command 'docker-compose up' inside the main project directory where the docker-compose.yaml file is. This will make the server available throught localhost:8001 and to log in simply use what was set for SUPER_USERNAME and SUPER_PASSWORD.
