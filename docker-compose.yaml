@@ -1,22 +1,31 @@
 version: '3.7'
 
 services:
-  dms: &python
+  dms:
     image: ghcr.io/mredwin1/dms:latest
     build:
       context: .
       dockerfile: dms.Dockerfile
     container_name: dms
     restart: always
-
-    # Usually a good idea to not use 8000, other services may want it.
-    ports:
-      - 8001:8001
-
     env_file:
       - .env
     depends_on:
       - db
+    networks:
+      - traefik
+      - internal
+    labels:
+      # Explicitly tell Traefik to expose this container
+      - "traefik.enable=true"
+      # The domain the service will respond to
+      - "traefik.http.routers.dms.rule=Host(`${DOMAIN}`)"
+      # Allow request only from the predefined entry point named "web"
+      - "traefik.http.routers.dms.entrypoints=web"
+      # Tell it to listen to port 80 inside the Docker container
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+      # Traefik will use the traefik_default docker network
+      - "traefik.docker.network=traefik_default"
 
     # Bind volumes to enable hot-reloads.
     # e.g. when a file is changed in this folder, the change is
@@ -37,24 +46,51 @@ services:
       - POSTGRES_DB=dms-db
     volumes:
       - postgres_db:/var/lib/postgresql/data/
-    ports:
-      - 5432:5432
+    networks:
+      - internal
   redis:
     image: redis
     restart: always
     container_name: redis_dms
+    networks:
+      - internal
+
+  traefik:
+    image: "traefik:v2.3"
+    container_name: "traefik"
+    networks:
+      - traefik
+    command:
+      - "--log.level=${TRAEFIK_LOG}"
+      - "--api.insecure=false"
+      - "--providers.docker=true"
+      # All docker containers must be _explicitely_ exposed with traefik.enable=true
+      - "--providers.docker.exposedbydefault=false"
+      # Traefik will listen to _incoming requests_ on port 80
+      - "--entrypoints.web.address=:80"
     ports:
-      - 6379:6379
+      - "80:80"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
   celery:
-    <<: *python
+    image: ghcr.io/mredwin1/dms:latest
     container_name: celery_dms
+    restart: always
     entrypoint: celery -A DivisionManagementSystem worker -l INFO
-    ports:
-      - 8002:8002
     depends_on:
       - redis
       - db
       - dms
+    env_file:
+      - .env
+    networks:
+      - internal
+
+networks:
+  internal:
+  traefik:
+    external:
+      name: traefik_default
 
 volumes:
   postgres_db:

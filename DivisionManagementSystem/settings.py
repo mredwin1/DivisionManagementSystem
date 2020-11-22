@@ -28,7 +28,7 @@ SECRET_KEY = os.environ['SECRET_KEY']
 DEBUG = bool(os.environ['DEBUG'])
 
 if DEBUG:
-    ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', 'localhost']
+    ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', 'localhost', 'dms.localhost']
 else:
     ALLOWED_HOSTS = ['mvbachman.com', 'www.mvbachman.com']
 
