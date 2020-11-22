@@ -61,8 +61,8 @@ services:
     networks:
       - traefik
     command:
-      - "--log.level=DEBUG"
-      - "--api.insecure=true"
+      - "--log.level=${TRAEFIK_LOG}"
+      - "--api.insecure=false"
       - "--providers.docker=true"
       # All docker containers must be _explicitely_ exposed with traefik.enable=true
       - "--providers.docker.exposedbydefault=false"
@@ -70,7 +70,6 @@ services:
       - "--entrypoints.web.address=:80"
     ports:
       - "80:80"
-      - "8080:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
   celery:
