@@ -20,6 +20,7 @@ Pillow = "~=8.0.1"
 PyPDF2 = "~=1.26.0"
 psycopg2-binary = "~=2.8.6"
 gunicorn = "~=20.0.0"
+redis = "~=3.5.3"
 
 [dev-packages]
 
@@ -27,7 +28,7 @@ gunicorn = "~=20.0.0"
 python_version = "3.8"
 
 [scripts]
-start = "python manage.py runserver"
+start = "python manage.py start"
 test = "python manage.py test"
 makemigrations = "python manage.py makemigrations"
 migrate = "python manage.py migrate"

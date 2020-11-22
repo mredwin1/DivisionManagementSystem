@@ -1,0 +1,65 @@
+version: '3.7'
+
+services:
+  dms: &python
+    image: mvbachman/dms:latest
+    build:
+      context: .
+      dockerfile: dms.Dockerfile
+    container_name: dms
+    restart: always
+
+    # Usually a good idea to not use 8000, other services may want it.
+    ports:
+      - 8001:8001
+
+    environment:
+      - SQL_HOST=${SQL_HOST}
+      - SQL_PORT=${SQL_PORT}
+      - SQL_USER=${SQL_USER}
+      - SQL_DATABASE=${SQL_DATABASE}
+      - SQL_PASSWORD=${SQL_PASSWORD}
+      - SECRET_KEY=${SECRET_KEY}
+      - DEBUG=${DEBUG}
+    depends_on:
+      - db
+
+    # Bind volumes to enable hot-reloads.
+    # e.g. when a file is changed in this folder, the change is
+    # also applied to the same file inside the docker container.
+    volumes:
+      - ./DivisionManagementSystem/:/DivisionManagementSystem/
+      - ./employees/:/employees/
+      - ./main/:/main/
+      - ./operations/:/operations/
+      - ./templates/:/templates/
+  db:
+    image: postgres:12.0-alpine
+    restart: always
+    container_name: postgres_dms
+    environment:
+      - POSTGRES_USER=${SQL_USER}
+      - POSTGRES_DB=${SQL_DATABASE}
+      - POSTGRES_PASSWORD=${SQL_PASSWORD}
+    volumes:
+      - postgres_db:/var/lib/postgresql/data/
+    ports:
+      - 5432:5432
+  redis:
+    image: redis
+    restart: always
+    container_name: redis_dms
+    ports:
+      - 6379:6379
+  celery:
+    <<: *python
+    container_name: celery_dms
+    entrypoint: celery -A DivisionManagementSystem worker -l INFO
+    ports:
+      - 8002:8002
+    depends_on:
+      - redis
+      - db
+      - dms
+volumes:
+  postgres_db:

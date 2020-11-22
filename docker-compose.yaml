@@ -1,8 +1,8 @@
 version: '3.7'
 
 services:
-  dms:
-    image: mvbachman/dms:latest
+  dms: &python
+    image: ghcr.io/mredwin1/dms:latest
     build:
       context: .
       dockerfile: dms.Dockerfile
@@ -45,7 +45,7 @@ services:
       - POSTGRES_PASSWORD=admin123
       - POSTGRES_DB=dms-db
     volumes:
-      - ${POSTGRES_DATA}:/var/lib/postgresql/data/
+      - postgres_db:/var/lib/postgresql/data/
     networks:
       - internal
   redis:
@@ -73,9 +73,20 @@ services:
       - "8080:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
+  celery:
+    <<: *python
+    container_name: celery_dms
+    entrypoint: celery -A DivisionManagementSystem worker -l INFO
+    depends_on:
+      - redis
+      - db
+      - dms
 
 networks:
   internal:
   traefik:
     external:
       name: traefik_default
+
+volumes:
+  postgres_db:

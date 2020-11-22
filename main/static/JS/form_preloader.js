@@ -27,6 +27,7 @@ $(document).ready(function() {
                     var p = $("<p>", {id: "error_1_id_" + key, "class": "invalid-feedback"});
                     var strong = $("<strong>").text(value);
 
+                    parent.find('p').remove();
                     p.append(strong);
                     parent.append(p);
                     p.show()

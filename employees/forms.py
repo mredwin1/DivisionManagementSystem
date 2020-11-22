@@ -204,7 +204,7 @@ class AssignCounseling(forms.Form):
         action_type_field = 'action_type'
         action_type = self.cleaned_data[action_type_field]
 
-        if action_type != '6' and action_type != '5':
+        if action_type != '6' or action_type != '5':
             history = {
                 '0': False,
                 '1': False,
@@ -225,7 +225,7 @@ class AssignCounseling(forms.Form):
             }
 
             for counseling_record in counseling_records:
-                if not counseling_record.attendance:
+                if not counseling_record.attendance and counseling_record.action_type != '5' and counseling_record.action_type != '6':
                     history[counseling_record.action_type] = True
 
             history_total = sum(history.values())
@@ -237,7 +237,6 @@ class AssignCounseling(forms.Form):
                 for key, value in history.items():
                     if history[key]:
                         current = int(key)
-
                 if current:
                     for x in range(current, -1, -1):
                         if not history[str(x)]:

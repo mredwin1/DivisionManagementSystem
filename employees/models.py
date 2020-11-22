@@ -1633,7 +1633,7 @@ class DayOff(models.Model):
 
 
 class Settlement(models.Model):
-    employee = models.OneToOneField(Employee, on_delete=models.CASCADE, null=True)
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True)
     details = models.TextField(default='', blank=False)
     created_date = models.DateField(null=True)
     assigned_by = models.CharField(default='', max_length=50)
@@ -1649,7 +1649,7 @@ class Settlement(models.Model):
         p.setLineWidth(.75)
 
         # Logo
-        p.drawInlineImage(settings.STATIC_ROOT + '\main\\MV_Transportation_logo.png', 3.5 * inch, 10 * inch, 1.5 * inch,
+        p.drawInlineImage(settings.STATIC_ROOT + '/main/MV_Transportation_logo.png', 3.5 * inch, 10 * inch, 1.5 * inch,
                           .75 * inch)
 
         # Title
@@ -1670,13 +1670,12 @@ class Settlement(models.Model):
                 p.drawString(1.125 * inch, y * inch, line)
                 y -= .20
         else:
-            p.drawString(1.75 * inch, y * inch, intro)
+            p.drawString(1.125 * inch, y * inch, intro)
             y -= .20
 
         y -= .3
 
         # Details
-
         for paragraph in self.details.replace('\r', '').split('\n'):
             if p.stringWidth(paragraph, 'Times-Roman', 12) > 175.0:
                 wrapped_text = textwrap.wrap(paragraph, width=93)
@@ -1684,7 +1683,7 @@ class Settlement(models.Model):
                     p.drawString(1.125 * inch, y * inch, line)
                     y -= .20
             else:
-                p.drawString(1.75 * inch, y * inch, paragraph)
+                p.drawString(1.125 * inch, y * inch, paragraph)
                 y -= .20
 
         y -= .3

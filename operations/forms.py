@@ -54,6 +54,15 @@ class EmployeeCreationForm(forms.Form):
     is_part_time = forms.BooleanField(label='Part Time', initial=False, required=False)
     is_neighbor_link = forms.BooleanField(label='NeighborLink Driver', initial=False, required=False)
 
+    def clean(self):
+        employee_ids = [employee.employee_id for employee in Employee.objects.all()]
+
+        employee_id_field = 'employee_id'
+        employee_id = self.cleaned_data[employee_id_field]
+
+        if employee_id in employee_ids:
+            self.add_error(employee_id_field, 'This employee id already exists')
+
     def save(self):
         company = Company.objects.get(display_name=self.cleaned_data['company'])
         new_employee = Employee(

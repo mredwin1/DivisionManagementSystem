@@ -278,7 +278,7 @@ def time_off_reports(request):
         (datetime.datetime.today() - datetime.timedelta(days=30))
     end_date = datetime.datetime.strptime(date_range[13:], '%m/%d/%Y') if date_range else \
         (datetime.datetime.today() + datetime.timedelta(days=30))
-    time_off_records = TimeOffRequest.objects.filter(is_active=True, employee__is_active=True).order_by(sort_by)
+    time_off_records = TimeOffRequest.objects.filter(is_active=True, employee__is_active=True)
 
     if search:
         try:
@@ -302,6 +302,9 @@ def time_off_reports(request):
 
     if start_date and end_date:
         time_off_records = time_off_records.filter(request_date__gte=start_date, request_date__lte=end_date)
+
+    if sort_by:
+        time_off_records = time_off_records.order_by(sort_by)
 
     f_form = TimeOffFilterForm(data={
         'sort_by': sort_by,
