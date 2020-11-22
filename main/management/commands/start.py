@@ -32,5 +32,5 @@ class Command(BaseCommand):
 
         call_command("migrate")
         call_command("collectstatic", interactive=False, clear=True)
-        os.system("gunicorn --preload -b 0.0.0.0:8001 DivisionManagementSystem.wsgi:application --threads 8 -w 4")
+        os.system("gunicorn --preload -b 0.0.0.0:80 DivisionManagementSystem.wsgi:application --threads 8 -w 4")
         exit()
