@@ -101,7 +101,7 @@ services:
 networks:
   internal:
   traefik:
-    external:
+    external: false
       name: traefik_default
 
 volumes:
