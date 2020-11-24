@@ -64,4 +64,5 @@ A django web application geared towards the transportation industry to help orga
     - SQL_HOST: The name of the postgresql service in the docker container which is 'db' by deafault. If you make changes to the docker-compose file then set this accordingly.
     - SQL_USER: The postgresql user that will have access to the created database.
     - SQL_PASSWORD: The password for the postgresql user
+    - DOMAIN: The domain which incoming requests will be sent to the dms service.
 4. Run the command 'docker-compose up' inside the main project directory where the docker-compose.yaml file is. This will make the server available throught localhost:8001 and to log in simply use what was set for SUPER_USERNAME and SUPER_PASSWORD.
