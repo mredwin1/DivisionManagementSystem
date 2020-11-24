@@ -18,9 +18,6 @@ services:
       - DEBUG=${DEBUG}
     depends_on:
       - db
-    networks:
-      - traefik
-      - internal
     labels:
       # Explicitly tell Traefik to expose this container
       - "traefik.enable=true"
@@ -52,20 +49,14 @@ services:
       - POSTGRES_DB=${SQL_DATABASE}
     volumes:
       - postgres_db:/var/lib/postgresql/data/
-    networks:
-      - internal
   redis:
     image: redis
     restart: always
     container_name: redis_dms
-    networks:
-      - internal
 
   traefik:
     image: "traefik:v2.3"
     container_name: "traefik"
-    networks:
-      - traefik
     command:
       - "--log.level=${TRAEFIK_LOG}"
       - "--api.insecure=false"
@@ -78,6 +69,7 @@ services:
       - "80:80"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
   celery:
     image: ghcr.io/mredwin1/dms:latest
     container_name: celery_dms
@@ -95,14 +87,6 @@ services:
       - SQL_PASSWORD=${SQL_PASSWORD}
       - SECRET_KEY=${SECRET_KEY}
       - DEBUG=${DEBUG}
-    networks:
-      - internal
-
-networks:
-  internal:
-  traefik:
-    external: false
-      name: traefik_default
 
 volumes:
   postgres_db:
