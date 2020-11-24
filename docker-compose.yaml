@@ -41,9 +41,9 @@ services:
     restart: always
     container_name: postgres_dms
     environment:
-      - POSTGRES_USER=dms
-      - POSTGRES_PASSWORD=admin123
-      - POSTGRES_DB=dms-db
+      - POSTGRES_USER=${SQL_USER}
+      - POSTGRES_PASSWORD=${SQL_PASSWORD}
+      - POSTGRES_DB=${SQL_DATABASE}
     volumes:
       - postgres_db:/var/lib/postgresql/data/
     networks:

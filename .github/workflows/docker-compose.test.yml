@@ -17,9 +17,12 @@ jobs:
      SQL_PASSWORD: testing321
      SECRET_KEY: ${{ secrets.SECRET_KEY }}
      DEBUG: 0
+     TRAEFIK_LOG: INFO
+     DOMAIN: dms.localhost
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v1
       - name: Build docker-compose stack
+        run: docker network create traefik_default
         run: docker-compose --file docker-compose.ci.yaml run dms test
