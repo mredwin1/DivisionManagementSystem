@@ -19,7 +19,7 @@ services:
       # Explicitly tell Traefik to expose this container
       - "traefik.enable=true"
       # The domain the service will respond to
-      - "traefik.http.routers.dms.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.dms.rule=Host(`${DOMAIN}`, www.${DOMAIN}`)"
       # Allow request only from the predefined entry point named "web"
       - "traefik.http.routers.dms.entrypoints=web"
       # Tell it to listen to port 80 inside the Docker container
