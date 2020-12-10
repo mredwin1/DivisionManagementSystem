@@ -74,7 +74,7 @@ services:
       - "--entrypoints.websecure.address=:443"
       # SSL Set Up
       - "--certificatesResolvers.le.acme.email=${ACME_EMAIL}"
-      - "--certificatesResolvers.le.acme.storage=acme.json"
+      - "--certificatesResolvers.le.acme.storage=/letsencrypt/acme.json"
       - "--certificatesResolvers.le.acme.tlsChallenge=true"
       - "--certificatesResolvers.le.acme.httpChallenge=true"
       - "--certificatesResolvers.le.acme.httpChallenge.entryPoint=web"
@@ -86,6 +86,7 @@ services:
       - "443:443"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "/letsencrypt:/letsencrypt"
   celery:
     image: ghcr.io/mredwin1/dms:latest
     container_name: celery_dms
