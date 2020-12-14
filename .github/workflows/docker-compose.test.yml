@@ -19,6 +19,13 @@ jobs:
      DEBUG: 0
      TRAEFIK_LOG: INFO
      DOMAIN: dms.localhost
+     EMAIL_HOST: smpt.test.host
+     EMAIL_PORT: 25
+     EMAIL_HOST_USER: user@example.com
+     EMAIL_HOST_PASSWORD: testing321
+     EMAIL_USE_TLS: 1
+     DEFAULT_FROM_EMAIL: user@example.com
+     USE_S3: 0
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
