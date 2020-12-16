@@ -1,7 +1,6 @@
 # DivisionManagementSystem
-A django web application geared towards the transportation industry to help organize employee data, discipline, and time off.
+A django web application geared towards the transportation industry to help organize employee data, discipline, and time off. The application is containerized for easy deployment and can be set up in a matter of minutes.
 
----
 ## Features
 
 #### Manage Employees
@@ -50,7 +49,8 @@ A django web application geared towards the transportation industry to help orga
 ---
 ## Installation
 
-1. Install docker. [Windows/Mac](https://www.docker.com/products/docker-desktop)
+1. Install docker & docker-compose. [Windows/Mac](https://www.docker.com/products/docker-desktop)
+2. Create a docker network with the name "traefik_default"
 2. Clone repo
 3. Create a .env for all required environment variables
     - SECRET_KEY: The django secret key. [This](https://djecrety.ir/) can be used to generate a random secret key. More info on how this affects the project can be read [here](https://docs.djangoproject.com/en/3.1/ref/settings/#secret-key).
@@ -65,4 +65,10 @@ A django web application geared towards the transportation industry to help orga
     - SQL_USER: The postgresql user that will have access to the created database.
     - SQL_PASSWORD: The password for the postgresql user
     - DOMAIN: The domain which incoming requests will be sent to the dms service.
-4. Run the command 'docker-compose up' inside the main project directory where the docker-compose.yaml file is. This will make the server available throught localhost:8001 and to log in simply use what was set for SUPER_USERNAME and SUPER_PASSWORD.
+    - ACME_EMAIL: The email in which you will register all the SSL with LetsEncrypt
+    - TRAEFIK_LOG: The log level in which to run the traefik docker service
+    - USE_S3: To either use S3 for all static and media files or use the filesystem on the local server. Set this to either 0 or 1.
+    - AWS_ACCESS_KEY_ID: The access key ID for the AWS S3 bucket
+    - AWS_SECRET_ACCESS_KEY: The access key for the AWS S3 bucket
+    - AWS_STORAGE_BUCKET_NAME: The name set for the AWS S3 bucket
+4. Run the command 'docker-compose up' inside the main project directory where the docker-compose.yaml file is. This will make the server available through the set DOMAIN, to log in simply use what was set for SUPER_USERNAME and SUPER_PASSWORD.
