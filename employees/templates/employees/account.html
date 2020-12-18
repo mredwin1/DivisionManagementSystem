@@ -250,36 +250,25 @@
             }
         });
         {% if download == 'Attendance' and attendance.first.downloaded == False %}
-            window.onload = async function(e){
-                let protocol = window.location.protocol
-                let url = ''
-                let full_url = ''
-                {% for url in attendance.first|attendance_download:request.get_host %}
-                    {% if url %}
-                        url = '{{ url }}'
-                        full_url = protocol + '//' + url
-                        window.location.href = full_url
-                        await new Promise(r => setTimeout(r, 2000));
-                    {% endif %}
-                {% endfor %}
-            return false;
-        }
+            {% for url in attendance.first|document_download %}
+                {% if url %}
+                    window.open('{{ url }}');
+                {% endif %}
+            {% endfor %}
         {% endif %}
         {% if download == 'Counseling' and counseling.first.downloaded == False %}
-            window.onload = function(e){
-                let protocol = window.location.protocol
-                let url = '{{ counseling.first|counseling_download:request.get_host }}'
-                window.location.href = protocol + '//' + url
-            return false;
-        }
+            {% for url in counseling.first|document_download %}
+                {% if url %}
+                    window.open('{{ url }}');
+                {% endif %}
+            {% endfor %}
         {% endif %}
         {% if download == 'Safety Point' and safety_point.first.downloaded == False %}
-            window.onload = function(e){
-                let protocol = window.location.protocol
-                let url = '{{ safety_point.first|safety_point_download:request.get_host }}'
-                window.location.href = protocol + '//' + url
-            return false;
-        }
+            {% for url in safety_point.first|document_download %}
+                {% if url %}
+                    window.open('{{ url }}');
+                {% endif %}
+            {% endfor %}
         {% endif %}
         $(document).ready(function(){
 
