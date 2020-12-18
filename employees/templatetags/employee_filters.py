@@ -188,48 +188,22 @@ def param_replace(context, **kwargs):
 
 
 @register.filter()
-def attendance_download(value, arg):
-    """
-    Takes an attendance object and returns the url to download the PDF and Counseling PDF if available.
+def document_download(value):
+    """Takes an object and checks if there is a document to download if so it returns it's url it also checks if that
+    object has a counseling object associated with it and document to download and will also return that url.
 
     :param value: Attendance object
     :return: A list with Url for PDF download and URL for Counseling PDF download if there is one
     """
-    attendance_download_url = arg + reverse('employee-attendance-download', args=[value.employee.employee_id, value.id])
+    download_urls = []
+    download_urls.append(value.document.url)
 
     try:
-        counseling_id = value.counseling.id
-        counseling_download_url = arg + reverse('employee-counseling-download', args=[value.employee.employee_id, counseling_id])
+        download_urls.append(value.counseling.document.url)
     except Counseling.DoesNotExist:
-        counseling_download_url = ''
+        pass
 
-    return [attendance_download_url, counseling_download_url]
-
-@register.filter()
-def counseling_download(value, arg):
-    """
-    Takes an Counseling object and returns the url to download the PDF
-
-    :param value: Counseling object
-    :return: URL to download the PDF
-    """
-    counseling_download_url = arg + reverse('employee-counseling-download', args=[value.employee.employee_id, value.id])
-
-    return counseling_download_url
-
-
-@register.filter()
-def safety_point_download(value, arg):
-    """
-    Takes a Safety Point object and returns the url to download the PDF.
-
-    :param value: Safety Point object
-    :return: A list with Url for PDF download and URL for Counseling PDF download if there is one
-    """
-    attendance_download_url = arg + reverse('employee-safety-point-download', args=[value.employee.employee_id, value.id])
-
-
-    return attendance_download_url
+    return download_urls
 
 
 @register.filter()
