@@ -714,7 +714,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         """Gets all the active Counseling Objects for the Employee and merges all documents into one and make a summary
         page for the beginning
         """
-        counseling_history = Counseling.objects.filter(employee=self, is_active=True).order_by('-id')
+        safety_point_history = SafetyPoint.objects.filter(employee=self, is_active=True).order_by('-id')
         buffer = io.BytesIO()
 
         merged_object = PdfFileMerger()
@@ -739,14 +739,14 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         p.setFontSize(18)
         p.drawCentredString(4.25 * inch, 10 * inch, title)
 
-        total_pages = int(len(counseling_history) / 30) + 1
+        total_pages = int(len(safety_point_history) / 30) + 1
         page_num = 1
         y = 9.25
 
         counter = 1
 
         # Adding counseling history to the cover page and setting the written warning removal dates
-        for counseling in counseling_history:
+        for counseling in safety_point_history:
             p.setFont('Helvetica', 10)
 
             p.drawString(1.50 * inch, y * inch, counseling.issued_date.strftime('%m-%d-%Y'))
@@ -754,7 +754,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
             p.drawString(5.40 * inch, y * inch, counseling.assigned_by)
             p.line(1.40 * inch, (y - .1) * inch, 7.10 * inch, (y - .1) * inch)  # Bottom
 
-            if y == 1 or len(counseling_history) == counter:
+            if y == 1 or len(safety_point_history) == counter:
                 p.setFont('Helvetica-Bold', 10)
 
                 grid_bottom = y - .1
