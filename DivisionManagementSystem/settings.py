@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     'imagekit',
     'notifications',
     'storages',
-    'django_cleanup.apps.CleanupConfig', # This always has to be last in order to discover all file fields properly
+    'django_cleanup.apps.CleanupConfig',  # This always has to be last in order to discover all file fields properly
 ]
 
 MIDDLEWARE = [
