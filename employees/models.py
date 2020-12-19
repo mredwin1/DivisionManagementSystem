@@ -1,5 +1,6 @@
 import datetime
 import io
+import requests
 import textwrap
 
 from PyPDF2 import PdfFileMerger, PdfFileReader
@@ -615,7 +616,9 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         merged_object.append(PdfFileReader(ContentFile(cover_buffer.getbuffer())))
 
         for attendance in attendance_history:
-            merged_object.append(PdfFileReader(attendance.document.path))
+            remote_file = requests.get(attendance.document.url).content
+            memory_file = io.BytesIO(remote_file)
+            merged_object.append(PdfFileReader(memory_file))
 
         merged_object.write(buffer)
 
@@ -699,7 +702,9 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         merged_object.append(PdfFileReader(ContentFile(cover_buffer.getbuffer())))
 
         for counseling in counseling_history:
-            merged_object.append(PdfFileReader(counseling.document.path))
+            remote_file = requests.get(counseling.document.url).content
+            memory_file = io.BytesIO(remote_file)
+            merged_object.append(PdfFileReader(memory_file))
 
         merged_object.write(buffer)
 
@@ -709,7 +714,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         """Gets all the active Counseling Objects for the Employee and merges all documents into one and make a summary
         page for the beginning
         """
-        counseling_history = Counseling.objects.filter(employee=self, is_active=True).order_by('-id')
+        safety_point_history = SafetyPoint.objects.filter(employee=self, is_active=True).order_by('-id')
         buffer = io.BytesIO()
 
         merged_object = PdfFileMerger()
@@ -734,14 +739,14 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         p.setFontSize(18)
         p.drawCentredString(4.25 * inch, 10 * inch, title)
 
-        total_pages = int(len(counseling_history) / 30) + 1
+        total_pages = int(len(safety_point_history) / 30) + 1
         page_num = 1
         y = 9.25
 
         counter = 1
 
         # Adding counseling history to the cover page and setting the written warning removal dates
-        for counseling in counseling_history:
+        for counseling in safety_point_history:
             p.setFont('Helvetica', 10)
 
             p.drawString(1.50 * inch, y * inch, counseling.issued_date.strftime('%m-%d-%Y'))
@@ -749,7 +754,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
             p.drawString(5.40 * inch, y * inch, counseling.assigned_by)
             p.line(1.40 * inch, (y - .1) * inch, 7.10 * inch, (y - .1) * inch)  # Bottom
 
-            if y == 1 or len(counseling_history) == counter:
+            if y == 1 or len(safety_point_history) == counter:
                 p.setFont('Helvetica-Bold', 10)
 
                 grid_bottom = y - .1
@@ -782,8 +787,10 @@ class Employee(AbstractBaseUser, PermissionsMixin):
 
         merged_object.append(PdfFileReader(ContentFile(cover_buffer.getbuffer())))
 
-        for counseling in counseling_history:
-            merged_object.append(PdfFileReader(counseling.document.path))
+        for safety_point in safety_point_history:
+            remote_file = requests.get(safety_point.document.url).content
+            memory_file = io.BytesIO(remote_file)
+            merged_object.append(PdfFileReader(memory_file))
 
         merged_object.write(buffer)
 
@@ -1179,7 +1186,9 @@ class SafetyPoint(models.Model):
         p.drawRightString(7.75 * inch, 9.65 * inch, header5)
 
         # Logo
-        p.drawInlineImage(settings.STATIC_ROOT + '\main\\MV_Transportation_logo.png', 1 * inch, 9.5 * inch, 1.5 * inch, .75 * inch)
+        # logo_url = static('\main\\on-hold-stamp.png')
+        # print(logo_url)
+        # p.drawInlineImage(settings.STATIC_ROOT + '\main\\MV_Transportation_logo.png', 1 * inch, 9.5 * inch, 1.5 * inch, .75 * inch)
 
         # Title
         title = 'SAFETY POINT NOTICE'

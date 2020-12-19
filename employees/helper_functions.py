@@ -1,5 +1,6 @@
 import datetime
 import io
+import requests
 
 from PyPDF2 import PdfFileMerger, PdfFileReader
 from django.core.files.base import ContentFile
@@ -25,10 +26,14 @@ def combine_attendance_documents(attendance_ids):
     attendance_list = Attendance.objects.filter(id__in=attendance_ids)
 
     for attendance in attendance_list:
-        merged_object.append(PdfFileReader(attendance.document.path))
+        remote_file = requests.get(attendance.document.url).content
+        memory_file = io.BytesIO(remote_file)
+        merged_object.append(PdfFileReader(memory_file))
 
         try:
-            merged_object.append(PdfFileReader(attendance.counseling.document.path))
+            remote_file = requests.get(attendance.counseling.document.url).content
+            memory_file = io.BytesIO(remote_file)
+            merged_object.append(PdfFileReader(memory_file))
         except Counseling.DoesNotExist:
             pass
 

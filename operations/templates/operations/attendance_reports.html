@@ -105,7 +105,7 @@
                 <h4 class="text-center m-0">{{ record.points|points_return }}</h4>
             </div>
             <div class="col-lg-1 col-md-1 col-sm-1 p-0">
-                <h4 class="text-center m-0"><a class="attendance-document" href="{% url 'employee-attendance-download' employee_id=record.employee.employee_id attendance_id=record.id %}" id="row4col1">PDF File</a></h4>
+                <h4 class="text-center m-0"><a class="attendance-document" href="{{ record.document.url }}" target="_blank" id="row4col1">PDF File</a></h4>
             </div>
             <div class="col-lg-1 col-md-1 col-sm-1 p-0">
                 <h4 class="text-center m-0">{{ record.assigned_by }}</h4>

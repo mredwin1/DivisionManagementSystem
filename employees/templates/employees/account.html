@@ -92,7 +92,7 @@
                         <div class="card scroll1 my-3">
                             <ul class="list-group list-group-flush h-100">
                                 {% for record in attendance %}
-                                    <li class="list-group-item cursor-pointer" data-toggle="modal" data-target="#mainModal" data-title="Attendance Point" data-document-href="{% url 'employee-attendance-download' employee_id=employee.employee_id attendance_id=record.id %}" data-secondary-href="{% url 'employee-remove-attendance' employee_id=employee.employee_id attendance_id=record.id %}" data-primary-href="{% url 'employee-edit-attendance' employee_id=employee.employee_id attendance_id=record.id %}" data-row1col1="Incident Date" data-row1col2="Issued Date" data-row2col1="{{ record.incident_date|pretty_date }}" data-row2col2="{{ record.issued_date|pretty_date }}" data-row3col1="Document" data-row3col2="Assigned By" data-row4col1="Attendace PDF File" data-row4col2="{{ record.assigned_by }}" data-row5col1="Reason" data-row5col2="Points" data-row6col1="{{ record.reason|attendance_reason_return }}" data-row6col2="{{ record.points|points_return }}" data-row6col3="" data-row7col1="Exemption" data-row7col2="Counseling" data-row8col1="{{ record.exemption|exemption_return }}" data-row8col2="{{ record.counseling.action_type|action_type_return }}" data-row8col3="" data-row9col1="{% if record.edited_date %}Edited Date{% endif %}" data-row9col2="{% if record.edited_by %}Edited By{% endif %}" data-row10col1="{% if record.edited_date %}{{ record.edited_date|pretty_date }}{% endif %}" data-row10col2="{% if record.edited_by %}{{ record.edited_by }}{% endif %}" data-row10col3="">
+                                    <li class="list-group-item cursor-pointer" data-toggle="modal" data-target="#mainModal" data-title="Attendance Point" data-document-href="{{ record.document.url }}" data-secondary-href="{% url 'employee-remove-attendance' employee_id=employee.employee_id attendance_id=record.id %}" data-primary-href="{% url 'employee-edit-attendance' employee_id=employee.employee_id attendance_id=record.id %}" data-row1col1="Incident Date" data-row1col2="Issued Date" data-row2col1="{{ record.incident_date|pretty_date }}" data-row2col2="{{ record.issued_date|pretty_date }}" data-row3col1="Document" data-row3col2="Assigned By" data-row4col1="Attendace PDF File" data-row4col2="{{ record.assigned_by }}" data-row5col1="Reason" data-row5col2="Points" data-row6col1="{{ record.reason|attendance_reason_return }}" data-row6col2="{{ record.points|points_return }}" data-row6col3="" data-row7col1="Exemption" data-row7col2="Counseling" data-row8col1="{{ record.exemption|exemption_return }}" data-row8col2="{{ record.counseling.action_type|action_type_return }}" data-row8col3="" data-row9col1="{% if record.edited_date %}Edited Date{% endif %}" data-row9col2="{% if record.edited_by %}Edited By{% endif %}" data-row10col1="{% if record.edited_date %}{{ record.edited_date|pretty_date }}{% endif %}" data-row10col2="{% if record.edited_by %}{{ record.edited_by }}{% endif %}" data-row10col3="">
                                         <div class="row">
                                             <div class="col-6">
                                                 <small><b>Incident Date:</b> {{ record.incident_date|pretty_date }}</small>
@@ -132,7 +132,7 @@
                         <div class="card scroll1 my-3">
                             <ul class="list-group list-group-flush h-100">
                                 {% for record in safety_point %}
-                                    <li class="list-group-item cursor-pointer" data-toggle="modal" data-target="#mainModal" data-title="Safety Point" data-document-href="{% url 'employee-safety-point-download' employee_id=employee.employee_id safety_point_id=record.id %}" data-secondary-href="{% url 'employee-remove-safety-point' employee_id=employee.employee_id safety_point_id=record.id %}" data-primary-href="{% url 'employee-edit-safety-point' employee_id=employee.employee_id safety_point_id=record.id %}" data-row1col1="Incident Date" data-row1col2="Issued Date" data-row2col1="{{ record.incident_date|pretty_date }}" data-row2col2="{{ record.issued_date|pretty_date }}" data-row3col1="Document" data-row3col2="Points" data-row4col1="Safety Point PDF File" data-row4col2="{{ record.points }}" data-row5col1="Reason" data-row5col2="Assigned By" data-row6col1="{{ record.reason|safety_point_reason_return }}" data-row6col2="{{ record.assigned_by }}" data-row6col3="" data-row7col1="" data-row7col2="" data-row8col1="" data-row8col2="" data-row8col3="" data-row9col1="" data-row9col2="" data-row10col1="" data-row10col2="" data-row10col3="">
+                                    <li class="list-group-item cursor-pointer" data-toggle="modal" data-target="#mainModal" data-title="Safety Point" data-document-href="{{ record.document.url }}" data-secondary-href="{% url 'employee-remove-safety-point' employee_id=employee.employee_id safety_point_id=record.id %}" data-primary-href="{% url 'employee-edit-safety-point' employee_id=employee.employee_id safety_point_id=record.id %}" data-row1col1="Incident Date" data-row1col2="Issued Date" data-row2col1="{{ record.incident_date|pretty_date }}" data-row2col2="{{ record.issued_date|pretty_date }}" data-row3col1="Document" data-row3col2="Points" data-row4col1="Safety Point PDF File" data-row4col2="{{ record.points }}" data-row5col1="Reason" data-row5col2="Assigned By" data-row6col1="{{ record.reason|safety_point_reason_return }}" data-row6col2="{{ record.assigned_by }}" data-row6col3="" data-row7col1="" data-row7col2="" data-row8col1="" data-row8col2="" data-row8col3="" data-row9col1="" data-row9col2="" data-row10col1="" data-row10col2="" data-row10col3="">
                                         <div class="row">
                                             <div class="col-6">
                                                 <small><b>Incident Date:</b> {{ record.incident_date|pretty_date }}</small>
@@ -174,7 +174,7 @@
                         <div class="card scroll1 my-3">
                             <ul class="list-group list-group-flush h-100">
                                 {% for record in counseling %}
-                                    <li class="list-group-item cursor-pointer" data-toggle="modal" data-target="#mainModal" data-title="Counseling" data-document-href="{% url 'employee-counseling-download' employee_id=employee.employee_id counseling_id=record.id %}" data-secondary-href="{% url 'employee-remove-counseling' employee_id=employee.employee_id counseling_id=record.id %}" data-primary-href="{% url 'employee-edit-counseling' employee_id=employee.employee_id counseling_id=record.id %}" data-row1col1="Assigned By" data-row1col2="Issued Date" data-row2col1="{{ record.assigned_by }}" data-row2col2="{{ record.issued_date|pretty_date }}" data-row3col1="Document" data-row3col2="Hearing Date" data-row4col1="Counseling PDF File" data-row4col2="{{ record.hearing_datetime|pretty_datetime }}" data-row5col1="Type of Action" data-row5col2="" data-row6col1="" data-row6col2="" data-row6col3="{{ record.action_type|action_type_return }}" data-row7col1="Employee Conduct" data-row7col2="" data-row8col1="" data-row8col2="" data-row8col3="{{ record.conduct }}" data-row9col1="Conversation" data-row9col2="" data-row10col1="" data-row10col2="" data-row10col3="{{ record.conversation }}">
+                                    <li class="list-group-item cursor-pointer" data-toggle="modal" data-target="#mainModal" data-title="Counseling" data-document-href="{{ record.document.url }}" data-secondary-href="{% url 'employee-remove-counseling' employee_id=employee.employee_id counseling_id=record.id %}" data-primary-href="{% url 'employee-edit-counseling' employee_id=employee.employee_id counseling_id=record.id %}" data-row1col1="Assigned By" data-row1col2="Issued Date" data-row2col1="{{ record.assigned_by }}" data-row2col2="{{ record.issued_date|pretty_date }}" data-row3col1="Document" data-row3col2="Hearing Date" data-row4col1="Counseling PDF File" data-row4col2="{{ record.hearing_datetime|pretty_datetime }}" data-row5col1="Type of Action" data-row5col2="" data-row6col1="" data-row6col2="" data-row6col3="{{ record.action_type|action_type_return }}" data-row7col1="Employee Conduct" data-row7col2="" data-row8col1="" data-row8col2="" data-row8col3="{{ record.conduct }}" data-row9col1="Conversation" data-row9col2="" data-row10col1="" data-row10col2="" data-row10col3="{{ record.conversation }}">
                                         <div class="row">
                                             <div class="col-5">
                                                 <small><b>Issued Date:</b> {{ record.issued_date|pretty_date }}</small>
@@ -250,36 +250,25 @@
             }
         });
         {% if download == 'Attendance' and attendance.first.downloaded == False %}
-            window.onload = async function(e){
-                let protocol = window.location.protocol
-                let url = ''
-                let full_url = ''
-                {% for url in attendance.first|attendance_download:request.get_host %}
-                    {% if url %}
-                        url = '{{ url }}'
-                        full_url = protocol + '//' + url
-                        window.location.href = full_url
-                        await new Promise(r => setTimeout(r, 2000));
-                    {% endif %}
-                {% endfor %}
-            return false;
-        }
+            {% for url in attendance.first|document_download %}
+                {% if url %}
+                    window.open('{{ url }}');
+                {% endif %}
+            {% endfor %}
         {% endif %}
         {% if download == 'Counseling' and counseling.first.downloaded == False %}
-            window.onload = function(e){
-                let protocol = window.location.protocol
-                let url = '{{ counseling.first|counseling_download:request.get_host }}'
-                window.location.href = protocol + '//' + url
-            return false;
-        }
+            {% for url in counseling.first|document_download %}
+                {% if url %}
+                    window.open('{{ url }}');
+                {% endif %}
+            {% endfor %}
         {% endif %}
         {% if download == 'Safety Point' and safety_point.first.downloaded == False %}
-            window.onload = function(e){
-                let protocol = window.location.protocol
-                let url = '{{ safety_point.first|safety_point_download:request.get_host }}'
-                window.location.href = protocol + '//' + url
-            return false;
-        }
+            {% for url in safety_point.first|document_download %}
+                {% if url %}
+                    window.open('{{ url }}');
+                {% endif %}
+            {% endfor %}
         {% endif %}
         $(document).ready(function(){
 
@@ -387,7 +376,7 @@
             </div>
         </div>
         <div class="row justify-content-center" id="row4">
-            <div class="col-6 modal-body-content"><a class="account-content" href="" id="row4col1"></a></div>
+            <div class="col-6 modal-body-content"><a class="account-content" href="" target="_blank" id="row4col1"></a></div>
             <div class="col-6 modal-body-content"  id="row4col2">
             </div>
             <div class="col-12 modal-body-content" id="row4col3">
