@@ -699,6 +699,25 @@ def export_counseling_history(request, employee_id):
 
 
 @login_required
+@permission_required('employees.can_export_safety_point_history', raise_exception=True)
+def export_safety_point_history(request, employee_id):
+    employee = Employee.objects.get(employee_id=employee_id)
+    pretty_filename = f'{employee.first_name} {employee.last_name} Safety Point History.pdf'
+
+    response = HttpResponse(employee.create_safety_point_history_document(), content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = f'attachment;filename="{pretty_filename}"'
+
+    return response
+
+    # try:
+    #
+    # except:
+    #     messages.add_message(request, messages.ERROR, 'No File to Download')
+    #
+    #     return redirect('employee-account', employee_id)
+
+
+@login_required
 @permission_required('employees.can_upload_profile_picture', raise_exception=True)
 def upload_profile_picture(request, employee_id):
     employee = Employee.objects.get(employee_id=employee_id)

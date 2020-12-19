@@ -31,5 +31,6 @@ urlpatterns = [
     path('notification-settings/', employee_views.notification_settings, name='employee-notification-settings'),
     path('export-attendance-history/<int:employee_id>/', employee_views.export_attendance_history, name='employee-export-attendance-history'),
     path('export-counseling-history/<int:employee_id>/', employee_views.export_counseling_history, name='employee-export-counseling-history'),
+    path('export-safety-point-history/<int:employee_id>/', employee_views.export_safety_point_history, name='employee-export-safety-point-history'),
     path('upload-profile-picture/<int:employee_id>/', employee_views.upload_profile_picture, name='employee-upload-profile-picture'),
 ]

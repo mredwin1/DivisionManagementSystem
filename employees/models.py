@@ -720,22 +720,30 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         merged_object = PdfFileMerger()
         cover_buffer = io.BytesIO()
 
-        action_types = {
-            '0': 'Verbal Counseling',
-            '1': 'Verbal Warning',
-            '2': 'First Written Warning Notice',
-            '3': 'Final Written Warning Notice & 3 Day Suspension',
-            '4': 'Last & Final Warning',
-            '5': 'Discharge for \"Just Cause\"',
-            '6': 'Administrative Removal from Service',
+        reason_choices = {
+            '0': 'Unsafe maneuver(s) or act',
+            '1': 'Failure to cycle wheelchair lift',
+            '2': 'Failure to do a proper vehicle inspection (DVI)',
+            '3': 'Improper following distance',
+            '4': 'Conviction of a minor traffic violation',
+            '5': 'Backing Accident',
+            '6': 'Minor Preventable incident',
+            '7': 'Use of a non company-issued electronic device',
+            '8': 'Major preventable incident',
+            '9': 'Major preventable incident',
+            '10': 'Any preventable roll-away incident',
+            '11': 'Failure to properly secure/transport a mobility device',
+            '12': 'Failure to immediately report a citation or incident',
+            '13': 'Tampering with with Drive Cam or other monitoring equipment',
+            '14': 'Conviction of a major traffic violation'
         }
-
+        
         p = canvas.Canvas(cover_buffer, pagesize=letter)
 
         p.setLineWidth(.75)
 
         # Title
-        title = f"{self.get_full_name()}'s Counseling History"
+        title = f"{self.get_full_name()}'s Safety Point History"
         p.setFontSize(18)
         p.drawCentredString(4.25 * inch, 10 * inch, title)
 
@@ -746,13 +754,13 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         counter = 1
 
         # Adding counseling history to the cover page and setting the written warning removal dates
-        for counseling in safety_point_history:
+        for safety_point in safety_point_history:
             p.setFont('Helvetica', 10)
 
-            p.drawString(1.50 * inch, y * inch, counseling.issued_date.strftime('%m-%d-%Y'))
-            p.drawString(3.00 * inch, y * inch, action_types[counseling.action_type])
-            p.drawString(5.40 * inch, y * inch, counseling.assigned_by)
-            p.line(1.40 * inch, (y - .1) * inch, 7.10 * inch, (y - .1) * inch)  # Bottom
+            p.drawString(1.00 * inch, y * inch, safety_point.issued_date.strftime('%m-%d-%Y'))
+            p.drawString(2.00 * inch, y * inch, reason_choices[safety_point.reason])
+            p.drawString(6.00 * inch, y * inch, safety_point.assigned_by)
+            p.line(0.90 * inch, (y - .1) * inch, 7.60 * inch, (y - .1) * inch)  # Bottom
 
             if y == 1 or len(safety_point_history) == counter:
                 p.setFont('Helvetica-Bold', 10)
@@ -761,20 +769,20 @@ class Employee(AbstractBaseUser, PermissionsMixin):
                 y = 9.50
 
                 # Heading
-                p.drawString(1.50 * inch, y * inch, 'Issued Date')
-                p.drawString(3.00 * inch, y * inch, 'Action Type')
-                p.drawString(5.40 * inch, y * inch, 'Assigned By')
+                p.drawString(1.00 * inch, y * inch, 'Issued Date')
+                p.drawString(2.00 * inch, y * inch, 'Action Type')
+                p.drawString(6.00 * inch, y * inch, 'Assigned By')
 
                 # Footer
                 p.drawString(1 * inch, .5 * inch, datetime.datetime.today().strftime('%A, %B %d, %Y'))
                 p.drawRightString(7.5 * inch, .5 * inch, f'Page {page_num} of {total_pages}')
 
                 # Grid
-                p.line(1.40 * inch, (y - .07) * inch, 7.10 * inch, (y - .07) * inch)  # Top
-                p.line(1.40 * inch, (y - .07) * inch, 1.40 * inch, grid_bottom * inch)  # Left
-                p.line(7.10 * inch, (y - .07) * inch, 7.10 * inch, grid_bottom * inch)  # Right
-                p.line(2.90 * inch, (y - .07) * inch, 2.90 * inch, grid_bottom * inch)  # Vertical 1
-                p.line(5.30 * inch, (y - .07) * inch, 5.30 * inch, grid_bottom * inch)  # Vertical 2
+                p.line(0.90 * inch, (y - .07) * inch, 7.60 * inch, (y - .07) * inch)  # Top
+                p.line(0.90 * inch, (y - .07) * inch, 0.90 * inch, grid_bottom * inch)  # Left
+                p.line(7.60 * inch, (y - .07) * inch, 7.60 * inch, grid_bottom * inch)  # Right
+                p.line(1.90 * inch, (y - .07) * inch, 1.90 * inch, grid_bottom * inch)  # Vertical 1
+                p.line(5.90 * inch, (y - .07) * inch, 5.90 * inch, grid_bottom * inch)  # Vertical 2
 
                 p.showPage()
 
