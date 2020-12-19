@@ -154,7 +154,7 @@
                             </ul>
                         </div>
                         <div class="d-flex justify-content-between">
-                            <a class="cursor-default" href="{% if perms.employees.can_export_safety_history %}{% else %}#{% endif %}">
+                            <a class="cursor-default" href="{% if perms.employees.can_export_safety_history %}{% url 'employee-export-safety-point-history' employee_id=employee.employee_id %}{% else %}#{% endif %}">
                                 <i class="fas fa-file-export fa-lg icon-link pt-2 pl-2{% if perms.employees.can_export_safety_history %} cursor-pointer{% endif %}"></i>
                             </a>
                             <h3 class="text-right">Total Points: {{ safety_point|total_points }}</h3>
