@@ -195,12 +195,11 @@ def document_download(value):
     :param value: Attendance object
     :return: A list with Url for PDF download and URL for Counseling PDF download if there is one
     """
-    download_urls = []
-    download_urls.append(value.document.url)
+    download_urls = [value.document.url]
 
     try:
         download_urls.append(value.counseling.document.url)
-    except Counseling.DoesNotExist:
+    except (Counseling.DoesNotExist, AttributeError):
         pass
 
     return download_urls
