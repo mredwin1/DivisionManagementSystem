@@ -47,11 +47,11 @@ INSTALLED_APPS = [
     'operations.apps.OperationsConfig',
     'crispy_forms',
     'phonenumber_field',
-    'django_cleanup.apps.CleanupConfig',
     'bootstrap_daterangepicker',
     'imagekit',
     'notifications',
-    'storages'
+    'storages',
+    'django_cleanup.apps.CleanupConfig', # This always has to be last in order to discover all file fields properly
 ]
 
 MIDDLEWARE = [
