@@ -702,7 +702,9 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         merged_object.append(PdfFileReader(ContentFile(cover_buffer.getbuffer())))
 
         for counseling in counseling_history:
-            merged_object.append(PdfFileReader(counseling.document.path))
+            remote_file = requests.get(counseling.document.url).content
+            memory_file = io.BytesIO(remote_file)
+            merged_object.append(PdfFileReader(memory_file))
 
         merged_object.write(buffer)
 
@@ -785,8 +787,10 @@ class Employee(AbstractBaseUser, PermissionsMixin):
 
         merged_object.append(PdfFileReader(ContentFile(cover_buffer.getbuffer())))
 
-        for counseling in counseling_history:
-            merged_object.append(PdfFileReader(counseling.document.path))
+        for safety_point in safety_point_history:
+            remote_file = requests.get(safety_point.document.url).content
+            memory_file = io.BytesIO(remote_file)
+            merged_object.append(PdfFileReader(memory_file))
 
         merged_object.write(buffer)
 
