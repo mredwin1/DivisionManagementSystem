@@ -1179,7 +1179,9 @@ class SafetyPoint(models.Model):
         p.drawRightString(7.75 * inch, 9.65 * inch, header5)
 
         # Logo
-        p.drawInlineImage(settings.STATIC_ROOT + '\main\\MV_Transportation_logo.png', 1 * inch, 9.5 * inch, 1.5 * inch, .75 * inch)
+        # logo_url = static('\main\\on-hold-stamp.png')
+        # print(logo_url)
+        # p.drawInlineImage(settings.STATIC_ROOT + '\main\\MV_Transportation_logo.png', 1 * inch, 9.5 * inch, 1.5 * inch, .75 * inch)
 
         # Title
         title = 'SAFETY POINT NOTICE'
