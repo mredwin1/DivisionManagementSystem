@@ -1,5 +1,6 @@
 import datetime
 import io
+import requests
 import textwrap
 
 from PyPDF2 import PdfFileMerger, PdfFileReader
@@ -615,7 +616,9 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         merged_object.append(PdfFileReader(ContentFile(cover_buffer.getbuffer())))
 
         for attendance in attendance_history:
-            merged_object.append(PdfFileReader(attendance.document.path))
+            remote_file = requests.get(attendance.document.url).content
+            memory_file = io.BytesIO(remote_file)
+            merged_object.append(PdfFileReader(memory_file))
 
         merged_object.write(buffer)
 
