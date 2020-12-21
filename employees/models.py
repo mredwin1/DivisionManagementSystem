@@ -164,6 +164,10 @@ class Employee(AbstractBaseUser, PermissionsMixin):
             ('can_view_settlement', 'Can view settlement'),
             ('can_create_settlement', 'Can create settlement'),
             ('can_upload_profile_picture', 'Can upload profile'),
+            ('can_view_all_details', 'Can view details in account'),
+            ('can_view_attendance_details', 'Can view attendance details in account'),
+            ('can_view_safety_details', 'Can view safety details in account'),
+            ('can_view_counseling_details', 'Can view counseling details in account'),
 
             # Main's Views Permissions
             ('can_view_employee_info', 'Can view employee info'),
