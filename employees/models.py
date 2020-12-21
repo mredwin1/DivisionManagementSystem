@@ -83,6 +83,8 @@ class Employee(AbstractBaseUser, PermissionsMixin):
                                              help_text='Receive an email when someone reaches 10 Attendance Points')
     email_written = models.BooleanField(default=True, verbose_name='Written Warning',
                                         help_text='Receive an email when a written warning is issued')
+    email_last_final = models.BooleanField(default=True, verbose_name='Last and Final',
+                                           help_text='Receive an email when a last and final is issued')
     email_removal = models.BooleanField(default=True, verbose_name='Removal from Service',
                                         help_text='Receive an email when a removal from service is issued')
     email_safety_point = models.BooleanField(default=True, verbose_name='Safety Point',
@@ -95,6 +97,11 @@ class Employee(AbstractBaseUser, PermissionsMixin):
                                          help_text='Receive an email when a hold is removed from an Employee')
     email_add_settlement = models.BooleanField(default=True, verbose_name='Assign Settlement',
                                                help_text='Receive an email when a settlement is issued')
+    email_new_time_off = models.BooleanField(default=True, verbose_name='New Time Off',
+                                             help_text='Receive an email when time off is requested and the status is '
+                                                       'pending')
+    email_new_employee = models.BooleanField(default=True, verbose_name='New Employee',
+                                             help_text='Receive an email when a new employee is added')
 
     employee_id = models.IntegerField(unique=True, null=True, verbose_name='Employee ID')
     primary_phone = PhoneNumberField(null=True, blank=True, verbose_name='Primary Phone Number')

@@ -9,9 +9,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # Setting up groups for each notification type
-        group_names = ['email_7attendance', 'email_10attendance', 'email_written', 'email_removal',
+        group_names = ['email_7attendance', 'email_10attendance', 'email_written', 'email_last_final', 'email_removal',
                        'email_safety_point', 'email_termination', 'email_add_hold', 'email_rem_hold',
-                       'email_add_settlement']
+                       'email_add_settlement', 'email_new_time_off', 'email_new_employee']
 
         for group_name in group_names:
             new_group, created = Group.objects.get_or_create(name=group_name)
