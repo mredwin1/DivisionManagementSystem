@@ -100,7 +100,8 @@ class Employee(AbstractBaseUser, PermissionsMixin):
     email_new_time_off = models.BooleanField(default=True, verbose_name='New Time Off',
                                              help_text='Receive an email when time off is requested and the status is '
                                                        'pending')
-
+    email_new_employee = models.BooleanField(default=True, verbose_name='New Employee',
+                                             help_text='Receive an email when a new employee is added')
 
     employee_id = models.IntegerField(unique=True, null=True, verbose_name='Employee ID')
     primary_phone = PhoneNumberField(null=True, blank=True, verbose_name='Primary Phone Number')
