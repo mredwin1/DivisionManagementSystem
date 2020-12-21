@@ -83,6 +83,8 @@ class Employee(AbstractBaseUser, PermissionsMixin):
                                              help_text='Receive an email when someone reaches 10 Attendance Points')
     email_written = models.BooleanField(default=True, verbose_name='Written Warning',
                                         help_text='Receive an email when a written warning is issued')
+    email_last_final = models.BooleanField(default=True, verbose_name='Last and Final',
+                                           help_text='Receive an email when a last and final is issued')
     email_removal = models.BooleanField(default=True, verbose_name='Removal from Service',
                                         help_text='Receive an email when a removal from service is issued')
     email_safety_point = models.BooleanField(default=True, verbose_name='Safety Point',
