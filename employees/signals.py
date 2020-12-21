@@ -197,7 +197,7 @@ def add_settlement_document(sender, instance, created, update_fields, **kwargs):
 
 
 @receiver(post_save, sender=TimeOffRequest)
-def check_floating_holiday(sender, instance, created, update_fields,**kwargs):
+def check_floating_holiday(sender, instance, created, update_fields, **kwargs):
     if instance.time_off_type == '7':
         if update_fields:
             if 'is_active' in update_fields:
@@ -216,3 +216,14 @@ def check_floating_holiday(sender, instance, created, update_fields,**kwargs):
                     type=notification_type, employee_id=instance.employee.employee_id)
 
     instance.employee.save()
+
+
+@receiver(post_save, sender=Employee)
+def check_floating_holiday(sender, instance, created, update_fields, **kwargs):
+    if created:
+        verb = f'New Employee added: {instance.get_full_name()}'
+        notification_type = 'email_new_employee'
+
+        group = Employee.objects.filter(groups__name=notification_type)
+        notify.send(sender=instance, recipient=group,
+                    verb=verb, type=notification_type, employee_id=instance.employee_id)
