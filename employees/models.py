@@ -97,6 +97,10 @@ class Employee(AbstractBaseUser, PermissionsMixin):
                                          help_text='Receive an email when a hold is removed from an Employee')
     email_add_settlement = models.BooleanField(default=True, verbose_name='Assign Settlement',
                                                help_text='Receive an email when a settlement is issued')
+    email_new_time_off = models.BooleanField(default=True, verbose_name='New Time Off',
+                                             help_text='Receive an email when time off is requested and the status is '
+                                                       'pending')
+
 
     employee_id = models.IntegerField(unique=True, null=True, verbose_name='Employee ID')
     primary_phone = PhoneNumberField(null=True, blank=True, verbose_name='Primary Phone Number')
