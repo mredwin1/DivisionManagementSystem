@@ -116,6 +116,16 @@ def add_counseling_document(sender, instance, created, update_fields, **kwargs):
                 notify.send(sender=instance, recipient=group,
                             verb=verb,
                             type=notification_type, employee_id=instance.employee.employee_id)
+            elif instance.action_type == '4':
+                verb = f'{instance.employee.get_full_name()} has received a last and final'
+                notification_type = 'email_last_final'
+
+                group = Employee.objects.filter(groups__name=notification_type).exclude(first_name=first_name,
+                                                                                        last_name=last_name)
+                notify.send(sender=instance, recipient=group,
+                            verb=verb,
+                            type=notification_type, employee_id=instance.employee.employee_id)
+
             elif instance.action_type == '6':
                 verb = f'{instance.employee.get_full_name()} has been Removed from Service'if instance.attendance is None else f'{instance.employee.get_full_name()} has been Removed from Service for reaching 10 Attendance Points'
                 notification_type = 'email_removal' if instance.attendance is None else 'email_10attendance'
