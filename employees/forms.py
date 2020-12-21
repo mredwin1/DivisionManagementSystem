@@ -542,7 +542,7 @@ class TerminateEmployee(forms.Form):
 class NotificationSettings(forms.ModelForm):
     class Meta:
         model = Employee
-        fields = ['email_7attendance', 'email_10attendance', 'email_written', 'email_removal', 'email_safety_point',
+        fields = ['email_7attendance', 'email_10attendance', 'email_written', 'email_last_final', 'email_removal', 'email_safety_point',
                   'email_termination', 'email_add_hold', 'email_rem_hold', 'email_add_settlement']
 
 
