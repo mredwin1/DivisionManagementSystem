@@ -171,6 +171,7 @@ else:
     STATIC_ROOT = os.path.join(BASE_DIR, 'static')
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
 # Custom User & Log In
 AUTH_USER_MODEL = 'employees.Employee'
