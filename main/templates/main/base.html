@@ -43,34 +43,34 @@
         <script>
             function generate_notification_list(data) {
                 let time_str;
-                let notification_list = document.getElementById('notification_list')
-                let settings = document.createElement("DIV")
+                let notification_list = document.getElementById('notification_list');
+                let settings = document.createElement("DIV");
                 let link = document.createElement("A");
-                let gear = document.createElement("I")
+                let gear = document.createElement("I");
 
                 notification_list.textContent = '';
 
-                settings.classList.add("nav-link")
+                settings.classList.add("nav-link");
                 settings.classList.add("border-bottom");
                 settings.classList.add("border-dark");
                 settings.classList.add("text-right");
 
-                link.classList.add("nav-link")
-                link.classList.add("p-0")
-                link.href = "{% url 'employee-notification-settings' %}"
+                link.classList.add("nav-link");
+                link.classList.add("p-0");
+                link.href = "{% url 'employee-notification-settings' %}";
 
-                gear.classList.add("fas")
-                gear.classList.add("fa-cog")
-                gear.classList.add("fa-lg")
+                gear.classList.add("fas");
+                gear.classList.add("fa-cog");
+                gear.classList.add("fa-lg");
 
-                link.appendChild(gear)
-                settings.appendChild(link)
-                notification_list.appendChild(settings)
+                link.appendChild(gear);
+                settings.appendChild(link);
+                notification_list.appendChild(settings);
 
                 if (data.unread_list.length === 0) {
                     let notification = document.createElement("A");
 
-                    notification.innerHTML = 'No Unread Notifications'
+                    notification.innerHTML = 'No Unread Notifications';
                     notification.classList.add("nav-link");
                     notification.classList.add("notification");
                     notification.classList.add("p-2");
@@ -84,7 +84,7 @@
 
                     let time_stamp = msg.timestamp;
                     let now = new Date();
-                    let date_time = new Date(time_stamp.slice(0,4), parseInt(time_stamp.slice(5,7))-1, time_stamp.slice(8,10), parseInt(time_stamp.slice(11,13))-4, time_stamp.slice(14,16), time_stamp.slice(17,19));
+                    let date_time = Date.parse(time_stamp);
                     let duration = new Date((now - date_time));
                     let hours = duration.getUTCHours();
                     let minutes = duration.getUTCMinutes();
@@ -98,24 +98,24 @@
                         time_str = hours.toString() + ' hours ago'
                     }
 
-                    let div = document.createElement("DIV")
-                    div.classList.add("text-right")
-                    let time_msg = document.createElement("SMALL")
-                    time_msg.innerHTML = time_str
+                    let div = document.createElement("DIV");
+                    div.classList.add("text-right");
+                    let time_msg = document.createElement("SMALL");
+                    time_msg.innerHTML = time_str;
 
 
-                    br = document.createElement('BR')
+                    br = document.createElement('BR');
 
                     notification.innerHTML = msg.verb;
-                    notification.href = msg.data.url
+                    notification.href = msg.data.url;
                     notification.classList.add("nav-link");
                     notification.classList.add("notification");
                     notification.classList.add("p-2");
                     notification.classList.add("border-bottom");
                     notification.classList.add("border-dark");
 
-                    div.appendChild(time_msg)
-                    notification.appendChild(div)
+                    div.appendChild(time_msg);
+                    notification.appendChild(div);
                     notification_list.appendChild(notification);
 
                 }
