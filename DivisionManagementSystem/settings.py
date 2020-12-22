@@ -213,7 +213,18 @@ CELERY_RESULT_BACKEND = "redis://redis:6379"
 CELERY_BEAT_SCHEDULE = {
     'attendance_cleanup': {
         'task': 'main.tasks.attendance_cleanup',
-        'schedule': crontab(hour=12)
-    }
-
+        'schedule': crontab(hour=1)
+    },
+    'counseling_cleanup': {
+        'task': 'main.tasks.counseling_cleanup',
+        'schedule': crontab(hour=1)
+    },
+    'safety_point_cleanup': {
+        'task': 'main.tasks.safety_point_cleanup',
+        'schedule': crontab(hour=1)
+    },
+    'time_off_cleanup': {
+        'task': 'main.tasks.time_off_cleanup',
+        'schedule': crontab(hour=1)
+    },
 }
