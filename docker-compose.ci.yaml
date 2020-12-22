@@ -94,6 +94,23 @@ services:
       - SQL_PASSWORD=${SQL_PASSWORD}
       - SECRET_KEY=${SECRET_KEY}
       - DEBUG=${DEBUG}
+  celery_beat:
+    image: ghcr.io/mredwin1/dms:latest
+    container_name: celery_beat_dms
+    restart: always
+    entrypoint: celery -A DivisionManagementSystem beat -l INFO
+    depends_on:
+      - redis
+      - db
+      - dms
+    environment:
+      - SQL_HOST=${SQL_HOST}
+      - SQL_PORT=${SQL_PORT}
+      - SQL_USER=${SQL_USER}
+      - SQL_DATABASE=${SQL_DATABASE}
+      - SQL_PASSWORD=${SQL_PASSWORD}
+      - SECRET_KEY=${SECRET_KEY}
+      - DEBUG=${DEBUG}
 
 volumes:
   postgres_db:
