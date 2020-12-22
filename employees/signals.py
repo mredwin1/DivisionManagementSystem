@@ -103,7 +103,7 @@ def new_notification(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Counseling)
 def add_counseling_document(sender, instance, created, update_fields, **kwargs):
-    if update_fields is None or 'document' not in update_fields:
+    if created or 'document' not in update_fields:
         instance.create_counseling_document()
 
         if created:
@@ -154,8 +154,8 @@ def add_counseling_document(sender, instance, created, update_fields, **kwargs):
 
 
 @receiver(post_save, sender=Attendance)
-def add_attendance_document(sender, instance, update_fields, **kwargs):
-    if update_fields is None or 'document' not in update_fields:
+def add_attendance_document(sender, instance, created, update_fields, **kwargs):
+    if created or 'document' not in update_fields:
         instance.create_attendance_point_document()
         counseling = instance.employee.attendance_counseling_required(instance.reason, instance.exemption, instance.id)
 
@@ -167,7 +167,7 @@ def add_attendance_document(sender, instance, update_fields, **kwargs):
 
 @receiver(post_save, sender=SafetyPoint)
 def add_safety_document(sender, instance, created, update_fields, **kwargs):
-    if update_fields is None or 'document' not in update_fields:
+    if created or 'document' not in update_fields:
         instance.create_safety_point_document()
 
         removal = instance.employee.safety_point_removal_required(instance)
@@ -183,7 +183,7 @@ def add_safety_document(sender, instance, created, update_fields, **kwargs):
 
 @receiver(post_save, sender=Settlement)
 def add_settlement_document(sender, instance, created, update_fields, **kwargs):
-    if update_fields is None or 'document' not in update_fields:
+    if created or 'document' not in update_fields:
         instance.create_settlement_document()
 
         if created:
