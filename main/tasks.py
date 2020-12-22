@@ -190,3 +190,8 @@ def attendance_cleanup():
 @shared_task
 def counseling_cleanup():
     call_command('counseling_cleanup')
+
+
+@shared_task
+def safety_point_cleanup():
+    call_command('safety_point_cleanup')
