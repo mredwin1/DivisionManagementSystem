@@ -185,3 +185,8 @@ def import_safety_points(file_path):
 @shared_task
 def attendance_cleanup():
     call_command('attendance_cleanup')
+
+
+@shared_task
+def counseling_cleanup():
+    call_command('counseling_cleanup')
