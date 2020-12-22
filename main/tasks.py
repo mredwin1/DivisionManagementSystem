@@ -4,6 +4,7 @@ from zipfile import ZipFile
 
 from celery import shared_task
 from django.core.mail import send_mail
+from django.core.management import call_command
 from openpyxl import load_workbook
 
 from employees.models import Company, Employee, Attendance, SafetyPoint
@@ -179,3 +180,23 @@ def import_safety_points(file_path):
                 new_safety_point.save()
             except Employee.DoesNotExist:
                 pass
+
+
+@shared_task
+def attendance_cleanup():
+    call_command('attendance_cleanup')
+
+
+@shared_task
+def counseling_cleanup():
+    call_command('counseling_cleanup')
+
+
+@shared_task
+def safety_point_cleanup():
+    call_command('safety_point_cleanup')
+
+
+@shared_task
+def time_off_cleanup():
+    call_command('time_off_cleanup')

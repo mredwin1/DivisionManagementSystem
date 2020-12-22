@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from employees.models import Attendance, Employee
 import datetime
+import logging
 
 
 class Command(BaseCommand):
@@ -8,6 +9,7 @@ class Command(BaseCommand):
            'deletes all Attendance Records for an Employee if they have gone 6 months with no Attendance Records'
 
     def handle(self, *args, **options):
+        logging.info('Running attendance cleanup...')
         attendance_records = Attendance.objects.order_by('incident_date')
         employees = Employee.objects.all()
         today = datetime.datetime.today().date()
@@ -32,4 +34,4 @@ class Command(BaseCommand):
                     employee_attendance.delete()
 
         success_message = 'Deleted 1 record.' if deleted_records == 1 else f'Deleted {deleted_records} records.'
-        self.stdout.write(self.style.SUCCESS(success_message))
+        logging.info(success_message)

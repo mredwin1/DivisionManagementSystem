@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
-import json
+
+from celery.schedules import crontab
 from django.contrib.messages import constants as messages
 
 
@@ -207,3 +208,23 @@ BASE_URL = 'http://10.100.12.67:8000'
 # Celery Settings
 CELERY_BROKER_URL = "redis://redis:6379"
 CELERY_RESULT_BACKEND = "redis://redis:6379"
+
+# Periodic Tasks
+CELERY_BEAT_SCHEDULE = {
+    'attendance_cleanup': {
+        'task': 'main.tasks.attendance_cleanup',
+        'schedule': crontab(hour=1)
+    },
+    'counseling_cleanup': {
+        'task': 'main.tasks.counseling_cleanup',
+        'schedule': crontab(hour=1)
+    },
+    'safety_point_cleanup': {
+        'task': 'main.tasks.safety_point_cleanup',
+        'schedule': crontab(hour=1)
+    },
+    'time_off_cleanup': {
+        'task': 'main.tasks.time_off_cleanup',
+        'schedule': crontab(hour=1)
+    },
+}
