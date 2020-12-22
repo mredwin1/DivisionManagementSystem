@@ -84,7 +84,7 @@
 
                     let time_stamp = msg.timestamp;
                     let now = new Date();
-                    let date_time = new Date(time_stamp.slice(0,4), parseInt(time_stamp.slice(5,7))-1, time_stamp.slice(8,10), parseInt(time_stamp.slice(11,13))-4, time_stamp.slice(14,16), time_stamp.slice(17,19));
+                    let date_time = Date.parse(time_stamp)
                     let duration = new Date((now - date_time));
                     let hours = duration.getUTCHours();
                     let minutes = duration.getUTCMinutes();
