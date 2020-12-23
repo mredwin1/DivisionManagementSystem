@@ -9,16 +9,20 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # Setting up groups for each notification type
-        group_names = ['email_7attendance', 'email_10attendance', 'email_written', 'email_last_final', 'email_removal',
-                       'email_safety_point', 'email_termination', 'email_add_hold', 'email_rem_hold',
-                       'email_add_settlement', 'email_new_time_off', 'email_new_employee']
+        notification_groups = ['email_7attendance', 'email_10attendance', 'email_written', 'email_last_final',
+                               'email_removal', 'email_safety_point', 'email_termination', 'email_add_hold',
+                               'email_rem_hold', 'email_add_settlement', 'email_new_time_off', 'email_new_employee']
+        all_groups = [group.name for group in Group.objects.all()]
 
-        for group_name in group_names:
-            new_group, created = Group.objects.get_or_create(name=group_name)
-
-            if created:
-                success_message = f'Successfully created {new_group} group.'
-                logging.info(success_message)
+        for group_name in notification_groups:
+            if group_name in all_groups:
+                logging.info(f'Group "{group_name}" already exists, skipping.')
             else:
-                fail_message = f'Could not create {new_group} group.'
-                logging.warning(fail_message)
+                new_group, created = Group.objects.get_or_create(name=group_name)
+
+                if created:
+                    success_message = f'Successfully created "{new_group}" group.'
+                    logging.info(success_message)
+                else:
+                    fail_message = f'Could not create "{new_group}" group.'
+                    logging.error(fail_message)
