@@ -219,7 +219,7 @@ def check_floating_holiday(sender, instance, created, update_fields, **kwargs):
 
 
 @receiver(post_save, sender=Employee)
-def check_floating_holiday(sender, instance, created, update_fields, **kwargs):
+def add_new_employee(sender, instance, created, update_fields, **kwargs):
     if created:
         verb = f'New Employee added: {instance.get_full_name()}'
         notification_type = 'email_new_employee'
