@@ -214,7 +214,7 @@
                             <div class="card scroll2">
                                 <ul class="list-group list-group-flush h-100">
                                     {% for record in time_off %}
-                                        <li class="list-group-item cursor-pointer"  data-toggle="modal" data-target="#mainModal" data-title="Time Off Request" data-document-href="" data-secondary-href="{% url 'operations-remove-time-off' record.id %}" data-primary-href="" data-row1col1="Requested Date" data-row1col2="Status" data-row2col1="{{ record.request_date|pretty_date }}" data-row2col2="{{ record.status|status_return }}" data-row3col1="" data-row3col2="" data-row3col3="Type" data-row4col1="" data-row4col2="" data-row4col3="{{ record.time_off_type|time_off_return }}" data-row5col1="Requested Dates" data-row5col2="" data-row6col1="" data-row6col2="" data-row6col3="{{ record|pretty_requested_dates }}" data-row7col1="{% if record.reason %}Reason{% endif %}" data-row7col2="" data-row8col1="" data-row8col2="" data-row8col3="{{ record.reason }}" data-row9col1="{% if record.comments %}Comments{% endif %}" data-row9col2="" data-row10col1="" data-row10col2="" data-row10col3="{{ record.comments }}">
+                                        <li class="list-group-item cursor-pointer"  data-toggle="modal" data-target="#mainModal" data-title="Time Off Request" data-document-href="" data-secondary-href="{% if perms.employees.can_delete_time_off_request %}{% url 'operations-remove-time-off' record.id %}{% endif %}" data-primary-href="" data-row1col1="Requested Date" data-row1col2="Status" data-row2col1="{{ record.request_date|pretty_date }}" data-row2col2="{{ record.status|status_return }}" data-row3col1="" data-row3col2="" data-row3col3="Type" data-row4col1="" data-row4col2="" data-row4col3="{{ record.time_off_type|time_off_return }}" data-row5col1="Requested Dates" data-row5col2="" data-row6col1="" data-row6col2="" data-row6col3="{{ record|pretty_requested_dates }}" data-row7col1="{% if record.reason %}Reason{% endif %}" data-row7col2="" data-row8col1="" data-row8col2="" data-row8col3="{{ record.reason }}" data-row9col1="{% if record.comments %}Comments{% endif %}" data-row9col2="" data-row10col1="" data-row10col2="" data-row10col3="{{ record.comments }}">
                                             <div class="row">
                                                 <div class="col-6">
                                                     <small><b>Date Requested:</b> {{ record.request_date|pretty_date }}</small>
@@ -317,6 +317,12 @@
                     document.getElementById("primaryButtonAnchor").style.display = "none"
                 }else {
                     document.getElementById("primaryButtonAnchor").style.display = "block"
+                }
+
+                if (secondary_button_href === "") {
+                    document.getElementById("secondaryButtonForm").style.display = "none"
+                }else {
+                    document.getElementById("secondaryButtonForm").style.display = "block"
                 }
 
                 modal = $(this)
