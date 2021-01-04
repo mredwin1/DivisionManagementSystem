@@ -40,89 +40,91 @@
     </head>
     <body>
         <script src="{% static 'notifications/notify.js' %}" type="text/javascript"></script>
-        <script>
-            function generate_notification_list(data) {
-                let time_str;
-                let notification_list = document.getElementById('notification_list');
-                let settings = document.createElement("DIV");
-                let link = document.createElement("A");
-                let gear = document.createElement("I");
+        {% if user.authenticated %}
+            <script>
+                function generate_notification_list(data) {
+                    let time_str;
+                    let notification_list = document.getElementById('notification_list');
+                    let settings = document.createElement("DIV");
+                    let link = document.createElement("A");
+                    let gear = document.createElement("I");
 
-                notification_list.textContent = '';
+                    notification_list.textContent = '';
 
-                settings.classList.add("nav-link");
-                settings.classList.add("border-bottom");
-                settings.classList.add("border-dark");
-                settings.classList.add("text-right");
+                    settings.classList.add("nav-link");
+                    settings.classList.add("border-bottom");
+                    settings.classList.add("border-dark");
+                    settings.classList.add("text-right");
 
-                link.classList.add("nav-link");
-                link.classList.add("p-0");
-                link.href = "{% url 'employee-notification-settings' %}";
+                    link.classList.add("nav-link");
+                    link.classList.add("p-0");
+                    link.href = "{% url 'employee-notification-settings' %}";
 
-                gear.classList.add("fas");
-                gear.classList.add("fa-cog");
-                gear.classList.add("fa-lg");
+                    gear.classList.add("fas");
+                    gear.classList.add("fa-cog");
+                    gear.classList.add("fa-lg");
 
-                link.appendChild(gear);
-                settings.appendChild(link);
-                notification_list.appendChild(settings);
+                    link.appendChild(gear);
+                    settings.appendChild(link);
+                    notification_list.appendChild(settings);
 
-                if (data.unread_list.length === 0) {
-                    let notification = document.createElement("A");
+                    if (data.unread_list.length === 0) {
+                        let notification = document.createElement("A");
 
-                    notification.innerHTML = 'No Unread Notifications';
-                    notification.classList.add("nav-link");
-                    notification.classList.add("notification");
-                    notification.classList.add("p-2");
+                        notification.innerHTML = 'No Unread Notifications';
+                        notification.classList.add("nav-link");
+                        notification.classList.add("notification");
+                        notification.classList.add("p-2");
 
-                    notification_list.appendChild(notification)
+                        notification_list.appendChild(notification)
 
-                } else {
-                    for (var i=0; i < data.unread_list.length; i++) {
-                    let msg = data.unread_list[i];
-                    let notification = document.createElement("A");
+                    } else {
+                        for (var i=0; i < data.unread_list.length; i++) {
+                        let msg = data.unread_list[i];
+                        let notification = document.createElement("A");
 
-                    let time_stamp = msg.timestamp;
-                    let now = new Date();
-                    let date_time = Date.parse(time_stamp);
-                    let duration = new Date((now - date_time));
-                    let hours = duration.getUTCHours();
-                    let minutes = duration.getUTCMinutes();
-                    let seconds = duration.getUTCSeconds();
+                        let time_stamp = msg.timestamp;
+                        let now = new Date();
+                        let date_time = Date.parse(time_stamp);
+                        let duration = new Date((now - date_time));
+                        let hours = duration.getUTCHours();
+                        let minutes = duration.getUTCMinutes();
+                        let seconds = duration.getUTCSeconds();
 
-                    if (seconds) {
-                        time_str = seconds.toString() + ' seconds ago';
-                    }if (minutes) {
-                        time_str = minutes.toString() + ' minutes ago'
-                    }if (hours) {
-                        time_str = hours.toString() + ' hours ago'
+                        if (seconds) {
+                            time_str = seconds.toString() + ' seconds ago';
+                        }if (minutes) {
+                            time_str = minutes.toString() + ' minutes ago'
+                        }if (hours) {
+                            time_str = hours.toString() + ' hours ago'
+                        }
+
+                        let div = document.createElement("DIV");
+                        div.classList.add("text-right");
+                        let time_msg = document.createElement("SMALL");
+                        time_msg.innerHTML = time_str;
+
+
+                        br = document.createElement('BR');
+
+                        notification.innerHTML = msg.verb;
+                        notification.href = msg.data.url;
+                        notification.classList.add("nav-link");
+                        notification.classList.add("notification");
+                        notification.classList.add("p-2");
+                        notification.classList.add("border-bottom");
+                        notification.classList.add("border-dark");
+
+                        div.appendChild(time_msg);
+                        notification.appendChild(div);
+                        notification_list.appendChild(notification);
+
                     }
-
-                    let div = document.createElement("DIV");
-                    div.classList.add("text-right");
-                    let time_msg = document.createElement("SMALL");
-                    time_msg.innerHTML = time_str;
-
-
-                    br = document.createElement('BR');
-
-                    notification.innerHTML = msg.verb;
-                    notification.href = msg.data.url;
-                    notification.classList.add("nav-link");
-                    notification.classList.add("notification");
-                    notification.classList.add("p-2");
-                    notification.classList.add("border-bottom");
-                    notification.classList.add("border-dark");
-
-                    div.appendChild(time_msg);
-                    notification.appendChild(div);
-                    notification_list.appendChild(notification);
-
+                    }
                 }
-                }
-            }
-        </script>
-        {% register_notify_callbacks callbacks='generate_notification_list,fill_notification_badge' %}
+            </script>
+            {% register_notify_callbacks callbacks='generate_notification_list,fill_notification_badge' %}
+        {% endif %}
         <!-- Primary Modal -->
         <div class="modal fade" id="mainModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
