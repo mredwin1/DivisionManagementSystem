@@ -193,6 +193,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
             ('can_view_attendance_reports', 'Can view attendance reports'),
             ('can_view_counseling_reports', 'Can view counseling reports'),
             ('can_add_time_off_request', 'Can add time off request'),
+            ('can_delete_time_off_request', 'Can delete time off request'),
             ('can_view_time_off_reports', 'Can view time off reports'),
             ('can_view_termination_reports', 'Can view termination reports'),
         ]
