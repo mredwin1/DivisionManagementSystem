@@ -240,6 +240,7 @@ class BulkAssignAttendance(forms.Form):
             attendance = Attendance(
                 employee=employee,
                 incident_date=incident_date,
+                issued_date=datetime.date.today(),
                 points=point,
                 reason=reason,
                 assigned_by=reported_by,
