@@ -96,6 +96,7 @@ class AssignAttendance(forms.Form):
         attendance = Attendance(
             employee=employee,
             incident_date=self.cleaned_data['incident_date'],
+            issued_date=datetime.date.today(),
             points=point,
             reason=self.cleaned_data['reason'],
             assigned_by=f'{request.user.first_name} {request.user.last_name}',
