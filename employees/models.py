@@ -853,7 +853,7 @@ class Attendance(models.Model):
     reason = models.CharField(max_length=30, choices=REASON_CHOICES)
     assigned_by = models.CharField(max_length=50)
     exemption = models.CharField(max_length=30, choices=EXEMPTION_CHOICES, blank=True, null=True)
-    edited_date = models.DateField(null=True)
+    edited_date = models.DateField(null=True, blank=True)
     edited_by = models.CharField(max_length=30, blank=True, default='')
     downloaded = models.BooleanField(default=False)
     uploaded = models.BooleanField(default=False)
