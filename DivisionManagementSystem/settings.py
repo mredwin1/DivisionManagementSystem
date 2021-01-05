@@ -227,4 +227,8 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'main.tasks.time_off_cleanup',
         'schedule': crontab(hour=1)
     },
+    'attendance_notification': {
+        'task': 'main.tasks.attendance_notification',
+        'schedule': crontab(minute='*/2')
+    },
 }
