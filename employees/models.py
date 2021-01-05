@@ -1140,6 +1140,7 @@ class SafetyPoint(models.Model):
     details = models.TextField(default='')
     assigned_by = models.CharField(max_length=50)
     downloaded = models.BooleanField(default=False)
+    uploaded = models.BooleanField(default=False)
 
     def create_safety_point_document(self):
         """Will create a PDF for the Counseling and assign it to the Counseling Object"""
