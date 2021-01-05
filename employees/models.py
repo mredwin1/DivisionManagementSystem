@@ -114,7 +114,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=30, verbose_name='Last Name')
     username = models.CharField(max_length=30, unique=True, verbose_name='Username')
     position = models.CharField(max_length=30, choices=POSITION_CHOICES, verbose_name='Position')
-    termination_type = models.CharField(max_length=30, choices=TERMINATION_CHOICES, null=True,
+    termination_type = models.CharField(max_length=30, choices=TERMINATION_CHOICES, null=True, blank=True,
                                         verbose_name='Termination Type')
 
     termination_comments = models.TextField(default='', verbose_name='Comments', blank=True)
