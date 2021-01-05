@@ -24,8 +24,8 @@ from .validators import pdf_extension
 
 class Company(models.Model):
     is_active = models.BooleanField(default=True)
-    full_name = models.CharField(max_length=30, unique=True)
-    display_name = models.CharField(max_length=30, unique=True)
+    full_name = models.CharField(max_length=80, unique=True)
+    display_name = models.CharField(max_length=15, unique=True)
 
     class Meta:
         verbose_name = 'Company'
