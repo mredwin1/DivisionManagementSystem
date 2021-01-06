@@ -155,6 +155,7 @@ def add_counseling_document(sender, instance, created, update_fields, **kwargs):
     except TypeError:
         pass
 
+
 @receiver(post_save, sender=Attendance)
 def add_attendance_document(sender, instance, created, update_fields, **kwargs):
     try:
