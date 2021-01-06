@@ -545,7 +545,8 @@ class NotificationSettings(forms.ModelForm):
         model = Employee
         fields = ['email_7attendance', 'email_10attendance', 'email_written', 'email_last_final', 'email_removal',
                   'email_safety_point', 'email_termination', 'email_add_hold', 'email_rem_hold', 'email_add_settlement',
-                  'email_new_time_off', 'email_new_employee']
+                  'email_new_time_off', 'email_new_employee', 'email_attendance_doc_day3', 'email_attendance_doc_day5',
+                  'email_attendance_doc_day7', 'email_attendance_doc_day10']
 
 
 class UploadProfilePicture(forms.ModelForm):
