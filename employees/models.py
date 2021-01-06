@@ -102,6 +102,22 @@ class Employee(AbstractBaseUser, PermissionsMixin):
                                                        'pending')
     email_new_employee = models.BooleanField(default=True, verbose_name='New Employee',
                                              help_text='Receive an email when a new employee is added')
+    email_attendance_doc_day3 = models.BooleanField(default=True, verbose_name='3 Days Past Due Attendance',
+                                                    help_text='Receive an email when it has been 3 or more days since'
+                                                              'an attendance point was given but a signed document'
+                                                              'has not been uploaded')
+    email_attendance_doc_day5 = models.BooleanField(default=True, verbose_name='5 Days Past Due Attendance',
+                                                    help_text='Receive an email when it has been 5 or more days since'
+                                                              'an attendance point was given but a signed document'
+                                                              'has not been uploaded')
+    email_attendance_doc_day7 = models.BooleanField(default=True, verbose_name='7 Days Past Due Attendance',
+                                                    help_text='Receive an email when it has been 7 or more days since'
+                                                              'an attendance point was given but a signed document'
+                                                              'has not been uploaded')
+    email_attendance_doc_day10 = models.BooleanField(default=True, verbose_name='10 Days Past Due Attendance',
+                                                     help_text='Receive an email when it has been 10 or more days since'
+                                                               'an attendance point was given but a signed document'
+                                                               'has not been uploaded')
 
     employee_id = models.IntegerField(unique=True, null=True, verbose_name='Employee ID')
     primary_phone = PhoneNumberField(null=True, blank=True, verbose_name='Primary Phone Number')
