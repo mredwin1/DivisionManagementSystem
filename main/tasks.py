@@ -215,3 +215,8 @@ def safety_point_notification():
 @shared_task
 def counseling_notification():
     call_command('counseling_notification')
+
+
+@shared_task
+def settlement_notification():
+    call_command('settlement_notification')
