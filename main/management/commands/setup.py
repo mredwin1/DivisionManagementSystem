@@ -13,7 +13,9 @@ class Command(BaseCommand):
                                'email_removal', 'email_safety_point', 'email_termination', 'email_add_hold',
                                'email_rem_hold', 'email_add_settlement', 'email_new_time_off', 'email_new_employee',
                                'email_attendance_doc_day3', 'email_attendance_doc_day5', 'email_attendance_doc_day7',
-                               'email_attendance_doc_day10']
+                               'email_attendance_doc_day10', 'email_safety_doc_day3', 'email_safety_doc_day5',
+                               'email_safety_doc_day7', 'email_safety_doc_day10', 'email_counseling_doc_day3',
+                               'email_counseling_doc_day5', 'email_counseling_doc_day7', 'email_counseling_doc_day10']
         all_groups = [group.name for group in Group.objects.all()]
 
         for group_name in notification_groups:
