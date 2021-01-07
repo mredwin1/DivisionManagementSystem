@@ -231,4 +231,12 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'main.tasks.attendance_notification',
         'schedule': crontab(minute='*/2')
     },
+    'safety_point_notification': {
+        'task': 'main.tasks.safety_point_notification',
+        'schedule': crontab(minute='*/2')
+    },
+    'counseling_notification': {
+        'task': 'main.tasks.counseling_notification',
+        'schedule': crontab(minute='*/2')
+    },
 }
