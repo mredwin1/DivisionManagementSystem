@@ -29,9 +29,9 @@ class Command(BaseCommand):
                 elif days_passed == 7:
                     notification_types = ['email_attendance_doc_day3', 'email_attendance_doc_day5',
                                           'email_attendance_doc_day7']
-                elif days_passed >= 5:
+                elif days_passed == 5:
                     notification_types = ['email_attendance_doc_day3', 'email_attendance_doc_day5']
-                elif days_passed >= 3:
+                elif days_passed == 3:
                     notification_types = ['email_attendance_doc_day3']
 
                 if notification_types:
