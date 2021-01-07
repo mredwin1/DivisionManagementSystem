@@ -150,6 +150,10 @@ class Employee(AbstractBaseUser, PermissionsMixin):
                                                      help_text='Receive an email when it has been 10 or more days since'
                                                                'a counseling was given but a signed document'
                                                                'has not been uploaded')
+    email_settlement_doc = models.BooleanField(default=True, verbose_name='Past Due Settlement',
+                                               help_text='Receive an email when it has been 3 or more days since'
+                                               'a settlement was created but a signed document'
+                                               'has not been uploaded')
 
     employee_id = models.IntegerField(unique=True, null=True, verbose_name='Employee ID')
     primary_phone = PhoneNumberField(null=True, blank=True, verbose_name='Primary Phone Number')
