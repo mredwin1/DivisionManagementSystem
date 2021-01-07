@@ -6,9 +6,9 @@ from notifications.signals import notify
 
 
 class Command(BaseCommand):
-    help = 'This command goes through all the Attendance Records and checks if there are any attendance records that' \
+    help = 'This command goes through all the Attendance Records and checks if there are any signed documents that' \
            'have not been uploaded. Dependant on the amount of days it has been since the creation of the record it' \
-           'will send a notification'
+           'will send a notification.'
 
     def handle(self, *args, **options):
         logging.info('Running attendance notification...')
@@ -19,14 +19,14 @@ class Command(BaseCommand):
         for attendance_record in attendance_records:
             if not attendance_record.uploaded:
                 days_passed = (today - attendance_record.issued_date).days
-                verb = f'An attendance point was given {days_passed} days ago and no signed document has been' \
-                       f' uploaded yet.'
+                verb = f'An attendance point was given to {attendance_record.employee.get_full_name()} {days_passed}' \
+                       f'days ago and no signed document has been uploaded yet.'
                 notification_types = []
 
                 if days_passed >= 10:
                     notification_types = ['email_attendance_doc_day3', 'email_attendance_doc_day5',
                                           'email_attendance_doc_day7', 'email_attendance_doc_day10']
-                elif days_passed >= 7:
+                elif days_passed == 7:
                     notification_types = ['email_attendance_doc_day3', 'email_attendance_doc_day5',
                                           'email_attendance_doc_day7']
                 elif days_passed >= 5:
