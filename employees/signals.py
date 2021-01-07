@@ -103,97 +103,109 @@ def new_notification(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Counseling)
 def add_counseling_document(sender, instance, created, update_fields, **kwargs):
-    if created or 'document' not in update_fields:
-        instance.create_counseling_document()
+    try:
+        if created or 'document' not in update_fields:
+            instance.create_counseling_document()
 
-        if created:
-            first_name, last_name = instance.get_assignee()
-            if instance.action_type == '2':
-                verb = f'{instance.employee.get_full_name()} has received a written warning' if instance.attendance is None else f'{instance.employee.get_full_name()} has received a written warning for reaching 7 Attendance Points'
-                notification_type = 'email_written' if instance.attendance is None else 'email_7attendance'
+            if created:
+                first_name, last_name = instance.get_assignee()
+                if instance.action_type == '2':
+                    verb = f'{instance.employee.get_full_name()} has received a written warning' if instance.attendance is None else f'{instance.employee.get_full_name()} has received a written warning for reaching 7 Attendance Points'
+                    notification_type = 'email_written' if instance.attendance is None else 'email_7attendance'
 
-                group = Employee.objects.filter(groups__name=notification_type).exclude(first_name=first_name, last_name=last_name)
-                notify.send(sender=instance, recipient=group,
-                            verb=verb,
-                            type=notification_type, employee_id=instance.employee.employee_id)
-            elif instance.action_type == '4':
-                verb = f'{instance.employee.get_full_name()} has received a last and final'
-                notification_type = 'email_last_final'
+                    group = Employee.objects.filter(groups__name=notification_type).exclude(first_name=first_name, last_name=last_name)
+                    notify.send(sender=instance, recipient=group,
+                                verb=verb,
+                                type=notification_type, employee_id=instance.employee.employee_id)
+                elif instance.action_type == '4':
+                    verb = f'{instance.employee.get_full_name()} has received a last and final'
+                    notification_type = 'email_last_final'
 
-                group = Employee.objects.filter(groups__name=notification_type).exclude(first_name=first_name,
-                                                                                        last_name=last_name)
-                notify.send(sender=instance, recipient=group,
-                            verb=verb,
-                            type=notification_type, employee_id=instance.employee.employee_id)
+                    group = Employee.objects.filter(groups__name=notification_type).exclude(first_name=first_name,
+                                                                                            last_name=last_name)
+                    notify.send(sender=instance, recipient=group,
+                                verb=verb,
+                                type=notification_type, employee_id=instance.employee.employee_id)
 
-            elif instance.action_type == '6':
-                verb = f'{instance.employee.get_full_name()} has been Removed from Service'if instance.attendance is None else f'{instance.employee.get_full_name()} has been Removed from Service for reaching 10 Attendance Points'
-                notification_type = 'email_removal' if instance.attendance is None else 'email_10attendance'
+                elif instance.action_type == '6':
+                    verb = f'{instance.employee.get_full_name()} has been Removed from Service'if instance.attendance is None else f'{instance.employee.get_full_name()} has been Removed from Service for reaching 10 Attendance Points'
+                    notification_type = 'email_removal' if instance.attendance is None else 'email_10attendance'
 
-                group = Employee.objects.filter(groups__name=notification_type).exclude(first_name=first_name, last_name=last_name)
-                notify.send(sender=instance, recipient=group,
-                            verb=verb,
-                            type=notification_type, employee_id=instance.employee.employee_id)
+                    group = Employee.objects.filter(groups__name=notification_type).exclude(first_name=first_name, last_name=last_name)
+                    notify.send(sender=instance, recipient=group,
+                                verb=verb,
+                                type=notification_type, employee_id=instance.employee.employee_id)
 
-                instance.employee.set_pending_term(True)
+                    instance.employee.set_pending_term(True)
 
-                try:
-                    instance.employee.hold.delete()
-                except Hold.DoesNotExist:
-                    pass
+                    try:
+                        instance.employee.hold.delete()
+                    except Hold.DoesNotExist:
+                        pass
 
-                hold = Hold(
-                    reason='Pending Termination',
-                    hold_date=datetime.date.today(),
-                    assigned_by=instance.assigned_by,
-                    employee=instance.employee,
-                )
+                    hold = Hold(
+                        reason='Pending Termination',
+                        hold_date=datetime.date.today(),
+                        assigned_by=instance.assigned_by,
+                        employee=instance.employee,
+                    )
 
-                instance.employee.save()
-                hold.save()
+                    instance.employee.save()
+                    hold.save()
+    except TypeError:
+        pass
 
 
 @receiver(post_save, sender=Attendance)
 def add_attendance_document(sender, instance, created, update_fields, **kwargs):
-    if created or 'document' not in update_fields:
-        instance.create_attendance_point_document()
-        counseling = instance.employee.attendance_counseling_required(instance.reason, instance.exemption, instance.id)
+    try:
+        if created or 'document' not in update_fields:
+            instance.create_attendance_point_document()
+            counseling = instance.employee.attendance_counseling_required(instance.reason, instance.exemption, instance.id)
 
-        if counseling[0] == 2 and instance.points != 0:
-            instance.employee.attendance_removal(counseling, instance, instance.assigned_by)
-        elif counseling[0] == 1 and instance.points != 0:
-            instance.employee.attendance_written(counseling, instance, instance.assigned_by)
+            if counseling[0] == 2 and instance.points != 0:
+                instance.employee.attendance_removal(counseling, instance, instance.assigned_by)
+            elif counseling[0] == 1 and instance.points != 0:
+                instance.employee.attendance_written(counseling, instance, instance.assigned_by)
+    except TypeError:
+        pass
 
 
 @receiver(post_save, sender=SafetyPoint)
 def add_safety_document(sender, instance, created, update_fields, **kwargs):
-    if created or 'document' not in update_fields:
-        instance.create_safety_point_document()
+    try:
+        if created or 'document' not in update_fields:
+            instance.create_safety_point_document()
 
-        removal = instance.employee.safety_point_removal_required(instance)
+            removal = instance.employee.safety_point_removal_required(instance)
 
-        if created:
-            first_name, last_name = instance.get_assignee()
-            verb = f'{instance.employee.get_full_name()} has received a Safety Point' if not removal else f'{instance.employee.get_full_name()} has received a Safety Point and been removed from service'
-            group = Employee.objects.filter(groups__name='email_safety_point').exclude(first_name=first_name, last_name=last_name)
-            notify.send(sender=instance, recipient=group,
-                        verb=verb,
-                        type='email_safety_point', employee_id=instance.employee.employee_id)
+            if created:
+                first_name, last_name = instance.get_assignee()
+                verb = f'{instance.employee.get_full_name()} has received a Safety Point' if not removal else f'{instance.employee.get_full_name()} has received a Safety Point and been removed from service'
+                group = Employee.objects.filter(groups__name='email_safety_point').exclude(first_name=first_name, last_name=last_name)
+                notify.send(sender=instance, recipient=group,
+                            verb=verb,
+                            type='email_safety_point', employee_id=instance.employee.employee_id)
+    except TypeError:
+        pass
 
 
 @receiver(post_save, sender=Settlement)
 def add_settlement_document(sender, instance, created, update_fields, **kwargs):
-    if created or 'document' not in update_fields:
-        instance.create_settlement_document()
+    try:
+        if created or 'document' not in update_fields:
+            instance.create_settlement_document()
 
-        if created:
-            first_name, last_name = instance.get_assignee()
-            verb = f'New Settlement Created for {instance.employee.get_full_name()}'
+            if created:
+                first_name, last_name = instance.get_assignee()
+                verb = f'New Settlement Created for {instance.employee.get_full_name()}'
 
-            group = Employee.objects.filter(groups__name='email_add_settlement').exclude(first_name=first_name, last_name=last_name)
-            notify.send(sender=instance, recipient=group,
-                        verb=verb,
-                        type='email_add_settlement', employee_id=instance.employee.employee_id)
+                group = Employee.objects.filter(groups__name='email_add_settlement').exclude(first_name=first_name, last_name=last_name)
+                notify.send(sender=instance, recipient=group,
+                            verb=verb,
+                            type='email_add_settlement', employee_id=instance.employee.employee_id)
+    except TypeError:
+        pass
 
 
 @receiver(post_save, sender=TimeOffRequest)

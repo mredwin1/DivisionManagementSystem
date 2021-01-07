@@ -200,3 +200,18 @@ def safety_point_cleanup():
 @shared_task
 def time_off_cleanup():
     call_command('time_off_cleanup')
+
+
+@shared_task
+def attendance_notification():
+    call_command('attendance_notification')
+
+
+@shared_task
+def safety_point_notification():
+    call_command('safety_point_notification')
+
+
+@shared_task
+def counseling_notification():
+    call_command('counseling_notification')

@@ -102,6 +102,54 @@ class Employee(AbstractBaseUser, PermissionsMixin):
                                                        'pending')
     email_new_employee = models.BooleanField(default=True, verbose_name='New Employee',
                                              help_text='Receive an email when a new employee is added')
+    email_attendance_doc_day3 = models.BooleanField(default=True, verbose_name='3 Days Past Due Attendance',
+                                                    help_text='Receive an email when it has been 3 or more days since'
+                                                              'an attendance point was given but a signed document'
+                                                              'has not been uploaded')
+    email_attendance_doc_day5 = models.BooleanField(default=True, verbose_name='5 Days Past Due Attendance',
+                                                    help_text='Receive an email when it has been 5 or more days since'
+                                                              'an attendance point was given but a signed document'
+                                                              'has not been uploaded')
+    email_attendance_doc_day7 = models.BooleanField(default=True, verbose_name='7 Days Past Due Attendance',
+                                                    help_text='Receive an email when it has been 7 or more days since'
+                                                              'an attendance point was given but a signed document'
+                                                              'has not been uploaded')
+    email_attendance_doc_day10 = models.BooleanField(default=True, verbose_name='10 Days Past Due Attendance',
+                                                     help_text='Receive an email when it has been 10 or more days since'
+                                                               'an attendance point was given but a signed document'
+                                                               'has not been uploaded')
+    email_safety_doc_day3 = models.BooleanField(default=True, verbose_name='3 Days Past Due Safety Point',
+                                                help_text='Receive an email when it has been 3 or more days since'
+                                                          'a safety point was given but a signed document'
+                                                          'has not been uploaded')
+    email_safety_doc_day5 = models.BooleanField(default=True, verbose_name='5 Days Past Due Safety Point',
+                                                help_text='Receive an email when it has been 5 or more days since'
+                                                          'a safety point was given but a signed document'
+                                                          'has not been uploaded')
+    email_safety_doc_day7 = models.BooleanField(default=True, verbose_name='7 Days Past Due Safety Point',
+                                                help_text='Receive an email when it has been 7 or more days since'
+                                                          'a safety point was given but a signed document'
+                                                          'has not been uploaded')
+    email_safety_doc_day10 = models.BooleanField(default=True, verbose_name='10 Days Past Due Safety Point',
+                                                 help_text='Receive an email when it has been 10 or more days since'
+                                                           'a safety point was given but a signed document'
+                                                           'has not been uploaded')
+    email_counseling_doc_day3 = models.BooleanField(default=True, verbose_name='3 Days Past Due Counseling',
+                                                    help_text='Receive an email when it has been 3 or more days since'
+                                                              'a counseling was given but a signed document'
+                                                              'has not been uploaded')
+    email_counseling_doc_day5 = models.BooleanField(default=True, verbose_name='5 Days Past Due Counseling',
+                                                    help_text='Receive an email when it has been 5 or more days since'
+                                                              'a counseling was given but a signed document'
+                                                              'has not been uploaded')
+    email_counseling_doc_day7 = models.BooleanField(default=True, verbose_name='7 Days Past Due Counseling',
+                                                    help_text='Receive an email when it has been 7 or more days since'
+                                                              'a counseling was given but a signed document'
+                                                              'has not been uploaded')
+    email_counseling_doc_day10 = models.BooleanField(default=True, verbose_name='10 Days Past Due Counseling',
+                                                     help_text='Receive an email when it has been 10 or more days since'
+                                                               'a counseling was given but a signed document'
+                                                               'has not been uploaded')
 
     employee_id = models.IntegerField(unique=True, null=True, verbose_name='Employee ID')
     primary_phone = PhoneNumberField(null=True, blank=True, verbose_name='Primary Phone Number')
@@ -853,9 +901,10 @@ class Attendance(models.Model):
     reason = models.CharField(max_length=30, choices=REASON_CHOICES)
     assigned_by = models.CharField(max_length=50)
     exemption = models.CharField(max_length=30, choices=EXEMPTION_CHOICES, blank=True, null=True)
-    edited_date = models.DateField(null=True)
+    edited_date = models.DateField(null=True, blank=True)
     edited_by = models.CharField(max_length=30, blank=True, default='')
     downloaded = models.BooleanField(default=False)
+    uploaded = models.BooleanField(default=False)
 
     def create_attendance_point_document(self):
         """Will create a PDF for the Attendance and assign it to the Attendance Object"""
@@ -1139,6 +1188,7 @@ class SafetyPoint(models.Model):
     details = models.TextField(default='')
     assigned_by = models.CharField(max_length=50)
     downloaded = models.BooleanField(default=False)
+    uploaded = models.BooleanField(default=False)
 
     def create_safety_point_document(self):
         """Will create a PDF for the Counseling and assign it to the Counseling Object"""
