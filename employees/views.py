@@ -593,6 +593,8 @@ def view_settlement(request, settlement_id):
 
             if request.FILES:
                 update_fields.append('document')
+                settlement.uploaded = True
+                settlement.save()
 
             settlement_object.save(update_fields=update_fields)
 
