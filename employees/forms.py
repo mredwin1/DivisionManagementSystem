@@ -154,6 +154,7 @@ class EditAttendance(forms.Form):
 
         try:
             attendance.document = request.FILES['document']
+            attendance.uploaded = True
             update_fields.append('document')
         except KeyError:
             pass
@@ -277,6 +278,7 @@ class EditCounseling(forms.Form):
         update_fields = ['issued_date', 'action_type', 'conduct', 'hearing_datetime', 'conversation']
         try:
             counseling.document = request.FILES['document']
+            counseling.uploaded = True
             update_fields.append('document')
         except KeyError:
             pass
@@ -367,11 +369,10 @@ class EditSafetyPoint(forms.Form):
         update_fields = ['incident_date', 'issued_date', 'points', 'reason', 'unsafe_act', 'details']
         try:
             safety_point.document = self.files['document']
+            safety_point.uploaded = True
             update_fields.append('document')
-            print(type(self.files['document']))
         except KeyError:
-            print('Key Error')
-
+            pass
         safety_point.incident_date = self.cleaned_data['incident_date']
         safety_point.issued_date = self.cleaned_data['issued_date']
         safety_point.points = points[self.cleaned_data['reason']]
@@ -549,7 +550,7 @@ class NotificationSettings(forms.ModelForm):
                   'email_attendance_doc_day7', 'email_attendance_doc_day10', 'email_safety_doc_day3',
                   'email_safety_doc_day5', 'email_safety_doc_day7', 'email_safety_doc_day10',
                   'email_counseling_doc_day3', 'email_counseling_doc_day5', 'email_counseling_doc_day7',
-                  'email_counseling_doc_day10']
+                  'email_counseling_doc_day10', 'email_settlement_doc']
 
 
 class UploadProfilePicture(forms.ModelForm):

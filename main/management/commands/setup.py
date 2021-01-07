@@ -15,7 +15,8 @@ class Command(BaseCommand):
                                'email_attendance_doc_day3', 'email_attendance_doc_day5', 'email_attendance_doc_day7',
                                'email_attendance_doc_day10', 'email_safety_doc_day3', 'email_safety_doc_day5',
                                'email_safety_doc_day7', 'email_safety_doc_day10', 'email_counseling_doc_day3',
-                               'email_counseling_doc_day5', 'email_counseling_doc_day7', 'email_counseling_doc_day10']
+                               'email_counseling_doc_day5', 'email_counseling_doc_day7', 'email_counseling_doc_day10',
+                               'email_settlement_doc']
         all_groups = [group.name for group in Group.objects.all()]
 
         for group_name in notification_groups:
