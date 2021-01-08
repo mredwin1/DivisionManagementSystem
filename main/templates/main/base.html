@@ -40,7 +40,7 @@
     </head>
     <body>
         <script src="{% static 'notifications/notify.js' %}" type="text/javascript"></script>
-        {% if user.authenticated %}
+        {% if user.is_authenticated %}
             <script>
                 function generate_notification_list(data) {
                     let time_str;
