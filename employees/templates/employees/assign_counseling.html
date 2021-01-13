@@ -15,6 +15,11 @@
                     <div class="form-group col-4">
                         {{ c_form.action_type|as_crispy_field }}
                     </div>
+                    {% if perms.employees.can_override_progressive_discipline_lock %}
+                        <div class="form-group col-4 pt-4" style="display: none" id="pd_check_override">
+                            {{ c_form.pd_check_override|as_crispy_field }}
+                        </div>
+                    {% endif %}
                 </div>
                 <div class="form-row justify-content-start">
                     <div class="form-group col-4">

@@ -207,7 +207,7 @@
                         <div class="d-flex justify-content-between">
                             <h3 class="text-left">Time Off Request</h3>
                             <a class="cursor-default" href="{% if request.user.id == employee.id or perms.employees.can_add_time_off_request %}{% url 'employee-time-off-request' employee.employee_id %}{% else %}#{% endif %}">
-                                <i class="fas fa-plus fa-sm icon-link{% if request.user.id == employee.id or perm.employees.can_add_time_off_request %} cursor-pointer{% endif %}" title="Add Time Off Request"></i>
+                                <i class="fas fa-plus fa-sm icon-link{% if request.user.id == employee.id or perms.employees.can_add_time_off_request %} cursor-pointer{% endif %}" title="Add Time Off Request"></i>
                             </a>
                         </div>
                         <div class="h-90 mt-3 pb-3">
