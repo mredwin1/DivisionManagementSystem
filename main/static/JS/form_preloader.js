@@ -6,7 +6,7 @@ $(document).ready(function() {
         event.preventDefault();
 
         var data = new FormData($(this).get(0));
-
+        console.log('Preloader')
         $.ajax({
            url: $(this).attr('action'),
            type: $(this).attr('method'),
@@ -26,6 +26,12 @@ $(document).ready(function() {
                     var parent = $(id).parent();
                     var p = $("<p>", {id: "error_1_id_" + key, "class": "invalid-feedback"});
                     var strong = $("<strong>").text(value);
+
+                    if (key === 'action_type') {
+                        if ($('#pd_check_override').length) {
+                            $('#pd_check_override').show();
+                        }
+                    }
 
                     parent.find('p').remove();
                     p.append(strong);
