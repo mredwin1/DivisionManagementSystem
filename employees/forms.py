@@ -170,13 +170,15 @@ class EditAttendance(forms.Form):
 
 class AssignCounseling(forms.Form):
     issued_date = forms.DateField(label='Issued Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
-    action_type = forms.CharField(label='Action Type', widget=forms.Select(choices=Counseling.ACTION_CHOICES), required=True)
+    action_type = forms.CharField(label='Action Type', widget=forms.Select(choices=Counseling.ACTION_CHOICES),
+                                  required=True)
     hearing_date = forms.DateTimeField(label='Hearing Date', widget=forms.TextInput(attrs={'type': 'date'}),
                                        required=False)
     hearing_time = forms.TimeField(label='Hearing Time', widget=forms.TextInput(attrs={'type': 'time'}),
                                    initial=datetime.time(hour=10, minute=0) ,required=False)
     conduct = forms.CharField(label='Explanation of Employee Conduct', widget=forms.Textarea(), required=True)
     conversation = forms.CharField(label='Record of Conversation', widget=forms.Textarea(), required=True)
+    pd_check_override = forms.BooleanField(label='Override Progressive Discipline Check', required=False)
 
     def __init__(self, *args, **kwargs):
         self.employee = kwargs.pop('employee', None)
@@ -206,60 +208,61 @@ class AssignCounseling(forms.Form):
         action_type_field = 'action_type'
         action_type = self.cleaned_data[action_type_field]
 
-        if action_type != '6' or action_type != '5':
-            history = {
-                '0': False,
-                '1': False,
-                '2': False,
-                '3': False,
-                '4': False,
-            }
+        if not self.cleaned_data['pd_check_override']:
+            if action_type != '6' or action_type != '5':
+                history = {
+                    '0': False,
+                    '1': False,
+                    '2': False,
+                    '3': False,
+                    '4': False,
+                }
 
-            actions = {
-                '': '',
-                '0': 'Verbal Counseling',
-                '1': 'Verbal Warning',
-                '2': 'First Written Warning Notice',
-                '3': 'Final Written Warning Notice & 3 Day Suspension',
-                '4': 'Last % Final Warning',
-                '5': 'Discharge for \"Just Cause\"',
-                '6': 'Administrative Removal from Service',
-            }
+                actions = {
+                    '': '',
+                    '0': 'Verbal Counseling',
+                    '1': 'Verbal Warning',
+                    '2': 'First Written Warning Notice',
+                    '3': 'Final Written Warning Notice & 3 Day Suspension',
+                    '4': 'Last % Final Warning',
+                    '5': 'Discharge for \"Just Cause\"',
+                    '6': 'Administrative Removal from Service',
+                }
 
-            for counseling_record in counseling_records:
-                if not counseling_record.attendance and counseling_record.action_type != '5' and counseling_record.action_type != '6':
-                    history[counseling_record.action_type] = True
+                for counseling_record in counseling_records:
+                    if not counseling_record.attendance and counseling_record.action_type != '5' and counseling_record.action_type != '6':
+                        history[counseling_record.action_type] = True
 
-            history_total = sum(history.values())
+                history_total = sum(history.values())
 
-            if history_total:
-                current = 0
-                del_counseling_count = 0
+                if history_total:
+                    current = 0
+                    del_counseling_count = 0
 
-                for key, value in history.items():
-                    if history[key]:
-                        current = int(key)
-                if current:
-                    for x in range(current, -1, -1):
-                        if not history[str(x)]:
-                            del_counseling_count += 1
-                    if del_counseling_count:
+                    for key, value in history.items():
+                        if history[key]:
+                            current = int(key)
+                    if current:
+                        for x in range(current, -1, -1):
+                            if not history[str(x)]:
+                                del_counseling_count += 1
+                        if del_counseling_count:
 
-                        next_step = str(current - del_counseling_count + 1)
+                            next_step = str(current - del_counseling_count + 1)
+                        else:
+                            next_step = str(current + 1)
                     else:
                         next_step = str(current + 1)
                 else:
-                    next_step = str(current + 1)
-            else:
-                next_step = '0'
+                    next_step = '0'
 
-            if int(next_step) > 4:
-                next_step = '6'
+                if int(next_step) > 4:
+                    next_step = '6'
 
-            if action_type != next_step:
-                self.add_error(action_type_field, f'The next step in progressive discipline would be {actions[next_step]}.')
-        elif action_type == '6':
-            pass
+                if action_type != next_step:
+                    self.add_error(action_type_field, f'The next step in progressive discipline would be {actions[next_step]}.')
+            elif action_type == '6':
+                pass
 
 
 class EditCounseling(forms.Form):
