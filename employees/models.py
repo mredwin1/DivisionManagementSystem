@@ -158,9 +158,9 @@ class Employee(AbstractBaseUser, PermissionsMixin):
     employee_id = models.IntegerField(unique=True, null=True, verbose_name='Employee ID')
     primary_phone = PhoneNumberField(null=True, blank=True, verbose_name='Primary Phone Number')
     secondary_phone = PhoneNumberField(null=True, blank=True, verbose_name='Secondary Phone Number')
-    paid_sick = models.IntegerField(default=3, verbose_name='Paid Sick')
+    paid_sick = models.IntegerField(default=0, verbose_name='Paid Sick')
     unpaid_sick = models.IntegerField(default=2, verbose_name='Unpaid Sick')
-    floating_holiday = models.IntegerField(default=2, verbose_name='Floating Holiday')
+    floating_holiday = models.IntegerField(default=0, verbose_name='Floating Holiday')
 
     first_name = models.CharField(max_length=30, verbose_name='First Name')
     last_name = models.CharField(max_length=30, verbose_name='Last Name')
