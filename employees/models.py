@@ -227,6 +227,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
             ('can_view_attendance_details', 'Can view attendance details in account'),
             ('can_view_safety_details', 'Can view safety details in account'),
             ('can_view_counseling_details', 'Can view counseling details in account'),
+            ('can_override_progressive_discipline_lock', 'Can override progressive discipline lock'),
 
             # Main's Views Permissions
             ('can_view_employee_info', 'Can view employee info'),
