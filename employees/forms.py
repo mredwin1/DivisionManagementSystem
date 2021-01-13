@@ -186,7 +186,8 @@ class AssignCounseling(forms.Form):
 
     def save(self, request):
         if self.cleaned_data['hearing_date']:
-            hearing_date = datetime.datetime.combine(self.cleaned_data['hearing_date'], self.cleaned_data['hearing_time'])
+            hearing_date = datetime.datetime.combine(self.cleaned_data['hearing_date'],
+                                                     self.cleaned_data['hearing_time'])
         else:
             hearing_date = None
 
