@@ -243,7 +243,7 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'main.tasks.settlement_notification',
         'schedule': crontab(hour=1)
     },
-    'sick_day_check': {
+    'employee_check': {
         'task': 'main.tasks.employee_check',
         'schedule': crontab(hour=1)
     },
