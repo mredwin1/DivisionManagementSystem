@@ -220,3 +220,9 @@ def counseling_notification():
 @shared_task
 def settlement_notification():
     call_command('settlement_notification')
+
+
+@shared_task
+def employee_check():
+    call_command('sick_day_check')
+    call_command('floating_holiday_check')
