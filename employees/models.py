@@ -18,6 +18,7 @@ from notifications.models import Notification
 from phonenumber_field.modelfields import PhoneNumberField
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
+from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
 from titlecase import titlecase
 
@@ -1264,15 +1265,15 @@ class SafetyPoint(models.Model):
         p.drawRightString(7.75 * inch, 9.65 * inch, header5)
 
         # Logo
-        # logo_url = static('\main\\MV_Transportation_logo.png')
         if settings.USE_S3:
-            absolute_url = f'{settings.STATIC_URL}/main/MV Transportation logo.png'
+            logo_absolute_url = f'{settings.STATIC_URL}/main/MV Transportation logo.png'
         else:
             site = Site.objects.get_current()
             domain = site.domain
-            absolute_url = f'https://{domain}/main/MV Transportation logo.png'
-        logging.info(absolute_url)
-        # p.drawInlineImage(settings.STATIC_ROOT + '\main\\', 1 * inch, 9.5 * inch, 1.5 * inch, .75 * inch)
+            logo_absolute_url = f'https://{domain}/main/MV Transportation logo.png'
+
+        logo = ImageReader(logo_absolute_url)
+        p.drawInlineImage(logo, 1 * inch, 9.5 * inch, 1.5 * inch, .75 * inch)
 
         # Title
         title = 'SAFETY POINT NOTICE'
