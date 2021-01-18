@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
@@ -208,6 +209,11 @@ BASE_URL = 'http://10.100.12.67:8000'
 # Celery Settings
 CELERY_BROKER_URL = "redis://redis:6379"
 CELERY_RESULT_BACKEND = "redis://redis:6379"
+
+
+# Django Sites
+SITE_ID = 1
+
 
 # Periodic Tasks
 CELERY_BEAT_SCHEDULE = {
