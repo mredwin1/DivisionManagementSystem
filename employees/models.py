@@ -1266,7 +1266,7 @@ class SafetyPoint(models.Model):
         # Logo
         # logo_url = static('\main\\MV_Transportation_logo.png')
         if settings.USE_S3:
-            absolute_url = f'{settings.AWS_S3_CUSTOM_DOMAIN}/main/MV Transportation logo.png'
+            absolute_url = f'{settings.STATIC_URL}/main/MV Transportation logo.png'
         else:
             site = Site.objects.get_current()
             domain = site.domain
