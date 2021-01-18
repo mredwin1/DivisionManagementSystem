@@ -1264,13 +1264,13 @@ class SafetyPoint(models.Model):
         p.drawRightString(7.75 * inch, 9.65 * inch, header5)
 
         # Logo
-        logo_url = static('\main\\MV_Transportation_logo.png')
+        # logo_url = static('\main\\MV_Transportation_logo.png')
         if settings.USE_S3:
-            absolute_url = f'{settings.AWS_S3_CUSTOM_DOMAIN}{logo_url}'
+            absolute_url = f'{settings.AWS_S3_CUSTOM_DOMAIN}/main/MV Transportation logo.png'
         else:
             site = Site.objects.get_current()
             domain = site.domain
-            absolute_url = f'https://{domain}{logo_url}'
+            absolute_url = f'https://{domain}/main/MV Transportation logo.png'
         logging.info(absolute_url)
         # p.drawInlineImage(settings.STATIC_ROOT + '\main\\', 1 * inch, 9.5 * inch, 1.5 * inch, .75 * inch)
 
