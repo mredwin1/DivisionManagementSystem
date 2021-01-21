@@ -213,38 +213,38 @@ CELERY_RESULT_BACKEND = "redis://redis:6379"
 CELERY_BEAT_SCHEDULE = {
     'attendance_cleanup': {
         'task': 'main.tasks.attendance_cleanup',
-        'schedule': crontab(hour=1)
+        'schedule': crontab(minute=0, hour=0)
     },
     'counseling_cleanup': {
         'task': 'main.tasks.counseling_cleanup',
-        'schedule': crontab(hour=1)
+        'schedule': crontab(minute=0, hour=0)
     },
     'safety_point_cleanup': {
         'task': 'main.tasks.safety_point_cleanup',
-        'schedule': crontab(hour=1)
+        'schedule': crontab(minute=0, hour=0)
     },
     'time_off_cleanup': {
         'task': 'main.tasks.time_off_cleanup',
-        'schedule': crontab(hour=1)
+        'schedule': crontab(minute=0, hour=0)
     },
     'attendance_notification': {
         'task': 'main.tasks.attendance_notification',
-        'schedule': crontab(hour=1)
+        'schedule': crontab(minute=0, hour=0)
     },
     'safety_point_notification': {
         'task': 'main.tasks.safety_point_notification',
-        'schedule': crontab(hour=1)
+        'schedule': crontab(minute=0, hour=0)
     },
     'counseling_notification': {
         'task': 'main.tasks.counseling_notification',
-        'schedule': crontab(hour=1)
+        'schedule': crontab(minute=0, hour=0)
     },
     'settlement_notification': {
         'task': 'main.tasks.settlement_notification',
-        'schedule': crontab(hour=1)
+        'schedule': crontab(minute=0, hour=0)
     },
     'employee_check': {
         'task': 'main.tasks.employee_check',
-        'schedule': crontab(hour=1)
+        'schedule': crontab(minute=0, hour=0)
     },
 }
