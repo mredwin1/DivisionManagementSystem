@@ -13,9 +13,6 @@ from employees.models import Company, Employee, Attendance, TimeOffRequest, DayO
 
 
 class EmployeeCreationForm(forms.Form):
-    COMPANY_CHOICES = [
-        ('', ''),
-    ]
 
     POSITION_CHOICES = [
         ('', ''),
@@ -25,19 +22,10 @@ class EmployeeCreationForm(forms.Form):
         ('dispatcher', 'Dispatcher'),
     ]
 
-    try:
-        companies = Company.objects.all()
-
-        for company in companies:
-            company = (company, company)
-            COMPANY_CHOICES.append(company)
-    except:
-        pass
-
-
     first_name = forms.CharField(label='First Name', required=True, max_length=30)
     last_name = forms.CharField(label='Last Name', required=True, max_length=30)
-    position = forms.CharField(label='Position', widget=forms.Select(choices=POSITION_CHOICES),required=True, max_length=30)
+    position = forms.CharField(label='Position', widget=forms.Select(choices=POSITION_CHOICES),
+                               required=True, max_length=30)
 
     employee_id = forms.IntegerField(label='Employee ID', required=True)
     last4_ss = forms.IntegerField(label='Last 4 of SS', required=True, help_text='This is only used for password '
@@ -46,13 +34,22 @@ class EmployeeCreationForm(forms.Form):
     secondary_phone = PhoneNumberField(label='Secondary Phone', required=False)
 
     hire_date = forms.DateField(label='Hire Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
-    application_date = forms.DateField(label='Application Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
-    classroom_date = forms.DateField(label='Classroom Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
+    application_date = forms.DateField(label='Application Date', widget=forms.TextInput(attrs={'type': 'date'}),
+                                       required=True)
+    classroom_date = forms.DateField(label='Classroom Date', widget=forms.TextInput(attrs={'type': 'date'}),
+                                     required=True)
 
-    company = forms.CharField(label='Company', widget=forms.Select(choices=COMPANY_CHOICES), required=True)
+    company = forms.CharField(label='Company', required=True)
 
     is_part_time = forms.BooleanField(label='Part Time', initial=False, required=False)
     is_neighbor_link = forms.BooleanField(label='NeighborLink Driver', initial=False, required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(EmployeeCreationForm, self).__init__(*args, **kwargs)
+        company_choices = [(company.display_name, company.display_name) for company in Company.objects.all()]
+        company_choices.insert(0, ('', ''))
+
+        self.fields['company'].widget = forms.Select(choices=company_choices)
 
     def clean(self):
         employee_ids = [employee.employee_id for employee in Employee.objects.all()]
