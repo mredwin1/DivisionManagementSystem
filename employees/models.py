@@ -1176,7 +1176,8 @@ class SafetyPoint(models.Model):
         ('5', 'Backing Accident'),
         ('6', 'Minor Preventable incident'),
         ('7', 'Any use of a cell phone or non company-issued electronic device while operating a vehicle'),
-        ('8', 'Major preventable incident that does not involve serious injury, death and/or property damage in excess of $25,000'),
+        ('8', 'Major preventable incident that does not involve serious injury, death and/or property damage in '
+              'excess of $25,000'),
         ('9', 'Major preventable incident with serious injury, death and/or property damage in excess of $25,000'),
         ('10', 'Any preventable roll-away incident'),
         ('11', 'Failure to properly secure/transport a mobility device'),
@@ -1210,7 +1211,8 @@ class SafetyPoint(models.Model):
             '5': 'Backing Accident',
             '6': 'Minor Preventable incident',
             '7': 'Any use of a cell phone or non company-issued electronic device while operating a vehicle',
-            '8': 'Major preventable incident that does not involve serious injury, death and/or property damage in excess of $25,000',
+            '8': 'Major preventable incident that does not involve serious injury, death and/or property damage in '
+                 'excess of $25,000',
             '9': 'Major preventable incident with serious injury, death and/or property damage in excess of $25,000',
             '10': 'Any preventable roll-away incident',
             '11': 'Failure to properly secure/transport a mobility device',
@@ -1227,13 +1229,16 @@ class SafetyPoint(models.Model):
             '4': 'was convicted of a minor traffic violation.',
             '5': 'was involved in a preventable backing accident.',
             '6': 'was involved in a minor preventable incident',
-            '7': 'was using an unathorized electronic device while operating a company vehicle.',
-            '8': 'was involved in a major preventable incident that does not involve serious injury, death and/or property damage in excess of $25,000.',
-            '9': 'was involved in a major preventable incident with serious injury, death and/or property damage in excess of $25,000.',
+            '7': 'was using an unauthorized electronic device while operating a company vehicle.',
+            '8': 'was involved in a major preventable incident that does not involve serious injury, death and/or '
+                 'property damage in excess of $25,000.',
+            '9': 'was involved in a major preventable incident with serious injury, death and/or property damage in '
+                 'excess of $25,000.',
             '10': 'was involved in a preventable roll-away incident.',
             '11': 'failed to properly secure/transport a mobility device.',
             '12': 'failed to immediately report a citation or incident in a company vehicle.',
-            '13': 'was tampering with, disabling, or otherwise interfering with Drive Cam or other monitoring equipment.',
+            '13': 'was tampering with, disabling, or otherwise interfering with Drive Cam or other monitoring '
+                  'equipment.',
             '14': 'was convicted of a major traffic violation.',
         }
 
@@ -1266,7 +1271,7 @@ class SafetyPoint(models.Model):
 
         # Logo
         if settings.USE_S3:
-            logo_absolute_url = f'{settings.STATIC_URL}/main/MV Transportation logo.png'
+            logo_absolute_url = f'{settings.STATIC_URL}main/MV Transportation logo.png'
         else:
             site = Site.objects.get_current()
             domain = site.domain
