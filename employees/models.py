@@ -920,7 +920,8 @@ class Attendance(models.Model):
         p.setLineWidth(.75)
 
         history = self.employee.get_attendance_history()
-        counseling = self.employee.attendance_counseling_required(reason=self.reason, exemption=self.exemption)
+        counseling = self.employee.attendance_counseling_required(reason=self.reason, exemption=self.exemption,
+                                                                  current_id=self.id)
 
         # Title
         title = 'Employee Attendance Report'
