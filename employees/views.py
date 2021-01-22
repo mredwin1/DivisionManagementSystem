@@ -124,7 +124,7 @@ def assign_attendance(request, employee_id):
     employee = Employee.objects.get(employee_id=employee_id)
     if request.method == 'GET':
 
-        a_form = AssignAttendance()
+        a_form = AssignAttendance(employee=employee)
 
         data = {
             'a_form': a_form,
@@ -133,10 +133,10 @@ def assign_attendance(request, employee_id):
 
         return render(request, 'employees/assign_attendance.html', data)
     else:
-        a_form = AssignAttendance(request.POST)
+        a_form = AssignAttendance(data=request.POST, employee=employee)
 
         if a_form.is_valid():
-            a_form.save(employee, request)
+            a_form.save(request)
 
             messages.add_message(request, messages.SUCCESS, 'Attendance Point Successfully Assigned')
 
