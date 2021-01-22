@@ -71,7 +71,24 @@ class AssignAttendance(forms.Form):
     reason = forms.CharField(label='Reason', widget=forms.Select(choices=Attendance.REASON_CHOICES), required=True)
     exemption = forms.CharField(label='Exemption', widget=forms.Select(choices=Attendance.EXEMPTION_CHOICES), required=False)
 
-    def save(self, employee, request):
+    def __init__(self, *args, **kwargs):
+        self.employee = kwargs.pop('employee', None)
+        super(AssignAttendance, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+
+        exception_field_name = 'exemption'
+        exemption = self.cleaned_data[exception_field_name]
+
+        if exemption == '1' and self.employee.paid_sick <= 0:
+            self.add_error(exception_field_name, f'{self.employee.get_full_name()} does not have Paid Sick days '
+                                                 f'available')
+        elif exemption == '2' and self.employee.unpaid_sick <= 0:
+            self.add_error(exception_field_name, f'{self.employee.get_full_name()} does not have Unpaid Sick days '
+                                                 f'available')
+
+    def save(self, request):
         points = {
             '0': 1,
             '1': 0,
@@ -87,14 +104,14 @@ class AssignAttendance(forms.Form):
         if self.cleaned_data['exemption']:
             point = 0
             if self.cleaned_data['exemption'] == '1':
-                employee.paid_sick -= 1
+                self.employee.paid_sick -= 1
             elif self.cleaned_data['exemption'] == '2':
-                employee.unpaid_sick -= 1
+                self.employee.unpaid_sick -= 1
         else:
             point = points[self.cleaned_data['reason']]
 
         attendance = Attendance(
-            employee=employee,
+            employee=self.employee,
             incident_date=self.cleaned_data['incident_date'],
             issued_date=datetime.date.today(),
             points=point,
@@ -105,7 +122,7 @@ class AssignAttendance(forms.Form):
 
         attendance.save()
 
-        employee.save()
+        self.employee.save()
 
 
 class EditAttendance(forms.Form):
