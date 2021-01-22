@@ -964,16 +964,16 @@ class Attendance(models.Model):
 
         p.line(1.6 * inch, 9.5 * inch, 2.75 * inch, 9.5 * inch)
 
-        p.drawString(3 * inch, 9.5 * inch, 'Reason:')
-        p.drawString(3.72 * inch, 9.53 * inch, reasons[self.reason])
+        p.drawString(2.85 * inch, 9.5 * inch, 'Reason:')
+        p.drawString(3.57 * inch, 9.53 * inch, reasons[self.reason])
 
-        p.line(3.7 * inch, 9.5 * inch, 4.75 * inch, 9.5 * inch)
+        p.line(3.57 * inch, 9.5 * inch, 5.40 * inch, 9.5 * inch)
 
-        p.drawString(5 * inch, 9.5 * inch, 'Exemption:')
+        p.drawString(5.50 * inch, 9.5 * inch, 'Exemption:')
         if self.exemption:
-            p.drawString(5.92 * inch, 9.53 * inch, exemptions[self.exemption])
+            p.drawString(6.42 * inch, 9.52 * inch, exemptions[self.exemption])
 
-        p.line(5.9 * inch, 9.5 * inch, 8 * inch, 9.5 * inch)
+        p.line(6.42 * inch, 9.5 * inch, 8 * inch, 9.5 * inch)
 
         # Occurrences & Warnings
         points = {
