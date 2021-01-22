@@ -15,7 +15,7 @@
                                         <i class="fas fa-pen fa-lg img-edit"></i>
                                     </div>
                                 {% endif %}
-                                <img src="{% if employee.profile_picture %}{{ employee.profile_picture.url }}{% else %}{% static 'main/blank-profile-picture.png' %}{% endif %}" alt="" class="rounded-circle p-3 img-profile" width="100%">
+                                <img src="{% if employee.profile_picture %}{{ employee.profile_picture.url }}{% else %}{% static 'main/blank-profile-picture.png' %}{% endif %}" alt="" class="rounded-circle p-3 img-profile" width="99%">
                                 {% if employee.hold %}
                                     <img src="{% static 'main/on-hold-stamp.png' %}" alt="" class="rounded-circle stamp p-3" width="100%">
                                 {% endif %}
