@@ -158,8 +158,8 @@ def counseling_reports(request):
 
         except ValueError:
             counseling_records = Counseling.objects.annotate(
-                full_name=Concat('employee__first_name', V(' '), 'employee__last_name', output_field=CharField())).filter(
-                full_name__icontains=search).order_by(sort_by)
+                full_name=Concat('employee__first_name', V(' '), 'employee__last_name', output_field=CharField())).\
+                filter(full_name__icontains=search, employee__is_active=True)
 
     if sort_by:
         counseling_records = counseling_records.order_by(sort_by)
