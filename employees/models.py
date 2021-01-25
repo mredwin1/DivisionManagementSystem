@@ -2,6 +2,7 @@ import datetime
 import io
 import requests
 import textwrap
+import logging
 
 from PyPDF2 import PdfFileMerger, PdfFileReader
 from django.conf import settings
@@ -15,6 +16,7 @@ from notifications.models import Notification
 from phonenumber_field.modelfields import PhoneNumberField
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
+from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.pdfgen import canvas
 from titlecase import titlecase
 
@@ -1490,6 +1492,58 @@ class Counseling(models.Model):
 
         return first_name, last_name
 
+    def get_conduct(self, font_name=None, font_size=None, wrapping_amount=None):
+        words = self.conduct.split(' ')
+        wrapped_conduct = []
+        current_words = []
+        index = 0
+
+        logging.info(str(words))
+
+        while index < len(words):
+            current_words.append(words[index])
+            wrapped_str = ' '.join(current_words)
+            logging.info(f'Current wrapped string: {wrapped_str}')
+
+            if stringWidth(wrapped_str, font_name, font_size) >= wrapping_amount and index != len(words):
+                wrapped_str = ' '.join(current_words[:-1])
+                logging.info(f'String is too big. Appending: {wrapped_str}')
+                current_words = []
+                wrapped_conduct.append(wrapped_str)
+                logging.info(f'The final wrapped text looks like this: {wrapped_conduct}')
+            elif stringWidth(wrapped_str, font_name, font_size) >= wrapping_amount and index == len(words):
+                wrapped_conduct.append(wrapped_str)
+            else:
+                index += 1
+
+        return wrapped_conduct
+    
+    def get_conversation(self, font_name=None, font_size=None, wrapping_amount=None):
+        words = self.conversation.split(' ')
+        wrapped_conversation = []
+        current_words = []
+        index = 0
+
+        logging.info(str(words))
+
+        while index < len(words):
+            current_words.append(words[index])
+            wrapped_str = ' '.join(current_words)
+            logging.info(f'Current wrapped string: {wrapped_str}')
+
+            if stringWidth(wrapped_str, font_name, font_size) >= wrapping_amount and index != len(words):
+                wrapped_str = ' '.join(current_words[:-1])
+                logging.info(f'String is too big. Appending: {wrapped_str}')
+                current_words = []
+                wrapped_conversation.append(wrapped_str)
+                logging.info(f'The final wrapped text looks like this: {wrapped_conversation}')
+            elif stringWidth(wrapped_str, font_name, font_size) >= wrapping_amount and index == len(words):
+                wrapped_conversation.append(wrapped_str)
+            else:
+                index += 1
+
+        return wrapped_conversation
+
     def create_counseling_document(self):
         """Will create a PDF for the Counseling and assign it to the Counseling Object"""
         buffer = io.BytesIO()
@@ -1572,8 +1626,8 @@ class Counseling(models.Model):
         p.line(.5 * inch, 4.75 * inch, 8 * inch, 4.75 * inch)
 
         y = 5.50
-        if p.stringWidth(self.conduct, 'Helvetica', 10) > 540.0:
-            wrapped_text = textwrap.wrap(self.conduct, width=135)
+        if p.stringWidth(self.conduct, 'Helvetica', 10) > 595:
+            wrapped_text = self.get_conduct(font_name='Helvetica', font_size=10, wrapping_amount=595)
             for line in wrapped_text:
                 p.drawString(.5625 * inch, (y + .02) * inch, line)
                 y -= .25
@@ -1592,8 +1646,8 @@ class Counseling(models.Model):
         p.line(.5 * inch, 3.50 * inch, 8 * inch, 3.50 * inch)
 
         y = 4.25
-        if p.stringWidth(self.conversation, 'Helvetica', 10) > 540.0:
-            wrapped_text = textwrap.wrap(self.conversation, width=133)
+        if p.stringWidth(self.conversation, 'Helvetica', 10) > 595:
+            wrapped_text = self.get_conversation(font_name='Helvetica', font_size=10, wrapping_amount=595)
             for line in wrapped_text:
                 p.drawString(.5625 * inch, (y + .02) * inch, line)
                 y -= .25
