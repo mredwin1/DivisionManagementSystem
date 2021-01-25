@@ -687,7 +687,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
 
         merged_object.write(buffer)
 
-        return buffer.getbuffer().tobytes()
+        return ContentFile(buffer.getbuffer())
 
     def create_counseling_history_document(self):
         """Gets all the active Counseling Objects for the Employee and merges all documents into one and make a summary
@@ -773,7 +773,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
 
         merged_object.write(buffer)
 
-        return buffer.getbuffer().tobytes()
+        return ContentFile(buffer.getbuffer())
 
     def create_safety_point_history_document(self):
         """Gets all the active Counseling Objects for the Employee and merges all documents into one and make a summary
@@ -867,7 +867,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
 
         merged_object.write(buffer)
 
-        return buffer.getbuffer().tobytes()
+        return ContentFile(buffer.getbuffer())
 
     def __str__(self):
         return f'{self.last_name}, {self.first_name}'
