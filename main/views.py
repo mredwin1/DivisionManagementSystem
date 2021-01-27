@@ -70,9 +70,9 @@ def employee_info(request):
             employees = employees.filter(employee_id__exact=search)
 
         except ValueError:
-            employees = Employee.objects.filter(is_active=True).annotate(
+            employees = Employee.objects.annotate(
                 full_name=Concat('first_name', V(' '), 'last_name', output_field=CharField())).filter(
-                full_name__icontains=search).order_by(sort_by)
+                full_name__icontains=search, is_active=True).order_by(sort_by)
 
     if company_name:
         employees = employees.filter(company__display_name__exact=company_name)
@@ -150,9 +150,9 @@ def export_custom_list(request):
             employees = employees.filter(employee_id__exact=search)
 
         except ValueError:
-            employees = Employee.objects.filter(is_active=True).annotate(
+            employees = Employee.objects.annotate(
                 full_name=Concat('first_name', V(' '), 'last_name', output_field=CharField())).filter(
-                full_name__icontains=search).order_by(sort_by)
+                full_name__icontains=search, is_active=True).order_by(sort_by)
 
     if company_name:
         employees = employees.filter(company__display_name__exact=company_name)
