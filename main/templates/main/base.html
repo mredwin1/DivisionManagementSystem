@@ -228,7 +228,7 @@
                 </div>
             </nav>
         </header>
-        {% if request.resolver_match.url_name == 'main-employee-info' or request.resolver_match.url_name == 'operations-attendance-reports' or request.resolver_match.url_name == 'operations-counseling-reports' or request.resolver_match.url_name == 'operations-time-off-reports' or request.resolver_match.url_name == 'operations-termination-reports' %}
+        {% if request.resolver_match.url_name == 'main-employee-info' or request.resolver_match.url_name == 'operations-attendance-reports' or request.resolver_match.url_name == 'operations-counseling-reports' or request.resolver_match.url_name == 'operations-time-off-reports' or request.resolver_match.url_name == 'operations-termination-reports' or request.resolver_match.url_name == 'main-home'%}
             <main role="main" class="fluid-container pt-3 mx-5 px-5" id="main">
         {% elif request.resolver_match.url_name == 'employee-account' or request.resolver_match.url_name == 'operations-hold-list' %}
             <main role="main" class="container-fluid pt-3" id="main">
