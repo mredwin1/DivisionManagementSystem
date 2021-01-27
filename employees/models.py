@@ -1790,8 +1790,8 @@ class Settlement(models.Model):
         p.setLineWidth(.75)
 
         # Logo
-        p.drawInlineImage(settings.STATIC_ROOT + '/main/MV_Transportation_logo.png', 3.5 * inch, 10 * inch, 1.5 * inch,
-                          .75 * inch)
+        # p.drawInlineImage(settings.STATIC_ROOT + '/main/MV_Transportation_logo.png', 3.5 * inch, 10 * inch, 1.5 * inch,
+        #                   .75 * inch)
 
         # Title
         p.drawCentredString(4.25 * inch, 9.3875 * inch, "SETTLEMENT AGREEMENT")
@@ -1799,7 +1799,6 @@ class Settlement(models.Model):
         p.drawCentredString(4.25 * inch, 8.9875 * inch, "MV TRANSPORTATION AND TEAMSTERS LOCAL 385")
 
         p.setFont('Times-Roman', 12)
-
         # Intro
         intro = f'MV Transportation and Teamster Local 385 have agreed to the following regarding' \
                 f' {self.employee.get_full_name()}.'
@@ -1815,7 +1814,6 @@ class Settlement(models.Model):
             y -= .20
 
         y -= .3
-
         # Details
         for paragraph in self.details.replace('\r', '').split('\n'):
             if p.stringWidth(paragraph, 'Times-Roman', 12) > 175.0:
