@@ -23,7 +23,8 @@ class EmployeeCreationForm(forms.Form):
 
     first_name = forms.CharField(label='First Name', required=True, max_length=30)
     last_name = forms.CharField(label='Last Name', required=True, max_length=30)
-    position = forms.CharField(label='Position', widget=forms.Select(choices=POSITION_CHOICES),
+    position = forms.CharField(label='Position', widget=forms.Select(choices=POSITION_CHOICES,
+                                                                     attrs={'onchange': 'email_change()'}),
                                required=True, max_length=30)
 
     employee_id = forms.IntegerField(label='Employee ID', required=True)
@@ -37,6 +38,8 @@ class EmployeeCreationForm(forms.Form):
                                        required=True)
     classroom_date = forms.DateField(label='Classroom Date', widget=forms.TextInput(attrs={'type': 'date'}),
                                      required=True)
+    email = forms.EmailField(label='Email', widget=forms.TextInput(attrs={'class': 'textinput textInput form-control',
+                                                                          'required': ''}), required=False)
 
     company = forms.CharField(label='Company', required=True)
 
