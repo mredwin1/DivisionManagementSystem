@@ -64,9 +64,17 @@ class EmployeeCreationForm(forms.Form):
 
     def save(self):
         company = Company.objects.get(display_name=self.cleaned_data['company'])
+        first_name = self.cleaned_data['first_name']
+        last_name = self.cleaned_data['last_name']
+
+        if self.cleaned_data['email']:
+            username = f'{first_name.lower()}.{last_name.lower()}'
+        else:
+            username = self.cleaned_data['employee_id']
+
         new_employee = Employee(
-            first_name=self.cleaned_data['first_name'],
-            last_name=self.cleaned_data['last_name'],
+            first_name=first_name,
+            last_name=last_name,
             employee_id=self.cleaned_data['employee_id'],
             primary_phone=self.cleaned_data['primary_phone'],
             secondary_phone=self.cleaned_data['secondary_phone'],
@@ -76,8 +84,9 @@ class EmployeeCreationForm(forms.Form):
             company=company,
             is_part_time=self.cleaned_data['is_part_time'],
             is_neighbor_link=self.cleaned_data['is_neighbor_link'],
-            username=self.cleaned_data['employee_id'],
-            position=self.cleaned_data['position']
+            username=username,
+            position=self.cleaned_data['position'],
+            email=self.cleaned_data['email']
         )
 
         password = self.cleaned_data['company'].upper() + self.cleaned_data['first_name'][0].upper() + \
