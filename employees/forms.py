@@ -192,7 +192,7 @@ class AssignCounseling(forms.Form):
     hearing_date = forms.DateTimeField(label='Hearing Date', widget=forms.TextInput(attrs={'type': 'date'}),
                                        required=False)
     hearing_time = forms.TimeField(label='Hearing Time', widget=forms.TextInput(attrs={'type': 'time'}),
-                                   initial=datetime.time(hour=10, minute=0) ,required=False)
+                                   initial=datetime.time(hour=10, minute=0), required=False)
     conduct = forms.CharField(label='Explanation of Employee Conduct', widget=forms.Textarea(), required=True)
     conversation = forms.CharField(label='Record of Conversation', widget=forms.Textarea(), required=True)
     pd_check_override = forms.BooleanField(label='Override Progressive Discipline Check', required=False)
@@ -227,7 +227,7 @@ class AssignCounseling(forms.Form):
         action_type = self.cleaned_data[action_type_field]
 
         if not self.cleaned_data['pd_check_override']:
-            if action_type != '6' or action_type != '5':
+            if action_type != '6' and action_type != '5':
                 history = {
                     '0': False,
                     '1': False,
@@ -256,7 +256,6 @@ class AssignCounseling(forms.Form):
                 if history_total:
                     current = 0
                     del_counseling_count = 0
-
                     for key, value in history.items():
                         if history[key]:
                             current = int(key)
@@ -265,7 +264,6 @@ class AssignCounseling(forms.Form):
                             if not history[str(x)]:
                                 del_counseling_count += 1
                         if del_counseling_count:
-
                             next_step = str(current - del_counseling_count + 1)
                         else:
                             next_step = str(current + 1)
@@ -279,8 +277,6 @@ class AssignCounseling(forms.Form):
 
                 if action_type != next_step:
                     self.add_error(action_type_field, f'The next step in progressive discipline would be {actions[next_step]}.')
-            elif action_type == '6':
-                pass
 
 
 class EditCounseling(forms.Form):

@@ -127,7 +127,7 @@ def add_counseling_document(sender, instance, created, update_fields, **kwargs):
                                 verb=verb,
                                 type=notification_type, employee_id=instance.employee.employee_id)
 
-                elif instance.action_type == '6':
+                elif instance.action_type == '6' or instance.action_type == '5':
                     verb = f'{instance.employee.get_full_name()} has been Removed from Service'if instance.attendance is None else f'{instance.employee.get_full_name()} has been Removed from Service for reaching 10 Attendance Points'
                     notification_type = 'email_removal' if instance.attendance is None else 'email_10attendance'
 
