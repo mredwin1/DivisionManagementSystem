@@ -19,7 +19,7 @@ class Command(BaseCommand):
         for counseling_record in counseling_records:
             if not counseling_record.uploaded:
                 days_passed = (today - counseling_record.issued_date).days
-                verb = f'A counseling was given to {counseling_record.employee.get_full_name()} {days_passed} days' \
+                verb = f'A counseling was given to {counseling_record.employee.get_full_name()} {days_passed} days ' \
                        f'ago and no signed document has been uploaded yet.'
                 notification_types = []
 
