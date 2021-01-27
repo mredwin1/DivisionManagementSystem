@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
 
     'employees.apps.EmployeesConfig',
     'employees.templatetags',
@@ -205,6 +206,9 @@ DEFAULT_FROM_EMAIL = os.environ['DEFAULT_FROM_EMAIL']
 # Celery Settings
 CELERY_BROKER_URL = "redis://redis:6379"
 CELERY_RESULT_BACKEND = "redis://redis:6379"
+
+# Sites Framework
+SITE_ID = 1
 
 # Periodic Tasks
 CELERY_BEAT_SCHEDULE = {
