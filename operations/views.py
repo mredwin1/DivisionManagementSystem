@@ -54,9 +54,9 @@ def bulk_assign_attendance(request):
 def search_employees(request):
     search = request.GET.get('q')
 
-    employees = Employee.objects.filter(is_active=True).annotate(
+    employees = Employee.objects.annotate(
                 full_name=Concat('first_name', V(' '), 'last_name', output_field=CharField())).filter(
-                full_name__icontains=search)
+                full_name__icontains=search, is_active=True)
 
     employee_names = [f'{employee.last_name}, {employee.first_name} | {employee.employee_id}' for employee in employees]
 
@@ -93,7 +93,7 @@ def attendance_reports(request):
         except ValueError:
             attendance_records = Attendance.objects.annotate(
                 full_name=Concat('employee__first_name', V(' '), 'employee__last_name', output_field=CharField())).filter(
-                full_name__icontains=search).order_by(sort_by)
+                full_name__icontains=search, is_active=True, employee__is_active=True)
 
     if sort_by:
         attendance_records = attendance_records.order_by(sort_by)
@@ -198,7 +198,7 @@ def counseling_reports(request):
 @login_required
 @permission_required('employees.can_view_hold_list', raise_exception=True)
 def view_hold_list(request):
-    hold_list = Hold.objects.all()
+    hold_list = Hold.objects.filter(employee__is_active=True)
 
     data = {
         'hold_list': hold_list
@@ -288,8 +288,8 @@ def time_off_reports(request):
         except ValueError:
             time_off_records = TimeOffRequest.objects.annotate(
                 full_name=Concat('employee__first_name', V(' '), 'employee__last_name',
-                                 output_field=CharField())).filter(
-                full_name__icontains=search).order_by(sort_by)
+                                 output_field=CharField())).filter(full_name__icontains=search, is_active=True,
+                                                                   employee__is_active=True)
 
     if time_off_type:
         time_off_records = time_off_records.filter(time_off_type__exact=time_off_type)
@@ -388,9 +388,9 @@ def termination_reports(request):
             termed_drivers = termed_drivers.filter(employee_id__exact=search)
 
         except ValueError:
-            termed_drivers = Employee.objects.filter(is_active=False).annotate(
+            termed_drivers = Employee.objects.annotate(
                 full_name=Concat('first_name', V(' '), 'last_name', output_field=CharField())).filter(
-                full_name__icontains=search)
+                full_name__icontains=search, is_active=False)
 
     if company_name:
         termed_drivers = termed_drivers.filter(company__display_name__exact=company_name)
