@@ -19,7 +19,7 @@ class Command(BaseCommand):
         for safety_point_record in safety_point_records:
             if not safety_point_record.uploaded:
                 days_passed = (today - safety_point_record.issued_date).days
-                verb = f'A safety point point was given to {safety_point_record.employee.get_full_name()}' \
+                verb = f'A safety point point was given to {safety_point_record.employee.get_full_name()} ' \
                        f' {days_passed} days ago and no signed document has been uploaded yet.'
                 notification_types = []
 

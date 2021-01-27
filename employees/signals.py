@@ -1,5 +1,6 @@
 import datetime
 
+from django.contrib.sites.models import Site
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.template.loader import render_to_string
@@ -8,7 +9,6 @@ from django.utils.html import strip_tags
 from notifications.models import Notification
 from notifications.signals import notify
 
-from DivisionManagementSystem import settings
 from employees.models import Attendance, Counseling, SafetyPoint, Hold, Employee, Settlement, TimeOffRequest
 from main.tasks import send_email
 
@@ -83,10 +83,11 @@ def new_notification(sender, instance, created, **kwargs):
         field_name = instance.data['type']
 
         if getattr(instance.recipient, field_name):
+            domain = Site.objects.get_current().domain
             data = {
                 'notification_message': instance.verb,
-                'notification_href': settings.BASE_URL + reverse('employee-account', args=[instance.data['employee_id'], None, instance.id]),
-                'preferences_href': settings.BASE_URL + reverse('employee-notification-settings')
+                'notification_href': domain + reverse('employee-account', args=[instance.data['employee_id'], None, instance.id]),
+                'preferences_href': domain + reverse('employee-notification-settings')
             }
 
             subject = 'New Notification'

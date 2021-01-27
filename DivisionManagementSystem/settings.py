@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
 
     'employees.apps.EmployeesConfig',
     'employees.templatetags',
@@ -202,12 +203,12 @@ EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
 EMAIL_USE_TLS = bool(int(os.environ['EMAIL_USE_TLS']))
 DEFAULT_FROM_EMAIL = os.environ['DEFAULT_FROM_EMAIL']
 
-# Domain and Protocol
-BASE_URL = 'http://10.100.12.67:8000'
-
 # Celery Settings
 CELERY_BROKER_URL = "redis://redis:6379"
 CELERY_RESULT_BACKEND = "redis://redis:6379"
+
+# Sites Framework
+SITE_ID = 1
 
 # Periodic Tasks
 CELERY_BEAT_SCHEDULE = {

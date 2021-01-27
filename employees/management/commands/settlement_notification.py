@@ -19,7 +19,7 @@ class Command(BaseCommand):
         for settlement_record in settlement_records:
             if not settlement_record.uploaded:
                 days_passed = (today - settlement_record.created_date).days
-                verb = f'A settlement was created for {settlement_record.employee.get_full_name()} {days_passed}' \
+                verb = f'A settlement was created for {settlement_record.employee.get_full_name()} {days_passed} ' \
                        f' days ago and no signed document has been uploaded yet.'
                 notification_types = []
 
