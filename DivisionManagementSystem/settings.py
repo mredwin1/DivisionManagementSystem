@@ -176,7 +176,6 @@ else:
 
 # Custom User & Log In
 AUTH_USER_MODEL = 'employees.Employee'
-LOGIN_REDIRECT_URL = 'main-home'
 LOGIN_URL = 'login'
 
 # Crispy Forms
