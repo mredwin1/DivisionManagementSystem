@@ -3,7 +3,6 @@ import datetime
 from bootstrap_daterangepicker import widgets, fields
 from crispy_forms.helper import FormHelper
 from django import forms
-from django.contrib.auth.models import Permission
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import CharField, Value as V
 from django.db.models.functions import Concat
@@ -84,10 +83,6 @@ class EmployeeCreationForm(forms.Form):
         new_employee.set_password(password)
 
         new_employee.save()
-
-        if new_employee.position == 'dispatcher':
-            permission = Permission.objects.get(codename='can_view_employee_info')
-            new_employee.user_permissions.add(permission)
 
 
 class BulkAssignAttendance(forms.Form):
