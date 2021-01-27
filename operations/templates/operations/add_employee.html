@@ -37,14 +37,22 @@
                     </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group col-lg-4 col-md-4 col-sm-4">
+                    <div class="form-group col-lg-3 col-md-3 col-sm-3">
                         {{ form.application_date|as_crispy_field }}
                     </div>
-                    <div class="form-group col-lg-4 col-md-4 col-sm-4">
+                    <div class="form-group col-lg-3 col-md-3 col-sm-3">
                         {{ form.hire_date|as_crispy_field }}
                     </div>
-                    <div class="form-group col-lg-4 col-md-4 col-sm-4">
+                    <div class="form-group col-lg-3 col-md-3 col-sm-3">
                         {{ form.classroom_date|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-3">
+                        <div id="div_id_email" class="form-group">
+                            <label class="requiredField" for="{{ form.email.auto_id }}">{{ form.email.label }}</label><span class="asterikField">*</span>
+                            <div class>
+                                {{ form.email }}
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="form-row">
@@ -59,6 +67,7 @@
                     <button class="btn btn-primary" type="submit" value="Submit">Submit</button>
                 </div>
             </form>
+            <script src="{% static 'JS/email_required.js' %}"></script>
         </div>
     </div>
 {% endblock %}
