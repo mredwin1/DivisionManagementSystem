@@ -1,5 +1,6 @@
 import datetime
 
+from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
@@ -240,3 +241,7 @@ def add_new_employee(sender, instance, created, update_fields, **kwargs):
         group = Employee.objects.filter(groups__name=notification_type)
         notify.send(sender=instance, recipient=group,
                     verb=verb, type=notification_type, employee_id=instance.employee_id)
+
+        if instance.position == 'dispatcher':
+            dispatcher_group = Group.objects.get(name='Dispatchers')
+            dispatcher_group.user_set.add(instance)
