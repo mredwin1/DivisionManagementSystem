@@ -5,7 +5,7 @@ import os
 
 def update_site_name(apps, schema_editor):
     SiteModel = apps.get_model('sites', 'Site')
-    domain = os.environ['DOMAIN']
+    domain = os.environ.get('DOMAIN', 'example.com')
 
     SiteModel.objects.update_or_create(
         pk=settings.SITE_ID,
