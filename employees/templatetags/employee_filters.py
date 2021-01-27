@@ -2,8 +2,6 @@ from django import template
 from django.urls import reverse
 from employees.models import Counseling, DayOff
 
-import datetime
-
 register = template.Library()
 
 
@@ -255,6 +253,7 @@ def status_return(value):
 
     return status[value]
 
+
 @register.filter()
 def time_off_return(value):
     """
@@ -294,6 +293,16 @@ def requested_dates_return(value):
 def pretty_requested_dates(value):
 
     return ' | '.join(requested_dates_return(value))
+
+
+@register.filter
+def termination_type_return(value):
+    if value == '0':
+        return 'Voluntary'
+    elif value == '1':
+        return 'Involuntary'
+    else:
+        return None
 
 
 
