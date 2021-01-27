@@ -1,12 +1,14 @@
 import tempfile
 
 from django.contrib import messages
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.forms import AuthenticationForm
 from django.core.paginator import Paginator
 from django.db.models import CharField, Value as V
 from django.db.models.functions import Concat
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from employees.helper_functions import create_phone_list, create_seniority_list, create_driver_list, create_custom_list
@@ -17,6 +19,26 @@ from .tasks import import_drivers, import_attendance, import_safety_points
 
 def home(request):
     return render(request, 'main/home.html')
+
+
+def log_in(request):
+    if request.method == 'GET':
+        form = AuthenticationForm()
+
+        return render(request, 'main/login.html', {'form': form})
+    else:
+        form = AuthenticationForm(data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+            login(request, user)
+            if user.has_perm('employees.can_view_employee_info'):
+                return redirect('main-employee-info')
+            else:
+                return redirect('employee-account', user.employee_id)
+        else:
+            return render(request, 'main/login.html', {'form': form})
 
 
 @login_required

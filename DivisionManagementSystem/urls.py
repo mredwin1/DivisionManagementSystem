@@ -21,13 +21,14 @@ from django.conf.urls.static import static
 
 import notifications.urls
 
+from main.views import log_in
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('main.urls'), name='main'),
     path('employees/', include('employees.urls'), name='employees'),
     path('operations/', include('operations.urls'), name='operations'),
-    path('login/', auth_views.LoginView.as_view(template_name='main/login.html'), name='login'),
+    path('login/', log_in, name='login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='main/logout.html'), name='logout'),
     path('password-reset/', auth_views.PasswordResetView.as_view(template_name='main/password_reset.html'),
          name='password_reset'),
