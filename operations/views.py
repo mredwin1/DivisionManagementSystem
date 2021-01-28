@@ -241,7 +241,7 @@ def make_time_off_request(request):
 
             messages.add_message(request, messages.SUCCESS, 'Successfully Added Time Off Request')
 
-            data = {'url': reverse('operations-home')}
+            data = {'url': reverse('operations-make-time-off-request')}
 
             return JsonResponse(data, status=200)
         else:
