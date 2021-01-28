@@ -203,6 +203,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
             # Employee's Views Permissions
             ('can_view_all_accounts', 'Can view all accounts'),
             ('can_edit_employee_info', 'Can edit employee information'),
+            ('can_assign_attendance', 'Can assign attendance records'),
             ('can_delete_attendance', 'Can delete attendance records'),
             ('can_edit_attendance', 'Can edit attendance records'),
             ('can_download_attendance', 'Can download attendance records'),
