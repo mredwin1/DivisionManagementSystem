@@ -45,6 +45,9 @@ $(document).ready(function() {
 
     /* attach a submit handler to the form */
     $(function () {
-        $('form').submit(upload);
+        console.log($('form'));
+        $('form').each(function() {
+            $(this).submit(upload);
+        });
     })
 });
