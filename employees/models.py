@@ -2,10 +2,8 @@ import datetime
 import io
 import requests
 import textwrap
-import logging
 
 from PyPDF2 import PdfFileMerger, PdfFileReader
-from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.core.files.base import ContentFile
 from django.db import models
@@ -1499,21 +1497,17 @@ class Counseling(models.Model):
         current_words = []
         index = 0
 
-        logging.info(str(words))
-
         while index < len(words):
             current_words.append(words[index])
             wrapped_str = ' '.join(current_words)
-            logging.info(f'Current wrapped string: {wrapped_str}')
 
             if stringWidth(wrapped_str, font_name, font_size) >= wrapping_amount and index != len(words):
                 wrapped_str = ' '.join(current_words[:-1])
-                logging.info(f'String is too big. Appending: {wrapped_str}')
                 current_words = []
                 wrapped_conduct.append(wrapped_str)
-                logging.info(f'The final wrapped text looks like this: {wrapped_conduct}')
-            elif stringWidth(wrapped_str, font_name, font_size) >= wrapping_amount and index == len(words):
+            elif stringWidth(wrapped_str, font_name, font_size) <= wrapping_amount and index == (len(words) - 1):
                 wrapped_conduct.append(wrapped_str)
+                index += 1
             else:
                 index += 1
 
@@ -1525,24 +1519,19 @@ class Counseling(models.Model):
         current_words = []
         index = 0
 
-        logging.info(str(words))
 
         while index < len(words):
             current_words.append(words[index])
             wrapped_str = ' '.join(current_words)
-            logging.info(f'Current wrapped string: {wrapped_str}')
-
             if stringWidth(wrapped_str, font_name, font_size) >= wrapping_amount and index != len(words):
                 wrapped_str = ' '.join(current_words[:-1])
-                logging.info(f'String is too big. Appending: {wrapped_str}')
                 current_words = []
                 wrapped_conversation.append(wrapped_str)
-                logging.info(f'The final wrapped text looks like this: {wrapped_conversation}')
-            elif stringWidth(wrapped_str, font_name, font_size) >= wrapping_amount and index == len(words):
+            elif stringWidth(wrapped_str, font_name, font_size) <= wrapping_amount and index == (len(words) - 1):
                 wrapped_conversation.append(wrapped_str)
+                index += 1
             else:
                 index += 1
-
         return wrapped_conversation
 
     def create_counseling_document(self):
