@@ -237,7 +237,7 @@ def add_new_employee(sender, instance, created, update_fields, **kwargs):
     if created:
         verb = f'New Employee added: {instance.get_full_name()}'
         notification_type = 'email_new_employee'
-
+        
         group = Employee.objects.filter(groups__name=notification_type)
         notify.send(sender=instance, recipient=group,
                     verb=verb, type=notification_type, employee_id=instance.employee_id)

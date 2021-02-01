@@ -1,4 +1,6 @@
 import datetime
+import os
+
 from io import BytesIO
 from zipfile import ZipFile
 
@@ -16,8 +18,8 @@ def send_email(subject, plain_message, to, html_message):
 
 
 @shared_task
-def import_drivers(file_path):
-    with ZipFile(file_path, 'r') as zipfile:
+def import_drivers(path):
+    with ZipFile(path) as zipfile:
         try:
             driver_info = zipfile.read('drivers/drivers.xlsx')
 
@@ -25,7 +27,6 @@ def import_drivers(file_path):
 
             try:
                 sheet = wb['data']
-                print(sheet)
                 for row in sheet.iter_rows(min_row=2):
                     try:
                         last_name = f'{row[0].value.lower()[0].upper()}{row[0].value.lower()[1:]}'
@@ -76,11 +77,15 @@ def import_drivers(file_path):
                 pass
         except KeyError:
             pass
+    try:
+        os.remove(path)
+    except FileNotFoundError:
+        pass
 
 
 @shared_task
-def import_attendance(file_path):
-    with open(file_path, 'rb') as f:
+def import_attendance(path):
+    with open(path, 'rb') as f:
         wb = load_workbook(filename=f)
 
         try:
@@ -129,11 +134,15 @@ def import_attendance(file_path):
                 new_attendance.save()
             except Employee.DoesNotExist:
                 pass
+    try:
+        os.remove(path)
+    except FileNotFoundError:
+        pass
 
 
 @shared_task
-def import_safety_points(file_path):
-    with open(file_path, 'rb') as f:
+def import_safety_points(path):
+    with open(path, 'rb') as f:
         wb = load_workbook(filename=f)
 
         try:
@@ -180,6 +189,10 @@ def import_safety_points(file_path):
                 new_safety_point.save()
             except Employee.DoesNotExist:
                 pass
+    try:
+        os.remove(path)
+    except FileNotFoundError:
+        pass
 
 
 @shared_task
