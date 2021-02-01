@@ -217,13 +217,14 @@ def import_attendance_data(request):
     a_form = AttendanceImportForm(request.POST, request.FILES)
 
     if a_form.is_valid():
-        with tempfile.NamedTemporaryFile(delete=False) as f:
-            for chunk in request.FILES["attendance_file_import"].chunks():
-                f.write(chunk)
+        temp_file = open(f'shared_volume/{str(uuid.uuid4())}', 'wb')
+        for chunk in request.FILES["attendance_file_import"].chunks():
+            temp_file.write(chunk)
+        temp_file.close()
 
-            import_attendance.delay(f.name)
+        import_attendance.delay(os.path.realpath(temp_file.name))
 
-        messages.add_message(request, messages.SUCCESS, f'File uploaded successfully.'
+        messages.add_message(request, messages.SUCCESS, f'File uploaded successfully. '
                                                         f'Driver data will import in the background')
 
         data = {'url': reverse('main-home')}

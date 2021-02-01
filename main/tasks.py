@@ -84,8 +84,8 @@ def import_drivers(path):
 
 
 @shared_task
-def import_attendance(file_path):
-    with open(file_path, 'rb') as f:
+def import_attendance(path):
+    with open(path, 'rb') as f:
         wb = load_workbook(filename=f)
 
         try:
@@ -134,6 +134,10 @@ def import_attendance(file_path):
                 new_attendance.save()
             except Employee.DoesNotExist:
                 pass
+    try:
+        os.remove(path)
+    except FileNotFoundError:
+        pass
 
 
 @shared_task
