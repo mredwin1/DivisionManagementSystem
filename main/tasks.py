@@ -1,4 +1,6 @@
 import datetime
+import os
+
 from io import BytesIO
 from zipfile import ZipFile
 
@@ -16,8 +18,8 @@ def send_email(subject, plain_message, to, html_message):
 
 
 @shared_task
-def import_drivers(file_path):
-    with ZipFile(file_path, 'r') as zipfile:
+def import_drivers(path):
+    with ZipFile(path) as zipfile:
         try:
             driver_info = zipfile.read('drivers/drivers.xlsx')
 
@@ -25,7 +27,6 @@ def import_drivers(file_path):
 
             try:
                 sheet = wb['data']
-                print(sheet)
                 for row in sheet.iter_rows(min_row=2):
                     try:
                         last_name = f'{row[0].value.lower()[0].upper()}{row[0].value.lower()[1:]}'
@@ -69,13 +70,17 @@ def import_drivers(file_path):
                         except KeyError:
                             pass
 
-                        new_employee.save()
+                        new_employee.save(update_fields=['employee_id'])
                     except:
                         pass
             except KeyError:
                 pass
         except KeyError:
             pass
+    try:
+        os.remove(path)
+    except FileNotFoundError:
+        pass
 
 
 @shared_task
