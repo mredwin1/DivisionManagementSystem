@@ -235,13 +235,19 @@ def check_floating_holiday(sender, instance, created, update_fields, **kwargs):
 @receiver(post_save, sender=Employee)
 def add_new_employee(sender, instance, created, update_fields, **kwargs):
     if created:
-        verb = f'New Employee added: {instance.get_full_name()}'
-        notification_type = 'email_new_employee'
-
-        group = Employee.objects.filter(groups__name=notification_type)
-        notify.send(sender=instance, recipient=group,
-                    verb=verb, type=notification_type, employee_id=instance.employee_id)
-
+        try:
+            if 'employee_id' not in update_fields:
+                verb = f'New Employee added: {instance.get_full_name()}'
+                notification_type = 'email_new_employee'
+                group = Employee.objects.filter(groups__name=notification_type)
+                notify.send(sender=instance, recipient=group, verb=verb, type=notification_type,
+                            employee_id=instance.employee_id)
+        except TypeError:
+            verb = f'New Employee added: {instance.get_full_name()}'
+            notification_type = 'email_new_employee'
+            group = Employee.objects.filter(groups__name=notification_type)
+            notify.send(sender=instance, recipient=group, verb=verb, type=notification_type,
+                        employee_id=instance.employee_id)
         if instance.position == 'dispatcher':
             dispatcher_group = Group.objects.get(name='Dispatchers')
             dispatcher_group.user_set.add(instance)
