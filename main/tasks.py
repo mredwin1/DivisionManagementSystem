@@ -141,8 +141,8 @@ def import_attendance(path):
 
 
 @shared_task
-def import_safety_points(file_path):
-    with open(file_path, 'rb') as f:
+def import_safety_points(path):
+    with open(path, 'rb') as f:
         wb = load_workbook(filename=f)
 
         try:
@@ -189,6 +189,10 @@ def import_safety_points(file_path):
                 new_safety_point.save()
             except Employee.DoesNotExist:
                 pass
+    try:
+        os.remove(path)
+    except FileNotFoundError:
+        pass
 
 
 @shared_task

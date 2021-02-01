@@ -240,13 +240,14 @@ def import_safety_point_data(request):
     s_form = SafetyPointImportForm(request.POST, request.FILES)
 
     if s_form.is_valid():
-        with tempfile.NamedTemporaryFile(delete=False) as f:
-            for chunk in request.FILES["safety_point_file_import"].chunks():
-                f.write(chunk)
+        temp_file = open(f'shared_volume/{str(uuid.uuid4())}', 'wb')
+        for chunk in request.FILES["safety_point_file_import"].chunks():
+            temp_file.write(chunk)
+        temp_file.close()
 
-            import_safety_points.delay(f.name)
+        import_safety_points.delay(os.path.realpath(temp_file.name))
 
-        messages.add_message(request, messages.SUCCESS, f'File uploaded successfully.'
+        messages.add_message(request, messages.SUCCESS, f'File uploaded successfully. '
                                                         f'Driver data will import in the background')
 
         data = {'url': reverse('main-home')}
