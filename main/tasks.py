@@ -70,7 +70,7 @@ def import_drivers(path):
                         except KeyError:
                             pass
 
-                        new_employee.save(update_fields=['employee_id'])
+                        new_employee.save()
                     except:
                         pass
             except KeyError:
