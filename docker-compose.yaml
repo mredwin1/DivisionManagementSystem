@@ -39,6 +39,7 @@ services:
       - ./main/:/main/
       - ./operations/:/operations/
       - ./templates/:/templates/
+      - shared_volume:/shared_volume
   db:
     image: postgres:12.0-alpine
     restart: always
@@ -102,6 +103,8 @@ services:
       - .env
     networks:
       - internal
+    volumes:
+      - shared_volume:/shared_volume
   celery_beat:
     image: ghcr.io/mredwin1/dms:latest
     container_name: celery_beat_dms
@@ -123,3 +126,4 @@ networks:
 
 volumes:
   postgres_db:
+  shared_volume:
