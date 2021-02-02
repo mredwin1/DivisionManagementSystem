@@ -537,7 +537,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
                        ' attendance record will be wiped clean and any prior points will not be considered as' \
                        ' a basis for disciplinary action. This documents is considered to be your Written' \
                        ' Warning Notice.'
-        counseling = Counseling(
+        new_counseling = Counseling(
             employee=self,
             assigned_by=assigned_by,
             issued_date=counseling[2],
@@ -547,8 +547,8 @@ class Employee(AbstractBaseUser, PermissionsMixin):
             conversation=conversation
         )
 
-        counseling.attendance = attendance
-        counseling.save()
+        new_counseling.attendance = attendance
+        new_counseling.save()
 
     def attendance_removal(self, counseling, attendance, assigned_by):
         """Will create a Counseling for the Employee for a Removal from Service"""
@@ -561,7 +561,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
                        ' of employment. Management will contact you on a later date to attend a Fair &' \
                        ' Impartial Hearing.'
 
-        counseling = Counseling(
+        new_counseling = Counseling(
             employee=self,
             assigned_by=assigned_by,
             issued_date=counseling[2],
@@ -571,8 +571,8 @@ class Employee(AbstractBaseUser, PermissionsMixin):
             conversation=conversation
         )
 
-        counseling.attendance = attendance
-        counseling.save()
+        new_counseling.attendance = attendance
+        new_counseling.save()
 
     def create_attendance_history_document(self):
         """Gets all the active Attendance Objects for the Employee and merges all documents into one and make a summary
