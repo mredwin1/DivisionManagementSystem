@@ -101,20 +101,11 @@ class AssignAttendance(forms.Form):
             '8': .5,
         }
 
-        if self.cleaned_data['exemption']:
-            point = 0
-            if self.cleaned_data['exemption'] == '1':
-                self.employee.paid_sick -= 1
-            elif self.cleaned_data['exemption'] == '2':
-                self.employee.unpaid_sick -= 1
-        else:
-            point = points[self.cleaned_data['reason']]
-
         attendance = Attendance(
             employee=self.employee,
             incident_date=self.cleaned_data['incident_date'],
             issued_date=datetime.date.today(),
-            points=point,
+            points=0 if self.cleaned_data['exemption'] else points[self.cleaned_data['reason']],
             reason=self.cleaned_data['reason'],
             assigned_by=f'{request.user.first_name} {request.user.last_name}',
             exemption=self.cleaned_data['exemption'],
@@ -191,11 +182,6 @@ class EditAttendance(forms.Form):
 
         employee.save()
         attendance.save(update_fields=update_fields)
-
-        try:
-            attendance.counseling.delete()
-        except Counseling.DoesNotExist:
-            pass
 
 
 class AssignCounseling(forms.Form):
