@@ -163,9 +163,40 @@ def add_attendance_document(sender, instance, created, update_fields, **kwargs):
             counseling = instance.employee.attendance_counseling_required(instance.reason, instance.exemption, instance.id)
 
             if counseling[0] == 2 and instance.points != 0:
-                instance.employee.attendance_removal(counseling, instance, instance.assigned_by)
+                latest_attendance = Attendance.objects.filter(employee=instance.employee, points__gt=0, counseling=None).last()
+                instance.employee.attendance_removal(counseling, latest_attendance, instance.assigned_by)
             elif counseling[0] == 1 and instance.points != 0:
-                instance.employee.attendance_written(counseling, instance, instance.assigned_by)
+                latest_attendance = Attendance.objects.filter(employee=instance.employee, points__gt=0, counseling=None).last()
+                instance.employee.attendance_written(counseling, latest_attendance, instance.assigned_by)
+
+            if instance.exemption == '1':
+                instance.employee.paid_sick -= 1
+            elif instance.exemption == '2':
+                instance.employee.unpaid_sick -= 1
+        else:
+            total_points = instance.employee.get_total_attendance_points()
+            import logging
+            logging.info(str(total_points))
+            if total_points < 7:
+                attendance_objects = Attendance.objects.filter(employee=instance.employee)
+                logging.info(str(attendance_objects))
+                for attendance_object in attendance_objects:
+                    try:
+                        logging.info('--Test--')
+                        logging.info(str(attendance_object.counseling))
+                        logging.info(str(attendance_object.counseling.action_type))
+                        if attendance_object.counseling.action_type == '2':
+                            attendance_object.counseling.delete()
+                    except Counseling.DoesNotExist:
+                        pass
+            if total_points < 10:
+                attendance_objects = Attendance.objects.filter(employee=instance.employee)
+                for attendance_object in attendance_objects:
+                    try:
+                        if attendance_object.counseling.action_type == '6':
+                            attendance_object.counseling.delete()
+                    except Counseling.DoesNotExist:
+                        pass
     except TypeError:
         pass
 
