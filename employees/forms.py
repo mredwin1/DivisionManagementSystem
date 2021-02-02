@@ -134,6 +134,19 @@ class EditAttendance(forms.Form):
                                   required=False)
     document = forms.FileField(label='Document', required=False)
 
+    def clean(self):
+        super().clean()
+
+        exception_field_name = 'exemption'
+        exemption = self.cleaned_data[exception_field_name]
+
+        if exemption == '1' and self.employee.paid_sick <= 0:
+            self.add_error(exception_field_name, f'{self.employee.get_full_name()} does not have Paid Sick days '
+                                                 f'available')
+        elif exemption == '2' and self.employee.unpaid_sick <= 0:
+            self.add_error(exception_field_name, f'{self.employee.get_full_name()} does not have Unpaid Sick days '
+                                                 f'available')
+
     def save(self, employee, attendance, request):
         update_fields = ['incident_date', 'issued_date', 'reason', 'exemption', 'edited_date', 'edited_by', 'points']
         points = {
