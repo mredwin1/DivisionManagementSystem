@@ -16,15 +16,12 @@ from main.tasks import send_email
 
 @receiver(post_delete, sender=Attendance)
 def attendance_delete(sender, instance, **kwargs):
-    exemption = instance.exemption
-    employee = instance.employee
+    if instance.exemption == '1':
+        instance.employee.paid_sick += 1
+    elif instance.exemption == '2':
+        instance.employee.unpaid_sick += 1
 
-    if exemption == '1':
-        employee.paid_sick += 1
-    elif exemption == '2':
-        employee.unpaid_sick += 1
-
-    employee.save()
+    instance.employee.save()
 
 
 @receiver(post_delete, sender=Counseling)
