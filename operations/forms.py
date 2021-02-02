@@ -239,7 +239,7 @@ class BulkAssignAttendance(forms.Form):
             reason = self.cleaned_data[field_set[2]]
             exemption = self.cleaned_data[field_set[3]]
             point = 0 if exemption else points[reason]
-            reported_by = f'{request.user.first_name} {request.user.last_name}'
+            reported_by = request.user.employee_id
 
             attendance = Attendance(
                 employee=employee,
