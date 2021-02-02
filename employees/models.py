@@ -347,6 +347,16 @@ class Employee(AbstractBaseUser, PermissionsMixin):
 
         return sum([safety_point.points for safety_point in safety_points])
 
+    def get_total_attendance_points(self, exclude=None):
+        """Gets all the Attendance Objects for the employee and adds all the points then returns it. Optionally pass a
+        Attendance object to be excluded"""
+        attendance_records = Attendance.objects.filter(employee=self)
+
+        if exclude:
+            attendance_records.exclude(pk=exclude.id)
+
+        return sum([attendance_record.points for attendance_record in attendance_records])
+
     def get_introductory_status(self):
         """Checks if the Employee is still within their 90 days"""
 
