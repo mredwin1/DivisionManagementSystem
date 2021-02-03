@@ -272,11 +272,15 @@ class Employee(AbstractBaseUser, PermissionsMixin):
 
         return written, removal
 
-    def get_attendance_history(self):
-        """Gets all the attendance records for a specific employee and returns a dictionary with the amounts of each record
+    def get_attendance_history(self, incident_date):
+        """Gets all the attendance records for a specific employee and returns a dictionary with the amounts of each
+        record
+
+        :param incident_date: Corresponds to the date of an incident to limit history
+        :type datetime.datetime.date
         """
 
-        attendance_records = Attendance.objects.filter(employee=self, is_active=True)
+        attendance_records = Attendance.objects.filter(employee=self, is_active=True, incident_date__lte=incident_date)
 
         # This has been ordered to match the document
         history = {
@@ -930,7 +934,7 @@ class Attendance(models.Model):
 
         p.setLineWidth(.75)
 
-        history = self.employee.get_attendance_history()
+        history = self.employee.get_attendance_history(self.incident_date)
         counseling = self.employee.attendance_counseling_required(reason=self.reason, exemption=self.exemption,
                                                                   current_id=self.id)
 
