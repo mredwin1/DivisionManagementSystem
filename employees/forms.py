@@ -290,15 +290,7 @@ class EditCounseling(AssignCounseling):
 
 
 class AssignSafetyPoint(forms.Form):
-    incident_date = forms.DateField(label='Incident Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
-    issued_date = forms.DateField(label='Issued Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
-    reason = forms.CharField(label='Reason', required=True, widget=forms.Select(
-        choices=SafetyPoint.REASON_CHOICES,attrs={'onchange': 'unsafe_act_change()'}))
-    unsafe_act = forms.CharField(label='Type of Unsafe Act', widget=forms.TextInput(attrs={'class':'textinput textInput form-control', 'required':''}),required=False, help_text='Write the type of unsafe act')
-    details = forms.CharField(label='Details', widget=forms.Textarea(attrs={'class': 'textarea form-control', 'required':''}), required=False)
-
-    def save(self, employee, request):
-        points = {
+    POINTS = {
             '0': 1,
             '1': 1,
             '2': 1,
@@ -315,12 +307,25 @@ class AssignSafetyPoint(forms.Form):
             '13': 6,
             '14': 6,
         }
+    incident_date = forms.DateField(label='Incident Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
+    issued_date = forms.DateField(label='Issued Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
+    reason = forms.CharField(label='Reason', required=True, widget=forms.Select(
+        choices=SafetyPoint.REASON_CHOICES, attrs={'onchange': 'unsafe_act_change()'}))
+    unsafe_act = forms.CharField(label='Type of Unsafe Act', widget=forms.TextInput(attrs={'class':'textinput textInput form-control', 'required':''}),required=False, help_text='Write the type of unsafe act')
+    details = forms.CharField(label='Details', widget=forms.Textarea(attrs={'class': 'textarea form-control', 'required':''}), required=False)
 
+    def __init__(self, *args, **kwargs):
+        self.employee = kwargs.pop('employee', None)
+        self.request = kwargs.pop('request', None)
+        self.counseling = kwargs.pop('counseling', None)
+        super(AssignSafetyPoint, self).__init__(*args, **kwargs)
+
+    def save(self, employee, request):
         safety_point = SafetyPoint(
             employee=employee,
             incident_date=self.cleaned_data['incident_date'],
             issued_date=self.cleaned_data['issued_date'],
-            points=points[self.cleaned_data['reason']],
+            points=self.POINTS[self.cleaned_data['reason']],
             reason=self.cleaned_data['reason'],
             unsafe_act=self.cleaned_data['unsafe_act'],
             details=self.cleaned_data['details'],
@@ -330,34 +335,10 @@ class AssignSafetyPoint(forms.Form):
         safety_point.save()
 
 
-class EditSafetyPoint(forms.Form):
-    incident_date = forms.DateField(label='Incident Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
-    issued_date = forms.DateField(label='Issued Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
-    reason = forms.CharField(label='Reason', required=True, widget=forms.Select(
-        choices=SafetyPoint.REASON_CHOICES,attrs={'onchange': 'unsafe_act_change()'}))
-    unsafe_act = forms.CharField(label='Type of Unsafe Act', widget=forms.TextInput(attrs={'class':'textinput textInput form-control', 'required':''}),required=False, help_text='Write the type of unsafe act')
-    details = forms.CharField(label='Details', widget=forms.Textarea(attrs={'class': 'textarea form-control', 'required':''}), required=False)
+class EditSafetyPoint(AssignSafetyPoint):
     document = forms.FileField(label='Document', required=False)
 
     def save(self, safety_point, request):
-        points = {
-            '0': 1,
-            '1': 1,
-            '2': 1,
-            '3': 2,
-            '4': 2,
-            '5': 2,
-            '6': 2,
-            '7': 3,
-            '8': 4,
-            '9': 6,
-            '10': 6,
-            '11': 6,
-            '12': 6,
-            '13': 6,
-            '14': 6,
-        }
-
         update_fields = ['incident_date', 'issued_date', 'points', 'reason', 'unsafe_act', 'details']
         try:
             safety_point.document = self.files['document']
@@ -367,7 +348,7 @@ class EditSafetyPoint(forms.Form):
             pass
         safety_point.incident_date = self.cleaned_data['incident_date']
         safety_point.issued_date = self.cleaned_data['issued_date']
-        safety_point.points = points[self.cleaned_data['reason']]
+        safety_point.points = self.POINTS[self.cleaned_data['reason']]
         safety_point.reason = self.cleaned_data['reason']
         safety_point.unsafe_act = self.cleaned_data['unsafe_act']
         safety_point.details = self.cleaned_data['details']
