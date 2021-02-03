@@ -183,34 +183,16 @@ class AssignCounseling(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.employee = kwargs.pop('employee', None)
+        self.request = kwargs.pop('request', None)
+        self.counseling = kwargs.pop('counseling', None)
         super(AssignCounseling, self).__init__(*args, **kwargs)
-
-    def save(self, request):
-        if self.cleaned_data['hearing_date']:
-            hearing_date = datetime.datetime.combine(self.cleaned_data['hearing_date'],
-                                                     self.cleaned_data['hearing_time'])
-        else:
-            hearing_date = None
-
-        counseling = Counseling(
-            employee=self.employee,
-            assigned_by=request.user.employee_id,
-            issued_date=datetime.datetime.today(),
-            action_type=self.cleaned_data['action_type'],
-            hearing_datetime=hearing_date,
-            conduct=self.cleaned_data['conduct'],
-            conversation=self.cleaned_data['conversation']
-        )
-
-        counseling.save()
 
     def clean(self):
         super().clean()
         counseling_records = Counseling.objects.filter(is_active=True, employee=self.employee).order_by('action_type')
         action_type_field = 'action_type'
         action_type = self.cleaned_data[action_type_field]
-
-        if not self.cleaned_data['pd_check_override']:
+        if not (self.cleaned_data['pd_check_override'] or (self.counseling and self.counseling.override_by and self.counseling.action_type == self.cleaned_data['action_type'])):
             if action_type != '6' and action_type != '5':
                 history = {
                     '0': False,
@@ -262,24 +244,34 @@ class AssignCounseling(forms.Form):
                 if action_type != next_step:
                     self.add_error(action_type_field, f'The next step in progressive discipline would be {actions[next_step]}.')
 
+    def save(self):
+        if self.cleaned_data['hearing_date']:
+            hearing_date = datetime.datetime.combine(self.cleaned_data['hearing_date'],
+                                                     self.cleaned_data['hearing_time'])
+        else:
+            hearing_date = None
 
-class EditCounseling(forms.Form):
-    issued_date = forms.DateField(label='Issued Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
-    action_type = forms.CharField(label='Action Type', widget=forms.Select(choices=Counseling.ACTION_CHOICES), required=True)
-    hearing_date = forms.DateTimeField(label='Hearing Date', widget=forms.TextInput(attrs={'type': 'date'}),
-                                       required=False)
-    hearing_time = forms.TimeField(label='Hearing Time', widget=forms.TextInput(attrs={'type': 'time'}),
-                                   initial=datetime.time(hour=10, minute=0), required=False)
-    conduct = forms.CharField(label='Explanation of Employee Conduct', widget=forms.Textarea(), required=True)
-    conversation = forms.CharField(label='Record of Conversation', widget=forms.Textarea(), required=True)
+        counseling = Counseling(
+            employee=self.employee,
+            assigned_by=self.request.user.employee_id,
+            issued_date=datetime.datetime.today(),
+            action_type=self.cleaned_data['action_type'],
+            hearing_datetime=hearing_date,
+            conduct=self.cleaned_data['conduct'],
+            conversation=self.cleaned_data['conversation']
+        )
 
+        counseling.save()
+
+
+class EditCounseling(AssignCounseling):
     document = forms.FileField(label='Document', required=False)
 
-    def save(self, counseling, request):
+    def save(self):
         update_fields = ['issued_date', 'action_type', 'conduct', 'hearing_datetime', 'conversation']
         try:
-            counseling.document = request.FILES['document']
-            counseling.uploaded = True
+            self.counseling.document = self.request.FILES['document']
+            self.counseling.uploaded = True
             update_fields.append('document')
         except KeyError:
             pass
@@ -289,13 +281,13 @@ class EditCounseling(forms.Form):
         else:
             hearing_datetime = None
 
-        counseling.issued_date = self.cleaned_data['issued_date']
-        counseling.action_type = self.cleaned_data['action_type']
-        counseling.hearing_datetime = hearing_datetime
-        counseling.conduct = self.cleaned_data['conduct']
-        counseling.conversation = self.cleaned_data['conversation']
+        self.counseling.issued_date = self.cleaned_data['issued_date']
+        self.counseling.action_type = self.cleaned_data['action_type']
+        self.counseling.hearing_datetime = hearing_datetime
+        self.counseling.conduct = self.cleaned_data['conduct']
+        self.counseling.conversation = self.cleaned_data['conversation']
 
-        counseling.save(update_fields=update_fields)
+        self.counseling.save(update_fields=update_fields)
 
 
 class AssignSafetyPoint(forms.Form):
