@@ -169,16 +169,10 @@ def add_attendance_document(sender, instance, created, update_fields, **kwargs):
                 instance.employee.unpaid_sick -= 1
         else:
             total_points = instance.employee.get_total_attendance_points()
-            import logging
-            logging.info(str(total_points))
             if total_points < 7:
                 attendance_objects = Attendance.objects.filter(employee=instance.employee)
-                logging.info(str(attendance_objects))
                 for attendance_object in attendance_objects:
                     try:
-                        logging.info('--Test--')
-                        logging.info(str(attendance_object.counseling))
-                        logging.info(str(attendance_object.counseling.action_type))
                         if attendance_object.counseling.action_type == '2':
                             attendance_object.counseling.delete()
                     except Counseling.DoesNotExist:
