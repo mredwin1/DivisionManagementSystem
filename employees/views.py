@@ -124,7 +124,7 @@ def assign_attendance(request, employee_id):
     employee = Employee.objects.get(employee_id=employee_id)
     if request.method == 'GET':
 
-        a_form = AssignAttendance(employee=employee)
+        a_form = AssignAttendance(employee=employee, request=request)
 
         data = {
             'a_form': a_form,
@@ -133,10 +133,10 @@ def assign_attendance(request, employee_id):
 
         return render(request, 'employees/assign_attendance.html', data)
     else:
-        a_form = AssignAttendance(data=request.POST, employee=employee)
+        a_form = AssignAttendance(data=request.POST, employee=employee, request=request)
 
         if a_form.is_valid():
-            a_form.save(request)
+            a_form.save()
 
             messages.add_message(request, messages.SUCCESS, 'Attendance Point Successfully Assigned')
 
@@ -191,10 +191,11 @@ def edit_attendance(request, employee_id, attendance_id):
     employee = Employee.objects.get(employee_id=employee_id)
 
     if request.method == 'POST':
-        a_form = EditAttendance(data=request.POST, files=request.FILES)
+        a_form = EditAttendance(data=request.POST, files=request.FILES, employee=employee,
+                                attendance=attendance, request=request)
 
         if a_form.is_valid():
-            a_form.save(employee, attendance, request)
+            a_form.save()
 
             data = {'url': reverse('employee-account', args=[employee_id])}
 
@@ -210,7 +211,7 @@ def edit_attendance(request, employee_id, attendance_id):
             'issued_date': attendance.issued_date,
         }
 
-        a_form = EditAttendance(initial=initial)
+        a_form = EditAttendance(initial=initial, employee=employee)
 
         data = {
             'employee': employee,

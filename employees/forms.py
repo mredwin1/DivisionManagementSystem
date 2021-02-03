@@ -73,6 +73,8 @@ class AssignAttendance(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.employee = kwargs.pop('employee', None)
+        self.request = kwargs.pop('request', None)
+        self.attendance = kwargs.pop('attendance', None)
         super(AssignAttendance, self).__init__(*args, **kwargs)
 
     def clean(self):
@@ -88,7 +90,7 @@ class AssignAttendance(forms.Form):
             self.add_error(exception_field_name, f'{self.employee.get_full_name()} does not have Unpaid Sick days '
                                                  f'available')
 
-    def save(self, request):
+    def save(self):
         points = {
             '0': 1,
             '1': 0,
@@ -101,22 +103,13 @@ class AssignAttendance(forms.Form):
             '8': .5,
         }
 
-        if self.cleaned_data['exemption']:
-            point = 0
-            if self.cleaned_data['exemption'] == '1':
-                self.employee.paid_sick -= 1
-            elif self.cleaned_data['exemption'] == '2':
-                self.employee.unpaid_sick -= 1
-        else:
-            point = points[self.cleaned_data['reason']]
-
         attendance = Attendance(
             employee=self.employee,
             incident_date=self.cleaned_data['incident_date'],
             issued_date=datetime.date.today(),
-            points=point,
+            points=0 if self.cleaned_data['exemption'] else points[self.cleaned_data['reason']],
             reason=self.cleaned_data['reason'],
-            assigned_by=request.user.employee_id,
+            assigned_by=self.request.user.employee_id,
             exemption=self.cleaned_data['exemption'],
         )
 
@@ -125,16 +118,12 @@ class AssignAttendance(forms.Form):
         self.employee.save()
 
 
-class EditAttendance(forms.Form):
-    incident_date = forms.DateField(label='Incident Date', widget=forms.TextInput(attrs={'type': 'date'}),
-                                    required=True)
-    reason = forms.CharField(label='Reason', widget=forms.Select(choices=Attendance.REASON_CHOICES), required=True)
-    exemption = forms.CharField(label='Exemption', widget=forms.Select(choices=Attendance.EXEMPTION_CHOICES), required=False)
+class EditAttendance(AssignAttendance):
     issued_date = forms.DateField(label='Issued Date', widget=forms.TextInput(attrs={'type': 'date'}),
                                   required=False)
     document = forms.FileField(label='Document', required=False)
 
-    def save(self, employee, attendance, request):
+    def save(self):
         update_fields = ['incident_date', 'issued_date', 'reason', 'exemption', 'edited_date', 'edited_by', 'points']
         points = {
             '0': 1,
@@ -149,40 +138,35 @@ class EditAttendance(forms.Form):
         }
 
         if self.cleaned_data['exemption']:
-            attendance.points = 0
-            if self.cleaned_data['exemption'] == '1' and attendance.exemption != '1':
-                employee.paid_sick -= 1
-            elif self.cleaned_data['exemption'] == '2' and attendance.exemption != '2':
-                employee.unpaid_sick -= 1
+            self.attendance.points = 0
+            if self.cleaned_data['exemption'] == '1' and self.attendance.exemption != '1':
+                self.employee.paid_sick -= 1
+            elif self.cleaned_data['exemption'] == '2' and self.attendance.exemption != '2':
+                self.employee.unpaid_sick -= 1
         else:
-            attendance.points = points[self.cleaned_data['reason']]
+            self.attendance.points = points[self.cleaned_data['reason']]
 
-        if attendance.exemption == '1' and self.cleaned_data['exemption'] != '1':
-            employee.paid_sick += 1
-        elif attendance.exemption == '2' and self.cleaned_data['exemption'] != '2':
-            employee.unpaid_sick += 1
+        if self.attendance.exemption == '1' and self.cleaned_data['exemption'] != '1':
+            self.employee.paid_sick += 1
+        elif self.attendance.exemption == '2' and self.cleaned_data['exemption'] != '2':
+            self.employee.unpaid_sick += 1
 
-        attendance.incident_date = self.cleaned_data['incident_date']
-        attendance.issued_date = self.cleaned_data['issued_date']
-        attendance.reason = self.cleaned_data['reason']
-        attendance.exemption = self.cleaned_data['exemption']
-        attendance.edited_date = datetime.datetime.today()
-        attendance.edited_by = f'{request.user.first_name} {request.user.last_name}'
+        self.attendance.incident_date = self.cleaned_data['incident_date']
+        self.attendance.issued_date = self.cleaned_data['issued_date']
+        self.attendance.reason = self.cleaned_data['reason']
+        self.attendance.exemption = self.cleaned_data['exemption']
+        self.attendance.edited_date = datetime.datetime.today()
+        self.attendance.edited_by = f'{self.request.user.first_name} {self.request.user.last_name}'
 
         try:
-            attendance.document = request.FILES['document']
-            attendance.uploaded = True
+            self.attendance.document = self.request.FILES['document']
+            self.attendance.uploaded = True
             update_fields.append('document')
         except KeyError:
             pass
 
-        employee.save()
-        attendance.save(update_fields=update_fields)
-
-        try:
-            attendance.counseling.delete()
-        except Counseling.DoesNotExist:
-            pass
+        self.employee.save()
+        self.attendance.save(update_fields=update_fields)
 
 
 class AssignCounseling(forms.Form):

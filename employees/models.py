@@ -272,11 +272,15 @@ class Employee(AbstractBaseUser, PermissionsMixin):
 
         return written, removal
 
-    def get_attendance_history(self):
-        """Gets all the attendance records for a specific employee and returns a dictionary with the amounts of each record
+    def get_attendance_history(self, incident_date):
+        """Gets all the attendance records for a specific employee and returns a dictionary with the amounts of each
+        record
+
+        :param incident_date: Corresponds to the date of an incident to limit history
+        :type datetime.datetime.date
         """
 
-        attendance_records = Attendance.objects.filter(employee=self, is_active=True)
+        attendance_records = Attendance.objects.filter(employee=self, is_active=True, incident_date__lte=incident_date)
 
         # This has been ordered to match the document
         history = {
@@ -346,6 +350,16 @@ class Employee(AbstractBaseUser, PermissionsMixin):
             safety_points = safety_points.exclude(pk=exclude.id)
 
         return sum([safety_point.points for safety_point in safety_points])
+
+    def get_total_attendance_points(self, exclude=None):
+        """Gets all the Attendance Objects for the employee and adds all the points then returns it. Optionally pass a
+        Attendance object to be excluded"""
+        attendance_records = Attendance.objects.filter(employee=self)
+
+        if exclude:
+            attendance_records.exclude(pk=exclude.id)
+
+        return sum([attendance_record.points for attendance_record in attendance_records])
 
     def get_introductory_status(self):
         """Checks if the Employee is still within their 90 days"""
@@ -527,7 +541,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
                        ' attendance record will be wiped clean and any prior points will not be considered as' \
                        ' a basis for disciplinary action. This documents is considered to be your Written' \
                        ' Warning Notice.'
-        counseling = Counseling(
+        new_counseling = Counseling(
             employee=self,
             assigned_by=assigned_by,
             issued_date=counseling[2],
@@ -537,8 +551,8 @@ class Employee(AbstractBaseUser, PermissionsMixin):
             conversation=conversation
         )
 
-        counseling.attendance = attendance
-        counseling.save()
+        new_counseling.attendance = attendance
+        new_counseling.save()
 
     def attendance_removal(self, counseling, attendance, assigned_by):
         """Will create a Counseling for the Employee for a Removal from Service"""
@@ -551,7 +565,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
                        ' of employment. Management will contact you on a later date to attend a Fair &' \
                        ' Impartial Hearing.'
 
-        counseling = Counseling(
+        new_counseling = Counseling(
             employee=self,
             assigned_by=assigned_by,
             issued_date=counseling[2],
@@ -561,8 +575,8 @@ class Employee(AbstractBaseUser, PermissionsMixin):
             conversation=conversation
         )
 
-        counseling.attendance = attendance
-        counseling.save()
+        new_counseling.attendance = attendance
+        new_counseling.save()
 
     def create_attendance_history_document(self):
         """Gets all the active Attendance Objects for the Employee and merges all documents into one and make a summary
@@ -920,7 +934,7 @@ class Attendance(models.Model):
 
         p.setLineWidth(.75)
 
-        history = self.employee.get_attendance_history()
+        history = self.employee.get_attendance_history(self.incident_date)
         counseling = self.employee.attendance_counseling_required(reason=self.reason, exemption=self.exemption,
                                                                   current_id=self.id)
 
