@@ -305,4 +305,6 @@ def termination_type_return(value):
         return None
 
 
-
+@register.filter
+def assignee_return(value):
+    return value.get_assignee().get_full_name()

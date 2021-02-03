@@ -107,7 +107,7 @@ class AssignAttendance(forms.Form):
             issued_date=datetime.date.today(),
             points=0 if self.cleaned_data['exemption'] else points[self.cleaned_data['reason']],
             reason=self.cleaned_data['reason'],
-            assigned_by=f'{request.user.first_name} {request.user.last_name}',
+            assigned_by=request.user.employee_id,
             exemption=self.cleaned_data['exemption'],
         )
 
@@ -209,7 +209,7 @@ class AssignCounseling(forms.Form):
 
         counseling = Counseling(
             employee=self.employee,
-            assigned_by=f'{request.user.first_name} {request.user.last_name}',
+            assigned_by=request.user.employee_id,
             issued_date=datetime.datetime.today(),
             action_type=self.cleaned_data['action_type'],
             hearing_datetime=hearing_date,
@@ -348,7 +348,7 @@ class AssignSafetyPoint(forms.Form):
             reason=self.cleaned_data['reason'],
             unsafe_act=self.cleaned_data['unsafe_act'],
             details=self.cleaned_data['details'],
-            assigned_by=request.user.get_full_name(),
+            assigned_by=request.user.employee_id,
         )
 
         safety_point.save()
@@ -416,15 +416,13 @@ class PlaceHold(forms.Form):
         else:
             training_datetime = None
 
-        assigned_by = f'{request.user.first_name} {request.user.last_name}'
-
         hold = Hold(
             employee=employee,
             incident_date=self.cleaned_data['incident_date'],
             training_datetime=training_datetime,
             release_date=self.cleaned_data['release_date'],
             reason=self.cleaned_data['reason'],
-            assigned_by=assigned_by,
+            assigned_by=request.user.employee_id,
             hold_date=datetime.datetime.today()
         )
 
@@ -583,7 +581,7 @@ class AssignSettlement(forms.Form):
             employee=employee,
             details=self.cleaned_data['details'],
             created_date=datetime.date.today(),
-            assigned_by=request.user.get_full_name(),
+            assigned_by=request.user.employee_id,
         )
 
         if employee.hold:

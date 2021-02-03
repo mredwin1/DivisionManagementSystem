@@ -46,12 +46,10 @@ def hold_delete(sender, instance, **kwargs):
         instance.employee.is_pending_term = False
         instance.employee.save()
 
-    first_name, last_name = instance.get_assignee()
     verb = f'{instance.employee.get_full_name()}\'s hold has been removed'
     notification_type = 'email_rem_hold'
 
-    group = Employee.objects.filter(groups__name=notification_type).exclude(first_name=first_name,
-                                                                            last_name=last_name)
+    group = Employee.objects.filter(groups__name=notification_type).exclude(employee_id=instance.assigned_by)
     notify.send(sender=instance, recipient=group,
                 verb=verb,
                 type=notification_type, employee_id=instance.employee.employee_id)
@@ -60,12 +58,10 @@ def hold_delete(sender, instance, **kwargs):
 @receiver(post_save, sender=Hold)
 def hold_notification(sender, instance, created,**kwargs):
     if created:
-        first_name, last_name = instance.get_assignee()
         verb = f'{instance.employee.get_full_name()} has been placed on hold by {instance.assigned_by}. Reason: {instance.reason}'
         notification_type = 'email_add_hold'
 
-        group = Employee.objects.filter(groups__name=notification_type).exclude(first_name=first_name,
-                                                                                last_name=last_name)
+        group = Employee.objects.filter(groups__name=notification_type).exclude(employee_id=instance.assigned_by)
         notify.send(sender=instance, recipient=group,
                     verb=verb,
                     type=notification_type, employee_id=instance.employee.employee_id)
@@ -107,12 +103,11 @@ def add_counseling_document(sender, instance, created, update_fields, **kwargs):
             instance.create_counseling_document()
 
             if created:
-                first_name, last_name = instance.get_assignee()
                 if instance.action_type == '2':
                     verb = f'{instance.employee.get_full_name()} has received a written warning' if instance.attendance is None else f'{instance.employee.get_full_name()} has received a written warning for reaching 7 Attendance Points'
                     notification_type = 'email_written' if instance.attendance is None else 'email_7attendance'
 
-                    group = Employee.objects.filter(groups__name=notification_type).exclude(first_name=first_name, last_name=last_name)
+                    group = Employee.objects.filter(groups__name=notification_type).exclude(employee_id=instance.assigned_by)
                     notify.send(sender=instance, recipient=group,
                                 verb=verb,
                                 type=notification_type, employee_id=instance.employee.employee_id)
@@ -120,8 +115,7 @@ def add_counseling_document(sender, instance, created, update_fields, **kwargs):
                     verb = f'{instance.employee.get_full_name()} has received a last and final'
                     notification_type = 'email_last_final'
 
-                    group = Employee.objects.filter(groups__name=notification_type).exclude(first_name=first_name,
-                                                                                            last_name=last_name)
+                    group = Employee.objects.filter(groups__name=notification_type).exclude(employee_id=instance.assigned_by)
                     notify.send(sender=instance, recipient=group,
                                 verb=verb,
                                 type=notification_type, employee_id=instance.employee.employee_id)
@@ -130,7 +124,7 @@ def add_counseling_document(sender, instance, created, update_fields, **kwargs):
                     verb = f'{instance.employee.get_full_name()} has been Removed from Service'if instance.attendance is None else f'{instance.employee.get_full_name()} has been Removed from Service for reaching 10 Attendance Points'
                     notification_type = 'email_removal' if instance.attendance is None else 'email_10attendance'
 
-                    group = Employee.objects.filter(groups__name=notification_type).exclude(first_name=first_name, last_name=last_name)
+                    group = Employee.objects.filter(groups__name=notification_type).exclude(employee_id=instance.assigned_by)
                     notify.send(sender=instance, recipient=group,
                                 verb=verb,
                                 type=notification_type, employee_id=instance.employee.employee_id)
@@ -210,9 +204,8 @@ def add_safety_document(sender, instance, created, update_fields, **kwargs):
             removal = instance.employee.safety_point_removal_required(instance)
 
             if created:
-                first_name, last_name = instance.get_assignee()
                 verb = f'{instance.employee.get_full_name()} has received a Safety Point' if not removal else f'{instance.employee.get_full_name()} has received a Safety Point and been removed from service'
-                group = Employee.objects.filter(groups__name='email_safety_point').exclude(first_name=first_name, last_name=last_name)
+                group = Employee.objects.filter(groups__name='email_safety_point').exclude(employee_id=instance.assigned_by)
                 notify.send(sender=instance, recipient=group,
                             verb=verb,
                             type='email_safety_point', employee_id=instance.employee.employee_id)
@@ -227,10 +220,9 @@ def add_settlement_document(sender, instance, created, update_fields, **kwargs):
             instance.create_settlement_document()
 
             if created:
-                first_name, last_name = instance.get_assignee()
                 verb = f'New Settlement Created for {instance.employee.get_full_name()}'
 
-                group = Employee.objects.filter(groups__name='email_add_settlement').exclude(first_name=first_name, last_name=last_name)
+                group = Employee.objects.filter(groups__name='email_add_settlement').exclude(employee_id=instance.assigned_by)
                 notify.send(sender=instance, recipient=group,
                             verb=verb,
                             type='email_add_settlement', employee_id=instance.employee.employee_id)

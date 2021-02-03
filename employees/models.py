@@ -648,7 +648,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
             p.drawString(1.75 * inch, y * inch, issued_date)
             p.drawString(2.75 * inch, y * inch, reasons[attendance.reason])
             p.drawString(4.45 * inch, y * inch, point)
-            p.drawString(5.15 * inch, y * inch, attendance.assigned_by)
+            p.drawString(5.15 * inch, y * inch, attendance.get_assignee().get_full_name())
             p.drawString(6.75 * inch, y * inch, exemption)
             p.line(0.65 * inch, (y - .1) * inch, 7.85 * inch, (y - .1) * inch)  # Bottom
 
@@ -741,7 +741,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
 
             p.drawString(1.50 * inch, y * inch, counseling.issued_date.strftime('%m-%d-%Y'))
             p.drawString(3.00 * inch, y * inch, action_types[counseling.action_type])
-            p.drawString(5.40 * inch, y * inch, counseling.assigned_by)
+            p.drawString(5.40 * inch, y * inch, counseling.get_assignee().get_full_name())
             p.line(1.40 * inch, (y - .1) * inch, 7.10 * inch, (y - .1) * inch)  # Bottom
 
             if y == 1 or len(counseling_history) == counter:
@@ -835,7 +835,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
 
             p.drawString(1.00 * inch, y * inch, safety_point.issued_date.strftime('%m-%d-%Y'))
             p.drawString(2.00 * inch, y * inch, reason_choices[safety_point.reason])
-            p.drawString(6.00 * inch, y * inch, safety_point.assigned_by)
+            p.drawString(6.00 * inch, y * inch, safety_point.get_assignee().get_full_name())
             p.line(0.90 * inch, (y - .1) * inch, 7.60 * inch, (y - .1) * inch)  # Bottom
 
             if y == 1 or len(safety_point_history) == counter:
@@ -1024,7 +1024,7 @@ class Attendance(models.Model):
 
         # Reported By
         p.drawString(.5 * inch, 7.75 * inch, 'Reported By:')
-        p.drawString(1.57 * inch, 7.78 * inch, self.assigned_by)
+        p.drawString(1.57 * inch, 7.78 * inch, self.get_assignee().get_full_name())
 
         p.line(1.55 * inch, 7.75 * inch, 3 * inch, 7.75 * inch)
 
@@ -1162,13 +1162,9 @@ class Attendance(models.Model):
         self.save(update_fields=['document'])
 
     def get_assignee(self):
-        """Will get the assignee(as a string) for this object and return the Employee Object for the assignee"""
-        full_name = self.assigned_by
-        space_index = full_name.find(' ')
-        first_name = full_name[:space_index]
-        last_name = full_name[space_index + 1:]
+        """Will return the Employee Object of the assignee"""
 
-        return Employee.objects.get(first_name=first_name, last_name=last_name)
+        return Employee.objects.get(employee_id=self.assigned_by)
 
     def __str__(self):
         return f"{self.employee.get_full_name()}'s Attendance Point"
@@ -1203,7 +1199,7 @@ class SafetyPoint(models.Model):
     reason = models.CharField(max_length=30, choices=REASON_CHOICES)
     unsafe_act = models.CharField(max_length=100, blank=True)
     details = models.TextField(default='')
-    assigned_by = models.CharField(max_length=50)
+    assigned_by = models.IntegerField()
     downloaded = models.BooleanField(default=False)
     uploaded = models.BooleanField(default=False)
 
@@ -1290,7 +1286,7 @@ class SafetyPoint(models.Model):
 
         # From
         p.drawString(1 * inch, 8.55 * inch, 'From:')
-        p.drawString(1.6 * inch, 8.55 * inch, self.assigned_by)
+        p.drawString(1.6 * inch, 8.55 * inch, self.get_assignee().get_full_name())
 
         # Date
         p.drawString(1 * inch, 8.25 * inch, 'Date:')
@@ -1445,13 +1441,9 @@ class SafetyPoint(models.Model):
         self.save(update_fields=['document'])
 
     def get_assignee(self):
-        """Will return the first and last name of the assignee"""
-        full_name = self.assigned_by
-        space_index = full_name.find(' ')
-        first_name = full_name[:space_index]
-        last_name = full_name[space_index + 1:]
+        """Will return the Employee object of the assignee"""
 
-        return first_name, last_name
+        return Employee.objects.get(employee_id=self.assigned_by)
 
     def get_pretty_unsafe_act(self):
         return titlecase(self.unsafe_act)
@@ -1474,7 +1466,7 @@ class Counseling(models.Model):
     is_active = models.BooleanField(default=True)
 
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
-    assigned_by = models.CharField(max_length=40)
+    assigned_by = models.IntegerField()
     issued_date = models.DateField()
     action_type = models.CharField(max_length=40, choices=ACTION_CHOICES)
     document = models.FileField(validators=[pdf_extension], upload_to='counseling_forms')
@@ -1493,13 +1485,9 @@ class Counseling(models.Model):
         return hearing_datetime_str
 
     def get_assignee(self):
-        """Will return the first and last name of the assignee"""
-        full_name = self.assigned_by
-        space_index = full_name.find(' ')
-        first_name = full_name[:space_index]
-        last_name = full_name[space_index + 1:]
+        """Will return the Employee object of the assignee"""
 
-        return first_name, last_name
+        return Employee.objects.get(employee_id=self.assigned_by)
 
     def get_conduct(self, font_name=None, font_size=None, wrapping_amount=None):
         words = self.conduct.split(' ')
@@ -1711,17 +1699,13 @@ class Hold(models.Model):
     training_datetime = models.DateTimeField(null=True)
     release_date = models.DateTimeField(null=True)
     reason = models.CharField(max_length=30)
-    assigned_by = models.CharField(max_length=40)
+    assigned_by = models.IntegerField()
     employee = models.OneToOneField(Employee, on_delete=models.CASCADE)
 
     def get_assignee(self):
-        """Will return the first and last name of the assignee"""
-        full_name = self.assigned_by
-        space_index = full_name.find(' ')
-        first_name = full_name[:space_index]
-        last_name = full_name[space_index + 1:]
+        """Will return the Employee object of the assignee"""
 
-        return first_name, last_name
+        return Employee.objects.get(employee_id=self.assigned_by)
 
     def __str__(self):
         return f'{self.employee.get_full_name()}\'s Hold'
@@ -1776,7 +1760,7 @@ class Settlement(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True)
     details = models.TextField(default='', blank=False)
     created_date = models.DateField(null=True)
-    assigned_by = models.CharField(default='', max_length=50)
+    assigned_by = models.IntegerField()
     document = models.FileField(validators=[pdf_extension], upload_to='settlement_forms', null=True)
     is_active = models.BooleanField(default=True)
     uploaded = models.BooleanField(default=False)
@@ -1883,13 +1867,9 @@ class Settlement(models.Model):
         self.save(update_fields=['document'])
 
     def get_assignee(self):
-        """Will return the first and last name of the assignee"""
-        full_name = self.assigned_by
-        space_index = full_name.find(' ')
-        first_name = full_name[:space_index]
-        last_name = full_name[space_index + 1:]
+        """Will return the Employee object of the assignee"""
 
-        return first_name, last_name
+        return Employee.objects.get(employee_id=self.assigned_by)
 
     def __str__(self):
         return f'{self.employee.get_full_name()}\'s Settlement'
