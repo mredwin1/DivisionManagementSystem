@@ -258,7 +258,8 @@ class AssignCounseling(forms.Form):
             action_type=self.cleaned_data['action_type'],
             hearing_datetime=hearing_date,
             conduct=self.cleaned_data['conduct'],
-            conversation=self.cleaned_data['conversation']
+            conversation=self.cleaned_data['conversation'],
+            override_by=self.request.user.employee_id if self.cleaned_data['pd_check_override'] else None
         )
 
         counseling.save()
