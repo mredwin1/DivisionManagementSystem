@@ -19,17 +19,6 @@ class EditPhoneNumbers(forms.Form):
 
 
 class EditEmployeeInfo(forms.Form):
-    COMPANY_CHOICES = []
-
-    try:
-        companies = Company.objects.all()
-
-        for company in companies:
-            company_name = (company.display_name, company.display_name)
-            COMPANY_CHOICES.append(company_name)
-    except:
-        pass
-
     first_name = forms.CharField(label='First Name', required=True, max_length=30)
     last_name = forms.CharField(label='Last Name', required=True, max_length=30)
 
@@ -39,13 +28,22 @@ class EditEmployeeInfo(forms.Form):
     secondary_phone = PhoneNumberField(label='Secondary Phone', required=False)
 
     hire_date = forms.DateField(label='Hire Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
-    application_date = forms.DateField(label='Application Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
-    classroom_date = forms.DateField(label='Classroom Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
+    application_date = forms.DateField(label='Application Date', widget=forms.TextInput(attrs={'type': 'date'}),
+                                       required=True)
+    classroom_date = forms.DateField(label='Classroom Date', widget=forms.TextInput(attrs={'type': 'date'}),
+                                     required=True)
 
-    company = forms.CharField(label='Company', widget=forms.Select(choices=COMPANY_CHOICES), required=True)
+    company = forms.CharField(label='Company', required=True)
 
     is_part_time = forms.BooleanField(label='Part Time', required=False)
     is_neighbor_link = forms.BooleanField(label='Neighbor Link', required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(EditEmployeeInfo, self).__init__(*args, **kwargs)
+        company_choices = [(company.display_name, company.display_name) for company in Company.objects.all()]
+        company_choices.insert(0, ('', ''))
+
+        self.fields['company'].widget = forms.Select(choices=company_choices)
 
     def save(self, employee):
         company = Company.objects.get(display_name=self.cleaned_data['company'])
