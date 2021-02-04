@@ -49,12 +49,12 @@ def employee_info(request):
     if request.method == 'POST':
         company_name = request.POST.get('company')
         search = request.POST.get('search')
-        sort_by = request.POST.get('sort_by') if request.POST.get('sort_by') else 'last_name'
+        sort_by = request.POST.get('sort_by')
         position = request.POST.get('position')
     else:
         company_name = request.GET.get('company')
         search = request.GET.get('search')
-        sort_by = request.GET.get('sort_by') if request.GET.get('sort_by') else 'last_name'
+        sort_by = request.GET.get('sort_by')
         position = request.GET.get('position')
 
     f_form = DriverFilterForm(data={
