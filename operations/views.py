@@ -214,12 +214,68 @@ def counseling_reports(request):
 @login_required
 @permission_required('employees.can_view_hold_list', raise_exception=True)
 def view_hold_list(request):
-    hold_list = Hold.objects.filter(employee__is_active=True)
+    if request.method == 'POST':
+        company = request.POST.get('company')
+        date_range = request.POST.get('date_range')
+        search = request.POST.get('search')
+        sort_by = request.POST.get('sort_by')
+    else:
+        company = request.GET.get('company')
+        date_range = request.GET.get('date_range')
+        search = request.GET.get('search')
+        sort_by = request.POST.get('sort_by')
+
+    sort_choices = [
+        ('', 'Sort By'),
+        ('employee__last_name', 'Last Name'),
+        ('employee__first_name', 'First Name'),
+        ('employee__employee_id', 'Employee ID'),
+        ('employee__position', 'Position'),
+        ('employee__hire_date', 'Hire Date'),
+        ('hold_date', 'hold_date'),
+    ]
+
+    start_date = datetime.datetime.strptime(date_range[:10], '%m/%d/%Y') if date_range else \
+        (datetime.datetime.today() - datetime.timedelta(days=365))
+    end_date = datetime.datetime.strptime(date_range[13:], '%m/%d/%Y') if date_range else \
+        datetime.datetime.today()
+
+    employee_holds = Hold.objects.filter()
+    if search:
+        try:
+            search = int(search)
+
+            employee_holds = employee_holds.filter(employee_id__exact=search)
+
+        except ValueError:
+            employee_holds = Hold.objects.annotate(
+                full_name=Concat('first_name', V(' '), 'last_name', output_field=CharField())).filter(
+                full_name__icontains=search)
+
+    if company:
+        employee_holds = employee_holds.filter(company__display_name__exact=company)
+    if start_date and end_date:
+        employee_holds = employee_holds.filter(hold_date__gte=start_date, hold_date__lte=end_date)
+    if sort_by:
+        employee_holds.order_by(sort_by)
+
+    f_form = FilterForm(sort_choices=sort_choices, data={
+        'company': company,
+        'date_range': date_range,
+        'search': search,
+        'sort_by': sort_by
+    })
+
+    page = request.GET.get('page')
+    paginator = Paginator(employee_holds, 25)
+    page_obj = paginator.get_page(page)
 
     data = {
-        'hold_list': hold_list
+        'page_obj': page_obj,
+        'f_form': f_form,
+        'start_date': start_date.strftime('%m/%d/%Y'),
+        'end_date': end_date.strftime('%m/%d/%Y'),
     }
-
     return render(request, 'operations/hold_list.html', data)
 
 
