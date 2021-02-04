@@ -2,27 +2,14 @@ from io import BytesIO
 
 from django import forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
-from django.shortcuts import redirect
 from openpyxl import load_workbook
 
-from employees.models import Company
+from employees.models import Company, Employee
 import os
 from zipfile import ZipFile
 
 
 class DriverFilterForm(forms.Form):
-    COMPANY_CHOICES = [('','Filter by Company')]
-    POSITION_CHOICES = [
-        ('','Filter by Position'),
-        ('driver', 'Driver'),
-        ('driver_scheduler', 'Driver Scheduler'),
-        ('hiring_supervisor', 'Hiring Supervisor'),
-        ('clerk', 'Clerk'),
-        ('assistant_manager', 'Assistant Manager'),
-        ('general_manager', 'General Manager'),
-        ('it_manager', 'IT Manager')
-    ]
     SORT_CHOICES = [
         ('', 'Sort By'),
         ('last_name', 'Last Name'),
@@ -32,24 +19,30 @@ class DriverFilterForm(forms.Form):
         ('hire_date', 'Hire Date'),
     ]
 
-    try:
-        companies = Company.objects.all()
-
-        for company in companies:
-            company = (company, company)
-            COMPANY_CHOICES.append(company)
-    except:
-        pass
-
-    company = forms.CharField(initial='Filter by Company', widget=forms.Select(choices=COMPANY_CHOICES, attrs={'style':'font-size: 14px', 'onchange': 'form.submit();'}), required=False)
-    position = forms.CharField(initial='Filter by Position', widget=forms.Select(choices=POSITION_CHOICES, attrs={'style':'font-size: 14px', 'onchange': 'form.submit();'}), required=False)
-    sort_by = forms.CharField(initial='Sort By', widget=forms.Select(choices=SORT_CHOICES, attrs={'style':'font-size: 14px', 'onchange': 'form.submit();'}), required=False)
-    search = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'placeholder': 'Search by Name or ID', 'style': 'font-size: 14px'}), required=False)
+    company = forms.CharField(initial='Filter by Company', required=False)
+    position = forms.CharField(initial='Filter by Position', required=False)
+    sort_by = forms.CharField(initial='Sort By', widget=forms.Select(choices=SORT_CHOICES,
+                                                                     attrs={'style': 'font-size: 14px',
+                                                                            'onchange': 'form.submit();'}),
+                              required=False)
+    search = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'placeholder': 'Search by Name or ID',
+                                                                          'style': 'font-size: 14px'}),
+                             required=False)
 
     def __init__(self, *args, **kwargs):
         super(DriverFilterForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_show_labels = False
+
+        company_choices = [(company.display_name, company.display_name) for company in Company.objects.all()]
+        company_choices.insert(0, ('', 'Filter by Company'))
+        position_choices = Employee.POSITION_CHOICES
+        position_choices[0] = ('', 'Filter by Position')
+
+        self.fields['company'].widget = forms.Select(choices=company_choices, attrs={'style': 'font-size: 14px',
+                                                                                     'onchange': 'form.submit();'})
+        self.fields['position'].widget = forms.Select(choices=position_choices, attrs={'style': 'font-size: 14px',
+                                                                                       'onchange': 'form.submit();'})
 
 
 class DriverImportForm(forms.Form):

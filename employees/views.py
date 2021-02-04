@@ -260,10 +260,10 @@ def assign_counseling(request, employee_id):
     employee = Employee.objects.get(employee_id=employee_id)
 
     if request.method == 'POST':
-        c_form = AssignCounseling(data=request.POST, employee=employee)
+        c_form = AssignCounseling(data=request.POST, employee=employee, request=request)
 
         if c_form.is_valid():
-            c_form.save(request)
+            c_form.save()
 
             messages.add_message(request, messages.SUCCESS, 'Counseling Successfully Added')
 
@@ -314,10 +314,10 @@ def edit_counseling(request, employee_id, counseling_id):
     counseling = Counseling.objects.get(id=counseling_id)
 
     if request.method == 'POST':
-        c_form = EditCounseling(request.POST, request.FILES)
+        c_form = EditCounseling(data=request.POST, files=request.FILES, request=request, counseling=counseling)
 
         if c_form.is_valid():
-            c_form.save(counseling, request)
+            c_form.save()
 
             messages.add_message(request, messages.SUCCESS, 'Counseling Edited Successfully')
 
@@ -336,7 +336,7 @@ def edit_counseling(request, employee_id, counseling_id):
             'conversation': counseling.conversation
         }
 
-        c_form = EditCounseling(initial=initial)
+        c_form = EditCounseling(initial=initial, counseling=counseling)
 
         data = {
             'counseling': counseling,

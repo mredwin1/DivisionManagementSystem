@@ -46,16 +46,10 @@ def log_in(request):
 @login_required
 @permission_required('employees.can_view_employee_info', raise_exception=True)
 def employee_info(request):
-    if request.method == 'POST':
-        company_name = request.POST.get('company')
-        search = request.POST.get('search')
-        sort_by = request.POST.get('sort_by') if request.POST.get('sort_by') else 'last_name'
-        position = request.POST.get('position')
-    else:
-        company_name = request.GET.get('company')
-        search = request.GET.get('search')
-        sort_by = request.GET.get('sort_by') if request.GET.get('sort_by') else 'last_name'
-        position = request.GET.get('position')
+    company_name = request.GET.get('company')
+    search = request.GET.get('search')
+    sort_by = request.GET.get('sort_by')
+    position = request.GET.get('position')
 
     f_form = DriverFilterForm(data={
         'sort_by': sort_by,
@@ -64,7 +58,7 @@ def employee_info(request):
         'position': position
     })
 
-    employees = Employee.objects.filter(is_active=True).order_by(sort_by)
+    employees = Employee.objects.filter(is_active=True)
     if search:
         try:
             search = int(search)
@@ -74,13 +68,16 @@ def employee_info(request):
         except ValueError:
             employees = Employee.objects.annotate(
                 full_name=Concat('first_name', V(' '), 'last_name', output_field=CharField())).filter(
-                full_name__icontains=search, is_active=True).order_by(sort_by)
+                full_name__icontains=search, is_active=True)
 
     if company_name:
         employees = employees.filter(company__display_name__exact=company_name)
 
     if position:
         employees = employees.filter(position__exact=position)
+
+    if sort_by:
+        employees = employees.order_by(sort_by)
 
     page = request.GET.get('page')
     paginator = Paginator(employees, 25)

@@ -11,7 +11,7 @@ from django.urls import reverse
 
 from employees.models import Employee, Attendance, Hold, Counseling, TimeOffRequest, DayOff
 from .forms import EmployeeCreationForm, AttendanceFilterForm, CounselingFilterForm, BulkAssignAttendance, \
-    MakeTimeOffRequest, TimeOffFilterForm, TerminationFilterForm
+    MakeTimeOffRequest, TimeOffFilterForm, FilterForm
 
 
 @login_required
@@ -66,24 +66,25 @@ def search_employees(request):
 @login_required
 @permission_required('employees.can_view_attendance_reports', raise_exception=True)
 def attendance_reports(request):
-    if request.method == 'POST':
-        sort_by = request.POST.get('sort_by')
-        reasons = request.POST.get('reasons')
-        company_name = request.POST.get('company')
-        date_range = request.POST.get('date_range')
-        search = request.POST.get('search')
-    else:
-        sort_by = request.GET.get('sort_by')
-        reasons = request.GET.get('reasons')
-        company_name = request.GET.get('company')
-        date_range = request.GET.get('date_range')
-        search = request.GET.get('search')
+    sort_by = request.GET.get('sort_by')
+    reasons = request.GET.get('reasons')
+    company_name = request.GET.get('company')
+    date_range = request.GET.get('date_range')
+    search = request.GET.get('search')
 
     start_date = datetime.datetime.strptime(date_range[:10], '%m/%d/%Y') if date_range else\
         (datetime.datetime.today() - datetime.timedelta(days=365))
     end_date = datetime.datetime.strptime(date_range[13:], '%m/%d/%Y') if date_range else\
         datetime.datetime.today()
     attendance_records = Attendance.objects.filter(is_active=True, employee__is_active=True)
+
+    sort_choices = [
+        ('', 'Sort By'),
+        ('employee__last_name', 'Last Name'),
+        ('-incident_date', 'Incident Date'),
+        ('employee__first_name', 'First Name'),
+        ('employee_id', 'Employee ID'),
+    ]
 
     if search:
         try:
@@ -113,7 +114,7 @@ def attendance_reports(request):
         'company': company_name,
         'date_range': date_range,
         'search': search
-    })
+    }, sort_choices=sort_choices)
 
     page = request.GET.get('page')
     paginator = Paginator(attendance_records, 25)
@@ -132,18 +133,19 @@ def attendance_reports(request):
 @login_required
 @permission_required('employees.can_view_counseling_reports', raise_exception=True)
 def counseling_reports(request):
-    if request.method == 'POST':
-        sort_by = request.POST.get('sort_by')
-        action_type = request.POST.get('action_type')
-        company_name = request.POST.get('company')
-        date_range = request.POST.get('date_range')
-        search = request.POST.get('search')
-    else:
-        sort_by = request.GET.get('sort_by')
-        action_type = request.GET.get('action_type')
-        company_name = request.GET.get('company')
-        date_range = request.GET.get('date_range')
-        search = request.GET.get('search')
+    sort_by = request.GET.get('sort_by')
+    action_type = request.GET.get('action_type')
+    company_name = request.GET.get('company')
+    date_range = request.GET.get('date_range')
+    search = request.GET.get('search')
+
+    sort_choices = [
+        ('', 'Sort By'),
+        ('employee__last_name', 'Last Name'),
+        ('-issued_date', 'Issued Date'),
+        ('employee__first_name', 'First Name'),
+        ('employee_id', 'Employee ID'),
+    ]
 
     start_date = datetime.datetime.strptime(date_range[:10], '%m/%d/%Y') if date_range else\
         (datetime.datetime.today() - datetime.timedelta(days=30))
@@ -173,7 +175,7 @@ def counseling_reports(request):
     if start_date and end_date:
         counseling_records = counseling_records.filter(issued_date__gte=start_date, issued_date__lte=end_date)
 
-    f_form = CounselingFilterForm(data={
+    f_form = CounselingFilterForm(sort_choices=sort_choices, data={
         'sort_by': sort_by,
         'action_type': action_type,
         'company': company_name,
@@ -198,12 +200,62 @@ def counseling_reports(request):
 @login_required
 @permission_required('employees.can_view_hold_list', raise_exception=True)
 def view_hold_list(request):
-    hold_list = Hold.objects.filter(employee__is_active=True)
+    company = request.GET.get('company')
+    date_range = request.GET.get('date_range')
+    search = request.GET.get('search')
+    sort_by = request.GET.get('sort_by')
+
+    sort_choices = [
+        ('', 'Sort By'),
+        ('employee__last_name', 'Last Name'),
+        ('employee__first_name', 'First Name'),
+        ('employee__employee_id', 'Employee ID'),
+        ('employee__position', 'Position'),
+        ('employee__hire_date', 'Hire Date'),
+        ('hold_date', 'hold_date'),
+    ]
+
+    start_date = datetime.datetime.strptime(date_range[:10], '%m/%d/%Y') if date_range else \
+        (datetime.datetime.today() - datetime.timedelta(days=365))
+    end_date = datetime.datetime.strptime(date_range[13:], '%m/%d/%Y') if date_range else \
+        datetime.datetime.today()
+
+    employee_holds = Hold.objects.filter(employee__is_active=True)
+    if search:
+        try:
+            search = int(search)
+
+            employee_holds = employee_holds.filter(employee_id__exact=search)
+
+        except ValueError:
+            employee_holds = Hold.objects.annotate(
+                full_name=Concat('first_name', V(' '), 'last_name', output_field=CharField())).filter(
+                full_name__icontains=search, employee__is_active=True)
+
+    if company:
+        employee_holds = employee_holds.filter(employee__company__display_name__exact=company)
+    if start_date and end_date:
+        employee_holds = employee_holds.filter(hold_date__gte=start_date, hold_date__lte=end_date)
+    if sort_by:
+        employee_holds.order_by(sort_by)
+
+    f_form = FilterForm(sort_choices=sort_choices, data={
+        'company': company,
+        'date_range': date_range,
+        'search': search,
+        'sort_by': sort_by
+    })
+
+    page = request.GET.get('page')
+    paginator = Paginator(employee_holds, 25)
+    page_obj = paginator.get_page(page)
 
     data = {
-        'hold_list': hold_list
+        'page_obj': page_obj,
+        'f_form': f_form,
+        'start_date': start_date.strftime('%m/%d/%Y'),
+        'end_date': end_date.strftime('%m/%d/%Y'),
     }
-
     return render(request, 'operations/hold_list.html', data)
 
 
@@ -259,20 +311,20 @@ def make_time_off_request(request):
 @login_required
 @permission_required('employees.can_view_time_off_reports', raise_exception=True)
 def time_off_reports(request):
-    if request.method == 'POST':
-        sort_by = request.POST.get('sort_by')
-        status = request.POST.get('status')
-        time_off_type = request.POST.get('time_off_type')
-        company_name = request.POST.get('company')
-        date_range = request.POST.get('date_range')
-        search = request.POST.get('search')
-    else:
-        sort_by = request.GET.get('sort_by')
-        status = request.GET.get('status')
-        time_off_type = request.GET.get('time_off_type')
-        company_name = request.GET.get('company')
-        date_range = request.GET.get('date_range')
-        search = request.GET.get('search')
+    sort_by = request.GET.get('sort_by')
+    status = request.GET.get('status')
+    time_off_type = request.GET.get('time_off_type')
+    company_name = request.GET.get('company')
+    date_range = request.GET.get('date_range')
+    search = request.GET.get('search')
+
+    sort_choices = [
+        ('', 'Sort By'),
+        ('employee__last_name', 'Last Name'),
+        ('-request_date', 'Request Date'),
+        ('employee__first_name', 'First Name'),
+        ('employee_id', 'Employee ID'),
+    ]
 
     start_date = datetime.datetime.strptime(date_range[:10], '%m/%d/%Y') if date_range else \
         (datetime.datetime.today() - datetime.timedelta(days=30))
@@ -306,7 +358,7 @@ def time_off_reports(request):
     if sort_by:
         time_off_records = time_off_records.order_by(sort_by)
 
-    f_form = TimeOffFilterForm(data={
+    f_form = TimeOffFilterForm(sort_choices=sort_choices, data={
         'sort_by': sort_by,
         'status': status,
         'time_off_type': time_off_type,
@@ -366,14 +418,20 @@ def remove_time_off(request, time_off_id):
 @login_required
 @permission_required('employees.can_view_termination_reports', raise_exception=True)
 def termination_reports(request):
-    if request.method == 'POST':
-        company_name = request.POST.get('company')
-        date_range = request.POST.get('date_range')
-        search = request.POST.get('search')
-    else:
-        company_name = request.GET.get('company')
-        date_range = request.GET.get('date_range')
-        search = request.GET.get('search')
+    company = request.GET.get('company')
+    date_range = request.GET.get('date_range')
+    search = request.GET.get('search')
+    sort_by = request.POST.get('sort_by')
+
+    sort_choices = [
+        ('', 'Sort By'),
+        ('last_name', 'Last Name'),
+        ('first_name', 'First Name'),
+        ('employee_id', 'Employee ID'),
+        ('position', 'Position'),
+        ('hire_date', 'Hire Date'),
+        ('termination_date', 'Termination Date'),
+    ]
 
     start_date = datetime.datetime.strptime(date_range[:10], '%m/%d/%Y') if date_range else \
         (datetime.datetime.today() - datetime.timedelta(days=365))
@@ -392,20 +450,22 @@ def termination_reports(request):
                 full_name=Concat('first_name', V(' '), 'last_name', output_field=CharField())).filter(
                 full_name__icontains=search, is_active=False)
 
-    if company_name:
-        termed_drivers = termed_drivers.filter(company__display_name__exact=company_name)
-
+    if company:
+        termed_drivers = termed_drivers.filter(company__display_name__exact=company)
     if start_date and end_date:
         termed_drivers = termed_drivers.filter(termination_date__gte=start_date, termination_date__lte=end_date)
+    if sort_by:
+        termed_drivers.order_by(sort_by)
 
-    f_form = TerminationFilterForm(data={
-        'company': company_name,
+    f_form = FilterForm(sort_choices=sort_choices, data={
+        'company': company,
         'date_range': date_range,
-        'search': search
+        'search': search,
+        'sort_by': sort_by
     })
 
     page = request.GET.get('page')
-    paginator = Paginator(termed_drivers.order_by('termination_date'), 25)
+    paginator = Paginator(termed_drivers, 25)
     page_obj = paginator.get_page(page)
 
     data = {

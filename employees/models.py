@@ -1481,6 +1481,7 @@ class Counseling(models.Model):
     safety_point = models.OneToOneField(SafetyPoint, on_delete=models.CASCADE, null=True, blank=True)
     downloaded = models.BooleanField(default=False)
     uploaded = models.BooleanField(default=False)
+    override_by = models.IntegerField(null=True)
 
     def get_hearing_datetime(self):
         """If there is a hearing datetime it will return the properly formatted string for it otherwise returns a
