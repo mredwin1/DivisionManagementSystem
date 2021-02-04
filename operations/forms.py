@@ -80,8 +80,9 @@ class EmployeeCreationForm(forms.Form):
             email=self.cleaned_data['email']
         )
 
-        password = self.cleaned_data['company'].upper() + self.cleaned_data['first_name'][0].upper() + \
-                   self.cleaned_data['last_name'][0].upper() + str(self.cleaned_data['last4_ss'])
+        password = "{0}{1}{2}{3}".format(self.cleaned_data['company'].upper(),
+                                         self.cleaned_data['first_name'][0].upper(),
+                                         self.cleaned_data['last_name'][0].upper(), str(self.cleaned_data['last4_ss']))
 
         new_employee.set_password(password)
 
