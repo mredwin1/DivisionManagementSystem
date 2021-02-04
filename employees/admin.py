@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import Company, Employee, Counseling, Attendance, SafetyPoint, TimeOffRequest, Settlement
+from .models import Company, Employee, Counseling, Attendance, SafetyPoint, TimeOffRequest, Settlement, Hold
 
 
 class EmployeeAdmin(UserAdmin):
@@ -50,3 +50,4 @@ admin.site.register(Attendance)
 admin.site.register(SafetyPoint)
 admin.site.register(TimeOffRequest)
 admin.site.register(Settlement)
+admin.site.register(Hold)
