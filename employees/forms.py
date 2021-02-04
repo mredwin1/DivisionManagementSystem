@@ -19,17 +19,6 @@ class EditPhoneNumbers(forms.Form):
 
 
 class EditEmployeeInfo(forms.Form):
-    COMPANY_CHOICES = []
-
-    try:
-        companies = Company.objects.all()
-
-        for company in companies:
-            company_name = (company.display_name, company.display_name)
-            COMPANY_CHOICES.append(company_name)
-    except:
-        pass
-
     first_name = forms.CharField(label='First Name', required=True, max_length=30)
     last_name = forms.CharField(label='Last Name', required=True, max_length=30)
 
@@ -39,13 +28,22 @@ class EditEmployeeInfo(forms.Form):
     secondary_phone = PhoneNumberField(label='Secondary Phone', required=False)
 
     hire_date = forms.DateField(label='Hire Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
-    application_date = forms.DateField(label='Application Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
-    classroom_date = forms.DateField(label='Classroom Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
+    application_date = forms.DateField(label='Application Date', widget=forms.TextInput(attrs={'type': 'date'}),
+                                       required=True)
+    classroom_date = forms.DateField(label='Classroom Date', widget=forms.TextInput(attrs={'type': 'date'}),
+                                     required=True)
 
-    company = forms.CharField(label='Company', widget=forms.Select(choices=COMPANY_CHOICES), required=True)
+    company = forms.CharField(label='Company', required=True)
 
     is_part_time = forms.BooleanField(label='Part Time', required=False)
     is_neighbor_link = forms.BooleanField(label='Neighbor Link', required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(EditEmployeeInfo, self).__init__(*args, **kwargs)
+        company_choices = [(company.display_name, company.display_name) for company in Company.objects.all()]
+        company_choices.insert(0, ('', ''))
+
+        self.fields['company'].widget = forms.Select(choices=company_choices)
 
     def save(self, employee):
         company = Company.objects.get(display_name=self.cleaned_data['company'])
@@ -183,34 +181,16 @@ class AssignCounseling(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.employee = kwargs.pop('employee', None)
+        self.request = kwargs.pop('request', None)
+        self.counseling = kwargs.pop('counseling', None)
         super(AssignCounseling, self).__init__(*args, **kwargs)
-
-    def save(self, request):
-        if self.cleaned_data['hearing_date']:
-            hearing_date = datetime.datetime.combine(self.cleaned_data['hearing_date'],
-                                                     self.cleaned_data['hearing_time'])
-        else:
-            hearing_date = None
-
-        counseling = Counseling(
-            employee=self.employee,
-            assigned_by=request.user.employee_id,
-            issued_date=datetime.datetime.today(),
-            action_type=self.cleaned_data['action_type'],
-            hearing_datetime=hearing_date,
-            conduct=self.cleaned_data['conduct'],
-            conversation=self.cleaned_data['conversation']
-        )
-
-        counseling.save()
 
     def clean(self):
         super().clean()
         counseling_records = Counseling.objects.filter(is_active=True, employee=self.employee).order_by('action_type')
         action_type_field = 'action_type'
         action_type = self.cleaned_data[action_type_field]
-
-        if not self.cleaned_data['pd_check_override']:
+        if not (self.cleaned_data['pd_check_override'] or (self.counseling and self.counseling.override_by and self.counseling.action_type == self.cleaned_data['action_type'])):
             if action_type != '6' and action_type != '5':
                 history = {
                     '0': False,
@@ -262,24 +242,35 @@ class AssignCounseling(forms.Form):
                 if action_type != next_step:
                     self.add_error(action_type_field, f'The next step in progressive discipline would be {actions[next_step]}.')
 
+    def save(self):
+        if self.cleaned_data['hearing_date']:
+            hearing_date = datetime.datetime.combine(self.cleaned_data['hearing_date'],
+                                                     self.cleaned_data['hearing_time'])
+        else:
+            hearing_date = None
 
-class EditCounseling(forms.Form):
-    issued_date = forms.DateField(label='Issued Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
-    action_type = forms.CharField(label='Action Type', widget=forms.Select(choices=Counseling.ACTION_CHOICES), required=True)
-    hearing_date = forms.DateTimeField(label='Hearing Date', widget=forms.TextInput(attrs={'type': 'date'}),
-                                       required=False)
-    hearing_time = forms.TimeField(label='Hearing Time', widget=forms.TextInput(attrs={'type': 'time'}),
-                                   initial=datetime.time(hour=10, minute=0), required=False)
-    conduct = forms.CharField(label='Explanation of Employee Conduct', widget=forms.Textarea(), required=True)
-    conversation = forms.CharField(label='Record of Conversation', widget=forms.Textarea(), required=True)
+        counseling = Counseling(
+            employee=self.employee,
+            assigned_by=self.request.user.employee_id,
+            issued_date=datetime.datetime.today(),
+            action_type=self.cleaned_data['action_type'],
+            hearing_datetime=hearing_date,
+            conduct=self.cleaned_data['conduct'],
+            conversation=self.cleaned_data['conversation'],
+            override_by=self.request.user.employee_id if self.cleaned_data['pd_check_override'] else None
+        )
 
+        counseling.save()
+
+
+class EditCounseling(AssignCounseling):
     document = forms.FileField(label='Document', required=False)
 
-    def save(self, counseling, request):
+    def save(self):
         update_fields = ['issued_date', 'action_type', 'conduct', 'hearing_datetime', 'conversation']
         try:
-            counseling.document = request.FILES['document']
-            counseling.uploaded = True
+            self.counseling.document = self.request.FILES['document']
+            self.counseling.uploaded = True
             update_fields.append('document')
         except KeyError:
             pass
@@ -289,25 +280,17 @@ class EditCounseling(forms.Form):
         else:
             hearing_datetime = None
 
-        counseling.issued_date = self.cleaned_data['issued_date']
-        counseling.action_type = self.cleaned_data['action_type']
-        counseling.hearing_datetime = hearing_datetime
-        counseling.conduct = self.cleaned_data['conduct']
-        counseling.conversation = self.cleaned_data['conversation']
+        self.counseling.issued_date = self.cleaned_data['issued_date']
+        self.counseling.action_type = self.cleaned_data['action_type']
+        self.counseling.hearing_datetime = hearing_datetime
+        self.counseling.conduct = self.cleaned_data['conduct']
+        self.counseling.conversation = self.cleaned_data['conversation']
 
-        counseling.save(update_fields=update_fields)
+        self.counseling.save(update_fields=update_fields)
 
 
 class AssignSafetyPoint(forms.Form):
-    incident_date = forms.DateField(label='Incident Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
-    issued_date = forms.DateField(label='Issued Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
-    reason = forms.CharField(label='Reason', required=True, widget=forms.Select(
-        choices=SafetyPoint.REASON_CHOICES,attrs={'onchange': 'unsafe_act_change()'}))
-    unsafe_act = forms.CharField(label='Type of Unsafe Act', widget=forms.TextInput(attrs={'class':'textinput textInput form-control', 'required':''}),required=False, help_text='Write the type of unsafe act')
-    details = forms.CharField(label='Details', widget=forms.Textarea(attrs={'class': 'textarea form-control', 'required':''}), required=False)
-
-    def save(self, employee, request):
-        points = {
+    POINTS = {
             '0': 1,
             '1': 1,
             '2': 1,
@@ -324,12 +307,25 @@ class AssignSafetyPoint(forms.Form):
             '13': 6,
             '14': 6,
         }
+    incident_date = forms.DateField(label='Incident Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
+    issued_date = forms.DateField(label='Issued Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
+    reason = forms.CharField(label='Reason', required=True, widget=forms.Select(
+        choices=SafetyPoint.REASON_CHOICES, attrs={'onchange': 'unsafe_act_change()'}))
+    unsafe_act = forms.CharField(label='Type of Unsafe Act', widget=forms.TextInput(attrs={'class':'textinput textInput form-control', 'required':''}),required=False, help_text='Write the type of unsafe act')
+    details = forms.CharField(label='Details', widget=forms.Textarea(attrs={'class': 'textarea form-control', 'required':''}), required=False)
 
+    def __init__(self, *args, **kwargs):
+        self.employee = kwargs.pop('employee', None)
+        self.request = kwargs.pop('request', None)
+        self.counseling = kwargs.pop('counseling', None)
+        super(AssignSafetyPoint, self).__init__(*args, **kwargs)
+
+    def save(self, employee, request):
         safety_point = SafetyPoint(
             employee=employee,
             incident_date=self.cleaned_data['incident_date'],
             issued_date=self.cleaned_data['issued_date'],
-            points=points[self.cleaned_data['reason']],
+            points=self.POINTS[self.cleaned_data['reason']],
             reason=self.cleaned_data['reason'],
             unsafe_act=self.cleaned_data['unsafe_act'],
             details=self.cleaned_data['details'],
@@ -339,34 +335,10 @@ class AssignSafetyPoint(forms.Form):
         safety_point.save()
 
 
-class EditSafetyPoint(forms.Form):
-    incident_date = forms.DateField(label='Incident Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
-    issued_date = forms.DateField(label='Issued Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
-    reason = forms.CharField(label='Reason', required=True, widget=forms.Select(
-        choices=SafetyPoint.REASON_CHOICES,attrs={'onchange': 'unsafe_act_change()'}))
-    unsafe_act = forms.CharField(label='Type of Unsafe Act', widget=forms.TextInput(attrs={'class':'textinput textInput form-control', 'required':''}),required=False, help_text='Write the type of unsafe act')
-    details = forms.CharField(label='Details', widget=forms.Textarea(attrs={'class': 'textarea form-control', 'required':''}), required=False)
+class EditSafetyPoint(AssignSafetyPoint):
     document = forms.FileField(label='Document', required=False)
 
     def save(self, safety_point, request):
-        points = {
-            '0': 1,
-            '1': 1,
-            '2': 1,
-            '3': 2,
-            '4': 2,
-            '5': 2,
-            '6': 2,
-            '7': 3,
-            '8': 4,
-            '9': 6,
-            '10': 6,
-            '11': 6,
-            '12': 6,
-            '13': 6,
-            '14': 6,
-        }
-
         update_fields = ['incident_date', 'issued_date', 'points', 'reason', 'unsafe_act', 'details']
         try:
             safety_point.document = self.files['document']
@@ -376,7 +348,7 @@ class EditSafetyPoint(forms.Form):
             pass
         safety_point.incident_date = self.cleaned_data['incident_date']
         safety_point.issued_date = self.cleaned_data['issued_date']
-        safety_point.points = points[self.cleaned_data['reason']]
+        safety_point.points = self.POINTS[self.cleaned_data['reason']]
         safety_point.reason = self.cleaned_data['reason']
         safety_point.unsafe_act = self.cleaned_data['unsafe_act']
         safety_point.details = self.cleaned_data['details']
