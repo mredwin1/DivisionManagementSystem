@@ -233,7 +233,7 @@ def view_hold_list(request):
                 full_name__icontains=search)
 
     if company:
-        employee_holds = employee_holds.filter(company__display_name__exact=company)
+        employee_holds = employee_holds.filter(employee__company__display_name__exact=company)
     if start_date and end_date:
         employee_holds = employee_holds.filter(hold_date__gte=start_date, hold_date__lte=end_date)
     if sort_by:
