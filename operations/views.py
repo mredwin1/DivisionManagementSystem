@@ -85,6 +85,14 @@ def attendance_reports(request):
         datetime.datetime.today()
     attendance_records = Attendance.objects.filter(is_active=True, employee__is_active=True)
 
+    sort_choices = [
+        ('', 'Sort By'),
+        ('employee__last_name', 'Last Name'),
+        ('-incident_date', 'Incident Date'),
+        ('employee__first_name', 'First Name'),
+        ('employee_id', 'Employee ID'),
+    ]
+
     if search:
         try:
             search = int(search)
@@ -113,7 +121,7 @@ def attendance_reports(request):
         'company': company_name,
         'date_range': date_range,
         'search': search
-    })
+    }, sort_choices=sort_choices)
 
     page = request.GET.get('page')
     paginator = Paginator(attendance_records, 25)
