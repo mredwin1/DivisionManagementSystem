@@ -11,7 +11,7 @@ from django.urls import reverse
 
 from employees.models import Employee, Attendance, Hold, Counseling, TimeOffRequest, DayOff
 from .forms import EmployeeCreationForm, AttendanceFilterForm, CounselingFilterForm, BulkAssignAttendance, \
-    MakeTimeOffRequest, TimeOffFilterForm, TerminationFilterForm
+    MakeTimeOffRequest, TimeOffFilterForm, FilterForm
 
 
 @login_required
@@ -153,6 +153,14 @@ def counseling_reports(request):
         date_range = request.GET.get('date_range')
         search = request.GET.get('search')
 
+    sort_choices = [
+        ('', 'Sort By'),
+        ('employee__last_name', 'Last Name'),
+        ('-issued_date', 'Issued Date'),
+        ('employee__first_name', 'First Name'),
+        ('employee_id', 'Employee ID'),
+    ]
+
     start_date = datetime.datetime.strptime(date_range[:10], '%m/%d/%Y') if date_range else\
         (datetime.datetime.today() - datetime.timedelta(days=30))
     end_date = datetime.datetime.strptime(date_range[13:], '%m/%d/%Y') if date_range else\
@@ -181,7 +189,7 @@ def counseling_reports(request):
     if start_date and end_date:
         counseling_records = counseling_records.filter(issued_date__gte=start_date, issued_date__lte=end_date)
 
-    f_form = CounselingFilterForm(data={
+    f_form = CounselingFilterForm(sort_choices=sort_choices, data={
         'sort_by': sort_by,
         'action_type': action_type,
         'company': company_name,
@@ -282,6 +290,14 @@ def time_off_reports(request):
         date_range = request.GET.get('date_range')
         search = request.GET.get('search')
 
+    sort_choices = [
+        ('', 'Sort By'),
+        ('employee__last_name', 'Last Name'),
+        ('-request_date', 'Request Date'),
+        ('employee__first_name', 'First Name'),
+        ('employee_id', 'Employee ID'),
+    ]
+
     start_date = datetime.datetime.strptime(date_range[:10], '%m/%d/%Y') if date_range else \
         (datetime.datetime.today() - datetime.timedelta(days=30))
     end_date = datetime.datetime.strptime(date_range[13:], '%m/%d/%Y') if date_range else \
@@ -314,7 +330,7 @@ def time_off_reports(request):
     if sort_by:
         time_off_records = time_off_records.order_by(sort_by)
 
-    f_form = TimeOffFilterForm(data={
+    f_form = TimeOffFilterForm(sort_choices=sort_choices, data={
         'sort_by': sort_by,
         'status': status,
         'time_off_type': time_off_type,
@@ -378,10 +394,21 @@ def termination_reports(request):
         company_name = request.POST.get('company')
         date_range = request.POST.get('date_range')
         search = request.POST.get('search')
+        sort_by = request.POST.get('sort_by')
     else:
         company_name = request.GET.get('company')
         date_range = request.GET.get('date_range')
         search = request.GET.get('search')
+        sort_by = request.POST.get('sort_by')
+
+    sort_choices = [
+        ('', 'Sort By'),
+        ('last_name', 'Last Name'),
+        ('first_name', 'First Name'),
+        ('employee_id', 'Employee ID'),
+        ('position', 'Position'),
+        ('hire_date', 'Hire Date'),
+    ]
 
     start_date = datetime.datetime.strptime(date_range[:10], '%m/%d/%Y') if date_range else \
         (datetime.datetime.today() - datetime.timedelta(days=365))
@@ -402,14 +429,16 @@ def termination_reports(request):
 
     if company_name:
         termed_drivers = termed_drivers.filter(company__display_name__exact=company_name)
-
     if start_date and end_date:
         termed_drivers = termed_drivers.filter(termination_date__gte=start_date, termination_date__lte=end_date)
+    if sort_by:
+        termed_drivers.order_by(sort_by)
 
-    f_form = TerminationFilterForm(data={
+    f_form = FilterForm(sort_choices=sort_choices, data={
         'company': company_name,
         'date_range': date_range,
-        'search': search
+        'search': search,
+        'sort_by': sort_by
     })
 
     page = request.GET.get('page')

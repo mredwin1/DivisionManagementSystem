@@ -2,8 +2,6 @@ from io import BytesIO
 
 from django import forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
-from django.shortcuts import redirect
 from openpyxl import load_workbook
 
 from employees.models import Company
@@ -14,7 +12,7 @@ from zipfile import ZipFile
 class DriverFilterForm(forms.Form):
     COMPANY_CHOICES = [('','Filter by Company')]
     POSITION_CHOICES = [
-        ('','Filter by Position'),
+        ('', 'Filter by Position'),
         ('driver', 'Driver'),
         ('driver_scheduler', 'Driver Scheduler'),
         ('hiring_supervisor', 'Hiring Supervisor'),
