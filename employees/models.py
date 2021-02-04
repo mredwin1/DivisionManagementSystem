@@ -2,11 +2,13 @@ import datetime
 import io
 import requests
 import textwrap
+import logging
 
 from PyPDF2 import PdfFileMerger, PdfFileReader
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.core.files.base import ContentFile
 from django.db import models
+from django.templatetags.static import static
 
 from imagekit.models import ProcessedImageField
 from imagekit.processors import ResizeToFill
@@ -16,6 +18,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
 from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.pdfgen import canvas
+from reportlab.lib.utils import ImageReader
 from titlecase import titlecase
 
 from .managers import EmployeeManager
@@ -1273,9 +1276,10 @@ class SafetyPoint(models.Model):
         p.drawRightString(7.75 * inch, 9.65 * inch, header5)
 
         # Logo
-        # logo_url = static('\main\\on-hold-stamp.png')
-        # print(logo_url)
-        # p.drawInlineImage(settings.STATIC_ROOT + '\main\\MV_Transportation_logo.png', 1 * inch, 9.5 * inch, 1.5 * inch, .75 * inch)
+        logo_url = static('\main\\MV_Transportation_logo.png')
+        logging.info(f'Absolute URL: {logo_url}')
+        logo = ImageReader(logo_url)
+        p.drawInlineImage(logo, 1 * inch, 9.5 * inch, 1.5 * inch, .75 * inch)
 
         # Title
         title = 'SAFETY POINT NOTICE'
