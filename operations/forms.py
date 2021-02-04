@@ -12,18 +12,9 @@ from employees.models import Company, Employee, Attendance, TimeOffRequest, DayO
 
 
 class EmployeeCreationForm(forms.Form):
-
-    POSITION_CHOICES = [
-        ('', ''),
-        ('driver', 'Driver'),
-        ('mechanic', 'Mechanic'),
-        ('utility', 'Utility'),
-        ('dispatcher', 'Dispatcher'),
-    ]
-
     first_name = forms.CharField(label='First Name', required=True, max_length=30)
     last_name = forms.CharField(label='Last Name', required=True, max_length=30)
-    position = forms.CharField(label='Position', widget=forms.Select(choices=POSITION_CHOICES,
+    position = forms.CharField(label='Position', widget=forms.Select(choices=Employee.POSITION_CHOICES,
                                                                      attrs={'onchange': 'email_change()'}),
                                required=True, max_length=30)
 
@@ -124,28 +115,6 @@ class BulkAssignAttendance(forms.Form):
         self.helper = FormHelper()
         self.helper.form_show_labels = False
 
-        REASON_CHOICES = [
-            ('', ''),
-            ('0', 'Unexcused'),
-            ('1', 'Consecutive'),
-            ('2', '< 1 HR'),
-            ('3', 'NCNS'),
-            ('4', 'FTC'),
-            ('5', 'Missing Safety Meeting'),
-            ('6', '< 15 MIN'),
-            ('7', '> 15 MIN'),
-            ('8', 'Late Lunch'),
-        ]
-
-        EXEMPTION_CHOICES = [
-            ('', ''),
-            ('0', 'FMLA'),
-            ('1', 'Paid Sick'),
-            ('2', 'Unpaid Sick'),
-            ('3', 'Union Agreement'),
-            ('4', 'Excused Absence'),
-        ]
-
         if data:
             for key, value in data.items():
                 if key[:-1] == 'employee_name':
@@ -171,13 +140,14 @@ class BulkAssignAttendance(forms.Form):
                 elif key[:-1] == 'reason':
                     if value:
                         self.fields[key] = forms.CharField(widget=forms.Select(
-                            choices=REASON_CHOICES, attrs={'onchange': 'addRow(this);'}), required=True)
+                            choices=Attendance.REASON_CHOICES, attrs={'onchange': 'addRow(this);'}), required=True)
                         self.initial[key] = value
                     else:
                         self.fields[key] = forms.CharField(widget=forms.Select(
-                            choices=REASON_CHOICES, attrs={'onchange': 'addRow(this);'}), required=False)
+                            choices=Attendance.REASON_CHOICES, attrs={'onchange': 'addRow(this);'}), required=False)
                 elif key[:-1] == 'exemption':
-                    self.fields[key] = forms.CharField(widget=forms.Select(choices=EXEMPTION_CHOICES), required=False)
+                    self.fields[key] = forms.CharField(widget=forms.Select(choices=Attendance.EXEMPTION_CHOICES),
+                                                       required=False)
                     self.initial[key] = value
 
     def clean(self):
