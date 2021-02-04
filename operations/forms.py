@@ -93,8 +93,10 @@ class BulkAssignAttendance(forms.Form):
     employee_name1 = forms.CharField(required=True, widget=forms.TextInput(
         attrs={'class': 'form-control basicAutoComplete', 'data-url': 'search-employees/',
                'autocomplete': 'off', 'oninput': 'addRow(this);'}))
-    incident_date1 = forms.DateField(widget=forms.TextInput(attrs={'type': 'date', 'onchange': 'addRow(this);'}), required=True)
-    reason1 = forms.CharField(widget=forms.Select(choices=Attendance.REASON_CHOICES, attrs={'onchange': 'addRow(this);'}), required=True)
+    incident_date1 = forms.DateField(widget=forms.TextInput(attrs={'type': 'date', 'onchange': 'addRow(this);'}),
+                                     required=True)
+    reason1 = forms.CharField(
+        widget=forms.Select(choices=Attendance.REASON_CHOICES, attrs={'onchange': 'addRow(this);'}), required=True)
     exemption1 = forms.CharField(widget=forms.Select(choices=Attendance.EXEMPTION_CHOICES), required=False)
 
     def get_all_fields(self):
@@ -157,7 +159,8 @@ class BulkAssignAttendance(forms.Form):
         employees = Employee.objects.filter(is_active=True).annotate(
             full_name=Concat('first_name', V(' '), 'last_name', output_field=CharField()))
 
-        employee_names = [f'{employee.last_name}, {employee.first_name} | {employee.employee_id}' for employee in employees]
+        employee_names = [f'{employee.last_name}, {employee.first_name} | {employee.employee_id}' for employee in
+                          employees]
 
         i = 1
         field_name = f'employee_name{i}'
@@ -248,7 +251,8 @@ class MakeTimeOffRequest(forms.Form):
         employees = Employee.objects.filter(is_active=True).annotate(
             full_name=Concat('first_name', V(' '), 'last_name', output_field=CharField()))
 
-        employee_names = [f'{employee.last_name}, {employee.first_name} | {employee.employee_id}' for employee in employees]
+        employee_names = [f'{employee.last_name}, {employee.first_name} | {employee.employee_id}' for employee in
+                          employees]
 
         employee_field = 'employee_name'
         employee_name = self.cleaned_data[employee_field]
@@ -293,7 +297,7 @@ class MakeTimeOffRequest(forms.Form):
     def save(self, request):
         employee_name = self.cleaned_data['employee_name']
         index = employee_name.find('|')
-        employee_id = employee_name[index+1:]
+        employee_id = employee_name[index + 1:]
         employee = Employee.objects.get(employee_id=employee_id)
 
         time_off_request = TimeOffRequest(
@@ -338,7 +342,8 @@ class FilterForm(forms.Form):
 
         self.fields['company'].widget = forms.Select(choices=company_choices, attrs={'style': 'font-size: 14px',
                                                                                      'onchange': 'form.submit();'})
-        self.fields['sort_by'].widget = forms.Select(choices=sort_choices, attrs={'style': 'font-size: 14px', 'onchange': 'form.submit();'})
+        self.fields['sort_by'].widget = forms.Select(choices=sort_choices,
+                                                     attrs={'style': 'font-size: 14px', 'onchange': 'form.submit();'})
 
 
 class AttendanceFilterForm(FilterForm):
