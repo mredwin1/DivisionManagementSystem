@@ -228,116 +228,6 @@ class BulkAssignAttendance(forms.Form):
         return attendance_ids
 
 
-class AttendanceFilterForm(forms.Form):
-    COMPANY_CHOICES = [('', 'Company Filter')]
-    SORT_CHOICES = [
-        ('', 'Sort By'),
-        ('employee__last_name', 'Last Name'),
-        ('-incident_date', 'Incident Date'),
-        ('employee__first_name', 'First Name'),
-        ('employee_id', 'Employee ID'),
-    ]
-    REASON_CHOICES = [
-        ('', 'Type Filter'),
-        ('0', 'Unexcused'),
-        ('1', 'Consecutive'),
-        ('2', '< 1 HR'),
-        ('3', 'NCNS'),
-        ('4', 'FTC'),
-        ('5', 'Missing Safety Meeting'),
-        ('6', '< 15 MIN'),
-        ('7', '> 15 MIN'),
-        ('8', 'Late Lunch'),
-    ]
-    try:
-        companies = Company.objects.all()
-
-        for company in companies:
-            company = (company, company)
-            COMPANY_CHOICES.append(company)
-    except:
-        pass
-
-    company = forms.CharField(initial='Filter by Company',
-                              widget=forms.Select(choices=COMPANY_CHOICES,
-                                                  attrs={'style': 'font-size: 14px', 'onchange': 'form.submit();'}),
-                              required=False)
-    reasons = forms.CharField(initial='Filter by Reason',
-                              widget=forms.Select(choices=REASON_CHOICES,
-                                                  attrs={'style': 'font-size: 14px', 'onchange': 'form.submit();'}),
-                              required=False)
-    sort_by = forms.CharField(initial='Sort By',
-                              widget=forms.Select(choices=SORT_CHOICES,
-                                                  attrs={'style': 'font-size: 14px', 'onchange': 'form.submit();'}),
-                              required=False)
-
-    date_range = fields.DateRangeField(input_formats=['%m/%d/%Y'],
-                                       widget=widgets.DateRangeWidget(format='%m/%d/%Y',
-                                                                      attrs={'style': 'font-size: 14px'}))
-
-    search = forms.CharField(max_length=30, widget=forms.TextInput(
-        attrs={'placeholder': 'Search by Name or ID', 'style': 'font-size: 14px'}), required=False)
-
-    def __init__(self, *args, **kwargs):
-        super(AttendanceFilterForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_show_labels = False
-
-
-class CounselingFilterForm(forms.Form):
-    COMPANY_CHOICES = [('', 'Company Filter')]
-    SORT_CHOICES = [
-        ('', 'Sort By'),
-        ('employee__last_name', 'Last Name'),
-        ('-issued_date', 'Issued Date'),
-        ('employee__first_name', 'First Name'),
-        ('employee_id', 'Employee ID'),
-    ]
-    ACTION_CHOICES = [
-        ('', 'Type Filter'),
-        ('0', 'Verbal Counseling'),
-        ('1', 'Verbal Warning'),
-        ('2', 'First Written Warning Notice'),
-        ('3', 'Final Written Warning Notice & 3 Day Suspension'),
-        ('4', 'Last & Final Warning'),
-        ('5', 'Discharge for \"Just Cause\"'),
-        ('6', 'Administrative Removal from Service'),
-    ]
-    try:
-        companies = Company.objects.all()
-
-        for company in companies:
-            company = (company, company)
-            COMPANY_CHOICES.append(company)
-    except:
-        pass
-
-    company = forms.CharField(initial='Filter by Company',
-                              widget=forms.Select(choices=COMPANY_CHOICES,
-                                                  attrs={'style': 'font-size: 14px', 'onchange': 'form.submit();'}),
-                              required=False)
-    action_type = forms.CharField(initial='Filter by Action Type',
-                              widget=forms.Select(choices=ACTION_CHOICES,
-                                                  attrs={'style': 'font-size: 14px', 'onchange': 'form.submit();'}),
-                              required=False)
-    sort_by = forms.CharField(initial='Sort By',
-                              widget=forms.Select(choices=SORT_CHOICES,
-                                                  attrs={'style': 'font-size: 14px', 'onchange': 'form.submit();'}),
-                              required=False)
-
-    date_range = fields.DateRangeField(input_formats=['%m/%d/%Y'],
-                                       widget=widgets.DateRangeWidget(format='%m/%d/%Y',
-                                                                      attrs={'style': 'font-size: 14px'}))
-
-    search = forms.CharField(max_length=30, widget=forms.TextInput(
-        attrs={'placeholder': 'Search by Name or ID', 'style': 'font-size: 14px'}), required=False)
-
-    def __init__(self, *args, **kwargs):
-        super(CounselingFilterForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_show_labels = False
-
-
 class MakeTimeOffRequest(forms.Form):
     employee_name = forms.CharField(label='Employee Name', required=True, widget=forms.TextInput(
         attrs={'class': 'form-control basicAutoComplete', 'data-url': 'search-employees/',
@@ -424,6 +314,87 @@ class MakeTimeOffRequest(forms.Form):
             )
 
             day_off.save()
+
+
+class FilterForm(forms.Form):
+    company = forms.CharField(initial='Filter by Company', required=False)
+    date_range = fields.DateRangeField(input_formats=['%m/%d/%Y'],
+                                       widget=widgets.DateRangeWidget(format='%m/%d/%Y',
+                                                                      attrs={'style': 'font-size: 14px'}))
+    search = forms.CharField(max_length=30, widget=forms.TextInput(
+        attrs={'placeholder': 'Search by Name or ID', 'style': 'font-size: 14px'}), required=False)
+
+    def __init__(self, sort_choices, *args, **kwargs):
+        super(FilterForm, self).__init__(sort_choices, *args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_show_labels = False
+
+        company_choices = [(company.display_name, company.display_name) for company in Company.objects.all()]
+        company_choices.insert(0, ('', ''))
+
+        self.fields['company'].widget = forms.Select(choices=company_choices, attrs={'style': 'font-size: 14px',
+                                                                                     'onchange': 'form.submit();'})
+        if sort_choices:
+            self.fields['sort_by'] = forms.CharField(initial='Sort By',
+                                                     widget=forms.Select(
+                                                         choices=sort_choices,
+                                                         attrs={'style': 'font-size: 14px',
+                                                                'onchange': 'form.submit();'}),
+                                                     required=False)
+
+
+class AttendanceFilterForm(forms.Form):
+    reasons = forms.CharField(initial='Filter by Reason',
+                              widget=forms.Select(choices=Attendance.REASON_CHOICES,
+                                                  attrs={'style': 'font-size: 14px', 'onchange': 'form.submit();'}),
+                              required=False)
+
+
+
+class CounselingFilterForm(forms.Form):
+    COMPANY_CHOICES = [('', 'Company Filter')]
+    SORT_CHOICES = [
+        ('', 'Sort By'),
+        ('employee__last_name', 'Last Name'),
+        ('-issued_date', 'Issued Date'),
+        ('employee__first_name', 'First Name'),
+        ('employee_id', 'Employee ID'),
+    ]
+    ACTION_CHOICES = [
+        ('', 'Type Filter'),
+        ('0', 'Verbal Counseling'),
+        ('1', 'Verbal Warning'),
+        ('2', 'First Written Warning Notice'),
+        ('3', 'Final Written Warning Notice & 3 Day Suspension'),
+        ('4', 'Last & Final Warning'),
+        ('5', 'Discharge for \"Just Cause\"'),
+        ('6', 'Administrative Removal from Service'),
+    ]
+
+    company = forms.CharField(initial='Filter by Company',
+                              widget=forms.Select(choices=COMPANY_CHOICES,
+                                                  attrs={'style': 'font-size: 14px', 'onchange': 'form.submit();'}),
+                              required=False)
+    action_type = forms.CharField(initial='Filter by Action Type',
+                                  widget=forms.Select(choices=ACTION_CHOICES,
+                                                      attrs={'style': 'font-size: 14px', 'onchange': 'form.submit();'}),
+                                  required=False)
+    sort_by = forms.CharField(initial='Sort By',
+                              widget=forms.Select(choices=SORT_CHOICES,
+                                                  attrs={'style': 'font-size: 14px', 'onchange': 'form.submit();'}),
+                              required=False)
+
+    date_range = fields.DateRangeField(input_formats=['%m/%d/%Y'],
+                                       widget=widgets.DateRangeWidget(format='%m/%d/%Y',
+                                                                      attrs={'style': 'font-size: 14px'}))
+
+    search = forms.CharField(max_length=30, widget=forms.TextInput(
+        attrs={'placeholder': 'Search by Name or ID', 'style': 'font-size: 14px'}), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(CounselingFilterForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_show_labels = False
 
 
 class TimeOffFilterForm(forms.Form):
