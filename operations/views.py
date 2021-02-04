@@ -447,12 +447,12 @@ def remove_time_off(request, time_off_id):
 @permission_required('employees.can_view_termination_reports', raise_exception=True)
 def termination_reports(request):
     if request.method == 'POST':
-        company_name = request.POST.get('company')
+        company = request.POST.get('company')
         date_range = request.POST.get('date_range')
         search = request.POST.get('search')
         sort_by = request.POST.get('sort_by')
     else:
-        company_name = request.GET.get('company')
+        company = request.GET.get('company')
         date_range = request.GET.get('date_range')
         search = request.GET.get('search')
         sort_by = request.POST.get('sort_by')
@@ -464,6 +464,7 @@ def termination_reports(request):
         ('employee_id', 'Employee ID'),
         ('position', 'Position'),
         ('hire_date', 'Hire Date'),
+        ('termination_date', 'Termination Date'),
     ]
 
     start_date = datetime.datetime.strptime(date_range[:10], '%m/%d/%Y') if date_range else \
@@ -483,22 +484,22 @@ def termination_reports(request):
                 full_name=Concat('first_name', V(' '), 'last_name', output_field=CharField())).filter(
                 full_name__icontains=search, is_active=False)
 
-    if company_name:
-        termed_drivers = termed_drivers.filter(company__display_name__exact=company_name)
+    if company:
+        termed_drivers = termed_drivers.filter(company__display_name__exact=company)
     if start_date and end_date:
         termed_drivers = termed_drivers.filter(termination_date__gte=start_date, termination_date__lte=end_date)
     if sort_by:
         termed_drivers.order_by(sort_by)
 
     f_form = FilterForm(sort_choices=sort_choices, data={
-        'company': company_name,
+        'company': company,
         'date_range': date_range,
         'search': search,
         'sort_by': sort_by
     })
 
     page = request.GET.get('page')
-    paginator = Paginator(termed_drivers.order_by('termination_date'), 25)
+    paginator = Paginator(termed_drivers, 25)
     page_obj = paginator.get_page(page)
 
     data = {
