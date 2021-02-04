@@ -28,7 +28,10 @@
                 <h3 class="text-center mt-0">Employees</h3>
             </div>
             <div class="col-lg-2 col-md-2 col-sm-2">
-                {{ f_form.company_name|as_crispy_field }}
+                {{ f_form.sort_by|as_crispy_field }}
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2">
+                {{ f_form.company|as_crispy_field }}
             </div>
             <div class="col-lg-2 col-md-2 col-sm-2">
                 {{ f_form.date_range|as_crispy_field }}
