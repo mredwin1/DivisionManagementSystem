@@ -46,16 +46,10 @@ def log_in(request):
 @login_required
 @permission_required('employees.can_view_employee_info', raise_exception=True)
 def employee_info(request):
-    if request.method == 'POST':
-        company_name = request.POST.get('company')
-        search = request.POST.get('search')
-        sort_by = request.POST.get('sort_by')
-        position = request.POST.get('position')
-    else:
-        company_name = request.GET.get('company')
-        search = request.GET.get('search')
-        sort_by = request.GET.get('sort_by')
-        position = request.GET.get('position')
+    company_name = request.GET.get('company')
+    search = request.GET.get('search')
+    sort_by = request.GET.get('sort_by')
+    position = request.GET.get('position')
 
     f_form = DriverFilterForm(data={
         'sort_by': sort_by,

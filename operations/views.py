@@ -66,18 +66,11 @@ def search_employees(request):
 @login_required
 @permission_required('employees.can_view_attendance_reports', raise_exception=True)
 def attendance_reports(request):
-    if request.method == 'POST':
-        sort_by = request.POST.get('sort_by')
-        reasons = request.POST.get('reasons')
-        company_name = request.POST.get('company')
-        date_range = request.POST.get('date_range')
-        search = request.POST.get('search')
-    else:
-        sort_by = request.GET.get('sort_by')
-        reasons = request.GET.get('reasons')
-        company_name = request.GET.get('company')
-        date_range = request.GET.get('date_range')
-        search = request.GET.get('search')
+    sort_by = request.GET.get('sort_by')
+    reasons = request.GET.get('reasons')
+    company_name = request.GET.get('company')
+    date_range = request.GET.get('date_range')
+    search = request.GET.get('search')
 
     start_date = datetime.datetime.strptime(date_range[:10], '%m/%d/%Y') if date_range else\
         (datetime.datetime.today() - datetime.timedelta(days=365))
@@ -140,18 +133,11 @@ def attendance_reports(request):
 @login_required
 @permission_required('employees.can_view_counseling_reports', raise_exception=True)
 def counseling_reports(request):
-    if request.method == 'POST':
-        sort_by = request.POST.get('sort_by')
-        action_type = request.POST.get('action_type')
-        company_name = request.POST.get('company')
-        date_range = request.POST.get('date_range')
-        search = request.POST.get('search')
-    else:
-        sort_by = request.GET.get('sort_by')
-        action_type = request.GET.get('action_type')
-        company_name = request.GET.get('company')
-        date_range = request.GET.get('date_range')
-        search = request.GET.get('search')
+    sort_by = request.GET.get('sort_by')
+    action_type = request.GET.get('action_type')
+    company_name = request.GET.get('company')
+    date_range = request.GET.get('date_range')
+    search = request.GET.get('search')
 
     sort_choices = [
         ('', 'Sort By'),
@@ -214,16 +200,10 @@ def counseling_reports(request):
 @login_required
 @permission_required('employees.can_view_hold_list', raise_exception=True)
 def view_hold_list(request):
-    if request.method == 'POST':
-        company = request.POST.get('company')
-        date_range = request.POST.get('date_range')
-        search = request.POST.get('search')
-        sort_by = request.POST.get('sort_by')
-    else:
-        company = request.GET.get('company')
-        date_range = request.GET.get('date_range')
-        search = request.GET.get('search')
-        sort_by = request.POST.get('sort_by')
+    company = request.GET.get('company')
+    date_range = request.GET.get('date_range')
+    search = request.GET.get('search')
+    sort_by = request.GET.get('sort_by')
 
     sort_choices = [
         ('', 'Sort By'),
@@ -331,20 +311,12 @@ def make_time_off_request(request):
 @login_required
 @permission_required('employees.can_view_time_off_reports', raise_exception=True)
 def time_off_reports(request):
-    if request.method == 'POST':
-        sort_by = request.POST.get('sort_by')
-        status = request.POST.get('status')
-        time_off_type = request.POST.get('time_off_type')
-        company_name = request.POST.get('company')
-        date_range = request.POST.get('date_range')
-        search = request.POST.get('search')
-    else:
-        sort_by = request.GET.get('sort_by')
-        status = request.GET.get('status')
-        time_off_type = request.GET.get('time_off_type')
-        company_name = request.GET.get('company')
-        date_range = request.GET.get('date_range')
-        search = request.GET.get('search')
+    sort_by = request.GET.get('sort_by')
+    status = request.GET.get('status')
+    time_off_type = request.GET.get('time_off_type')
+    company_name = request.GET.get('company')
+    date_range = request.GET.get('date_range')
+    search = request.GET.get('search')
 
     sort_choices = [
         ('', 'Sort By'),
@@ -446,16 +418,10 @@ def remove_time_off(request, time_off_id):
 @login_required
 @permission_required('employees.can_view_termination_reports', raise_exception=True)
 def termination_reports(request):
-    if request.method == 'POST':
-        company = request.POST.get('company')
-        date_range = request.POST.get('date_range')
-        search = request.POST.get('search')
-        sort_by = request.POST.get('sort_by')
-    else:
-        company = request.GET.get('company')
-        date_range = request.GET.get('date_range')
-        search = request.GET.get('search')
-        sort_by = request.POST.get('sort_by')
+    company = request.GET.get('company')
+    date_range = request.GET.get('date_range')
+    search = request.GET.get('search')
+    sort_by = request.POST.get('sort_by')
 
     sort_choices = [
         ('', 'Sort By'),
