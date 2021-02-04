@@ -220,7 +220,7 @@ def view_hold_list(request):
     end_date = datetime.datetime.strptime(date_range[13:], '%m/%d/%Y') if date_range else \
         datetime.datetime.today()
 
-    employee_holds = Hold.objects.filter()
+    employee_holds = Hold.objects.filter(employee__is_active=True)
     if search:
         try:
             search = int(search)
@@ -230,7 +230,7 @@ def view_hold_list(request):
         except ValueError:
             employee_holds = Hold.objects.annotate(
                 full_name=Concat('first_name', V(' '), 'last_name', output_field=CharField())).filter(
-                full_name__icontains=search)
+                full_name__icontains=search, employee__is_active=True)
 
     if company:
         employee_holds = employee_holds.filter(employee__company__display_name__exact=company)
