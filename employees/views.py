@@ -7,7 +7,6 @@ from notifications.models import Notification
 from django.urls import reverse
 
 from .forms import *
-from .helper_functions import *
 from .models import Employee, SafetyPoint, TimeOffRequest
 
 
@@ -222,39 +221,6 @@ def edit_attendance(request, employee_id, attendance_id):
 
 
 @login_required
-@permission_required('employees.can_download_attendance', raise_exception=True)
-def download_attendance(request, employee_id=None, attendance_id=None, attendance_id_list=None):
-    if employee_id:
-        employee = Employee.objects.get(employee_id=employee_id)
-        attendance = Attendance.objects.get(id=attendance_id)
-        pretty_filename = f'{employee.first_name} {employee.last_name} Attendance Point.pdf'
-
-        try:
-            with open(attendance.document.path, 'rb') as f:
-                response = HttpResponse(f, content_type='application/vnd.ms-excel')
-                response['Content-Disposition'] = f'attachment;filename="{pretty_filename}"'
-
-                attendance.downloaded = True
-                attendance.save(update_fields=['downloaded', 'document'])
-
-                return response
-        except:
-            messages.add_message(request, messages.ERROR, 'No File to Download')
-            return redirect('employee-account', employee_id)
-    else:
-        attendance_id_list = attendance_id_list.replace('[', '')
-        attendance_id_list = attendance_id_list.replace(']', '')
-        attendance_id_list = attendance_id_list.split(', ')
-
-        temporary_file = combine_attendance_documents(attendance_id_list)
-
-        response = HttpResponse(temporary_file, content_type='application/vnd.ms-excel')
-        response['Content-Disposition'] = 'attachment;filename="Attendance-Counseling Forms.pdf"'
-
-        return response
-
-
-@login_required
 @permission_required('employees.can_assign_counseling', raise_exception=True)
 def assign_counseling(request, employee_id):
     employee = Employee.objects.get(employee_id=employee_id)
@@ -344,28 +310,6 @@ def edit_counseling(request, employee_id, counseling_id):
         }
 
         return render(request, 'employees/edit_counseling.html', data)
-
-
-@login_required
-@permission_required('employees.can_download_counseling', raise_exception=True)
-def download_counseling(request, employee_id, counseling_id):
-    employee = Employee.objects.get(employee_id=employee_id)
-    counseling = Counseling.objects.get(id=counseling_id)
-    pretty_filename = f'{employee.first_name} {employee.last_name} Counseling Form.pdf'
-
-    try:
-        with open(counseling.document.path, 'rb') as f:
-            response = HttpResponse(f, content_type='application/vnd.ms-excel')
-            response['Content-Disposition'] = f'attachment;filename="{pretty_filename}"'
-
-            counseling.downloaded = True
-            counseling.save(update_fields=['downloaded', 'document'])
-
-            return response
-    except:
-        messages.add_message(request, messages.ERROR, 'No File to Download')
-
-        return redirect('employee-account', employee_id)
 
 
 @login_required
@@ -464,28 +408,6 @@ def edit_safety_point(request, employee_id, safety_point_id):
         }
 
         return render(request, 'employees/edit_safety_point.html', data)
-
-
-@login_required
-@permission_required('employees.can_download_safety_point', raise_exception=True)
-def download_safety_point(request, employee_id, safety_point_id):
-    employee = Employee.objects.get(employee_id=employee_id)
-    safety_point = SafetyPoint.objects.get(id=safety_point_id)
-    pretty_filename = f'{employee.first_name} {employee.last_name} Safety Point.pdf'
-
-    try:
-        with open(safety_point.document.path, 'rb') as f:
-            response = HttpResponse(f, content_type='application/vnd.ms-excel')
-            response['Content-Disposition'] = f'attachment;filename="{pretty_filename}"'
-
-            safety_point.downloaded = True
-            safety_point.save(update_fields=['downloaded', 'document'])
-
-            return response
-    except:
-        messages.add_message(request, messages.ERROR, 'No File to Download')
-
-        return redirect('employee-account', employee_id)
 
 
 @login_required
