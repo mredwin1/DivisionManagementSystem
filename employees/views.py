@@ -524,7 +524,7 @@ def create_settlement(request, employee_id):
 @login_required
 @permission_required('employees.can_view_settlement', raise_exception=True)
 def view_settlement(request, settlement_id):
-    settlement = Settlement.objects.get(pk=settlement_id)
+    settlement = Settlement.objects.get(id=settlement_id)
     if request.method == 'POST':
         s_form = ViewSettlement(instance=settlement, data=request.POST, files=request.FILES)
         if s_form.is_valid():
@@ -556,7 +556,7 @@ def view_settlement(request, settlement_id):
 @login_required
 @permission_required('employees.can_create_settlement', raise_exception=True)
 def delete_settlement(request, settlement_id):
-    settlement = Settlement.objects.get(pk=settlement_id)
+    settlement = Settlement.objects.get(id=settlement_id)
 
     settlement.is_active = False
     settlement.save(update_fields=['is_active', 'document'])
