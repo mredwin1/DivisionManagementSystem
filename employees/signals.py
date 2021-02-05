@@ -246,7 +246,7 @@ def check_floating_holiday(sender, instance, created, update_fields, **kwargs):
 
         group = Employee.objects.filter(groups__name=notification_type)
         notify.send(sender=instance, recipient=group,
-                    verb=verb, sender_pk=instance.pk,
+                    verb=verb, sender_id=instance.id,
                     type=notification_type, employee_id=instance.employee.employee_id)
 
     instance.employee.save()
