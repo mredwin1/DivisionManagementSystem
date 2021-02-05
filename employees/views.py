@@ -11,7 +11,7 @@ from .models import Employee, SafetyPoint, TimeOffRequest
 
 
 @login_required
-def account(request, employee_id, download=None, notification_id=None):
+def account(request, employee_id, download=None, download_id=None, notification_id=None):
     if employee_id == request.user.employee_id or request.user.has_perm('employees.can_view_all_accounts'):
         employee = Employee.objects.get(employee_id=employee_id)
         attendance = Attendance.objects.filter(employee=employee, is_active=True).order_by('-id')
@@ -20,6 +20,24 @@ def account(request, employee_id, download=None, notification_id=None):
         time_off = TimeOffRequest.objects.filter(employee=employee, is_active=True).order_by('-request_date')
         settlements = Settlement.objects.filter(employee=employee, is_active=True).order_by('-created_date')
 
+        if download == 'Attendance':
+            download_object = attendance.get(id=download_id)
+        elif download == 'Counseling':
+            download_object = counseling.get(id=download_id)
+        elif download == 'Safety Point':
+            download_object = safety_point.get(id=download_id)
+        else:
+            download_object = None
+
+        if download_object:
+            download_urls = [request.build_absolute_uri(download_object.document.url)]
+            try:
+                download_urls.append(request.build_absolute_uri(download_object.counseling.document.url))
+            except (Counseling.DoesNotExist, AttributeError):
+                pass
+        else:
+            download_urls = []
+
         data = {
             'employee': employee,
             'attendance': attendance,
@@ -27,7 +45,7 @@ def account(request, employee_id, download=None, notification_id=None):
             'safety_point': safety_point,
             'time_off': time_off,
             'settlements': settlements,
-            'download': download,
+            'download_urls': download_urls,
         }
 
         if notification_id:
@@ -321,11 +339,11 @@ def assign_safety_point(request, employee_id):
         s_form = AssignSafetyPoint(request.POST)
 
         if s_form.is_valid():
-            s_form.save(employee, request)
+            safety_point_id = s_form.save()
 
             messages.add_message(request, messages.SUCCESS, 'Safety Point Successfully Assigned')
 
-            data = {'url': reverse('employee-account', args=[employee_id, 'Safety Point'])}
+            data = {'url': reverse('employee-account', args=[employee_id, 'Safety Point', safety_point_id])}
 
             return JsonResponse(data, status=200)
         else:
@@ -385,7 +403,7 @@ def edit_safety_point(request, employee_id, safety_point_id):
 
             messages.add_message(request, messages.SUCCESS, 'Safety Point Edited Successfully')
 
-            data = {'url': reverse('employee-account', args=[employee_id])}
+            data = {'url': reverse('employee-account', args=[employee_id, 'Safety Point', safety_point_id])}
 
             return JsonResponse(data, status=200)
 
