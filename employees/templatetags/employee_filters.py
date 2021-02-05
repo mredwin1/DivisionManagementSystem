@@ -186,20 +186,6 @@ def param_replace(context, **kwargs):
 
 
 @register.filter()
-def bulk_attendance_download(value, arg):
-    """
-    Takes a list of Attendance Ids and returns a url for the download
-
-    :param value: str with ids
-    :return: URL to download the PDF
-    """
-
-    attendance_download_url = arg + reverse('employee-attendance-download', args=[value])
-
-    return attendance_download_url
-
-
-@register.filter()
 def to_list(value):
     """
     Takes a List that has been turned into a string and returns a list (', ' is the delimiter) and removes '[]'
