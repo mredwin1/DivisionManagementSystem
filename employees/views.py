@@ -152,11 +152,11 @@ def assign_attendance(request, employee_id):
         a_form = AssignAttendance(data=request.POST, employee=employee, request=request)
 
         if a_form.is_valid():
-            a_form.save()
+            attendance_id = a_form.save()
 
             messages.add_message(request, messages.SUCCESS, 'Attendance Point Successfully Assigned')
 
-            data = {'url': reverse('employee-account', args=[employee.employee_id, 'Attendance'])}
+            data = {'url': reverse('employee-account', args=[employee.employee_id, 'Attendance', attendance_id])}
 
             return JsonResponse(data, status=200)
         else:
@@ -213,7 +213,7 @@ def edit_attendance(request, employee_id, attendance_id):
         if a_form.is_valid():
             a_form.save()
 
-            data = {'url': reverse('employee-account', args=[employee_id])}
+            data = {'url': reverse('employee-account', args=[employee_id, 'Attendance', attendance_id])}
 
             return JsonResponse(data, status=200)
         else:
@@ -246,12 +246,12 @@ def assign_counseling(request, employee_id):
         c_form = AssignCounseling(data=request.POST, employee=employee, request=request)
 
         if c_form.is_valid():
-            c_form.save()
+            counseling_id = c_form.save()
 
             messages.add_message(request, messages.SUCCESS, 'Counseling Successfully Added')
 
             data = {
-                'url': reverse('employee-account', args=[employee_id, 'Counseling'])
+                'url': reverse('employee-account', args=[employee_id, 'Counseling', counseling_id])
             }
 
             return JsonResponse(data, status=200)
@@ -304,7 +304,7 @@ def edit_counseling(request, employee_id, counseling_id):
 
             messages.add_message(request, messages.SUCCESS, 'Counseling Edited Successfully')
 
-            data = {'url': reverse('employee-account', args=[employee_id])}
+            data = {'url': reverse('employee-account', args=[employee_id, 'Counseling', counseling_id])}
 
             return JsonResponse(data, status=200)
         else:
