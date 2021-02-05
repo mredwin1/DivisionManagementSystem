@@ -335,7 +335,7 @@ def assign_safety_point(request, employee_id):
     employee = Employee.objects.get(employee_id=employee_id)
 
     if request.method == 'POST':
-        s_form = AssignSafetyPoint(request.POST)
+        s_form = AssignSafetyPoint(request.POST, employee=employee, request=request)
 
         if s_form.is_valid():
             safety_point_id = s_form.save()
