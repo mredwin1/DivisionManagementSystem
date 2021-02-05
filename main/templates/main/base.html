@@ -66,9 +66,14 @@
                     top_container.classList.add("d-flex");
                     top_container.classList.add("justify-content-between");
 
-                    link.classList.add("nav-link");
-                    link.classList.add("p-0");
-                    link.href = "{% url 'employee-notification-settings' %}";
+                    mark_as_read.classList.add("m-0");
+                    mark_as_read.classList.add("p-0");
+                    mark_as_read.classList.add("border-0");
+                    mark_as_read.classList.add("bg-white");
+                    mark_as_read.classList.add("text-dark");
+                    mark_as_read.classList.add("cursor-pointer");
+                    mark_as_read.innerText = "Mark all as read";
+                    mark_as_read.setAttribute("onClick", "mark_all_as_read('{% url "notifications:mark_all_as_read" %}');");
 
                     settings_link.classList.add("nav-link");
                     settings_link.classList.add("p-0");
