@@ -50,8 +50,7 @@ def account(request, employee_id, download=None, download_id=None, notification_
 
         if notification_id:
             notification = Notification.objects.get(id=notification_id)
-            notification.unread = False
-            notification.save()
+            notification.mark_as_read()
 
         return render(request, 'employees/account.html', data)
     else:
