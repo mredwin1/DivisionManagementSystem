@@ -186,24 +186,6 @@ def param_replace(context, **kwargs):
 
 
 @register.filter()
-def document_download(value):
-    """Takes an object and checks if there is a document to download if so it returns it's url it also checks if that
-    object has a counseling object associated with it and document to download and will also return that url.
-
-    :param value: Attendance object
-    :return: A list with Url for PDF download and URL for Counseling PDF download if there is one
-    """
-    download_urls = [value.document.url]
-
-    try:
-        download_urls.append(value.counseling.document.url)
-    except (Counseling.DoesNotExist, AttributeError):
-        pass
-
-    return download_urls
-
-
-@register.filter()
 def bulk_attendance_download(value, arg):
     """
     Takes a list of Attendance Ids and returns a url for the download
@@ -215,6 +197,7 @@ def bulk_attendance_download(value, arg):
     attendance_download_url = arg + reverse('employee-attendance-download', args=[value])
 
     return attendance_download_url
+
 
 @register.filter()
 def to_list(value):
