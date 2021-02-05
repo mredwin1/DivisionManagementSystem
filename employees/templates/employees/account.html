@@ -249,25 +249,9 @@
               $("#message").fadeOut().empty();
             }
         });
-        {% if download == 'Attendance' and attendance.first.downloaded == False %}
-            {% for url in attendance.first|document_download %}
-                {% if url %}
-                    window.open('{{ url }}');
-                {% endif %}
-            {% endfor %}
-        {% endif %}
-        {% if download == 'Counseling' and counseling.first.downloaded == False %}
-            {% for url in counseling.first|document_download %}
-                {% if url %}
-                    window.open('{{ url }}');
-                {% endif %}
-            {% endfor %}
-        {% endif %}
-        {% if download == 'Safety Point' and safety_point.first.downloaded == False %}
-            {% for url in safety_point.first|document_download %}
-                {% if url %}
-                    window.open('{{ url }}');
-                {% endif %}
+        {% if download_urls %}
+            {% for url in download_urls %}
+                window.open('{{ url }}');
             {% endfor %}
         {% endif %}
         $(document).ready(function(){
