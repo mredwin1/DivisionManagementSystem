@@ -14,8 +14,8 @@ from .models import Employee, SafetyPoint, TimeOffRequest
 def account(request, employee_id, download=None, download_id=None, notification_id=None):
     if employee_id == request.user.employee_id or request.user.has_perm('employees.can_view_all_accounts'):
         employee = Employee.objects.get(employee_id=employee_id)
-        attendance = Attendance.objects.filter(employee=employee, is_active=True).order_by('-id')
-        counseling = Counseling.objects.filter(employee=employee, is_active=True).order_by('-id')
+        attendance = Attendance.objects.filter(employee=employee, is_active=True).order_by('-incident_date')
+        counseling = Counseling.objects.filter(employee=employee, is_active=True).order_by('-issued_date')
         safety_point = SafetyPoint.objects.filter(employee=employee, is_active=True).order_by('-incident_date')
         time_off = TimeOffRequest.objects.filter(employee=employee, is_active=True).order_by('-request_date')
         settlements = Settlement.objects.filter(employee=employee, is_active=True).order_by('-created_date')
