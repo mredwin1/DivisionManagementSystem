@@ -923,7 +923,6 @@ class Attendance(models.Model):
     exemption = models.CharField(max_length=30, choices=EXEMPTION_CHOICES, blank=True, null=True)
     edited_date = models.DateField(null=True, blank=True)
     edited_by = models.CharField(max_length=30, blank=True, default='')
-    downloaded = models.BooleanField(default=False)
     uploaded = models.BooleanField(default=False)
 
     def create_attendance_point_document(self):
@@ -1204,7 +1203,6 @@ class SafetyPoint(models.Model):
     unsafe_act = models.CharField(max_length=100, blank=True)
     details = models.TextField(default='')
     assigned_by = models.IntegerField()
-    downloaded = models.BooleanField(default=False)
     uploaded = models.BooleanField(default=False)
 
     def create_safety_point_document(self):
@@ -1442,6 +1440,7 @@ class SafetyPoint(models.Model):
 
         self.document.save(f'{self.employee.get_full_name()} Safety Point.pdf', ContentFile(buffer.getbuffer()),
                            save=False)
+
         self.save(update_fields=['document'])
 
     def get_assignee(self):
@@ -1479,7 +1478,6 @@ class Counseling(models.Model):
     conversation = models.TextField()
     attendance = models.OneToOneField(Attendance, on_delete=models.CASCADE, null=True, blank=True)
     safety_point = models.OneToOneField(SafetyPoint, on_delete=models.CASCADE, null=True, blank=True)
-    downloaded = models.BooleanField(default=False)
     uploaded = models.BooleanField(default=False)
     override_by = models.IntegerField(null=True)
 
