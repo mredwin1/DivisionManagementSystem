@@ -43,10 +43,11 @@
         {% if user.is_authenticated %}
             <script>
                 function mark_all_as_read(url) {
-                    var xhttp = new XMLHttpRequest();
+                    let xhttp = new XMLHttpRequest();
                     xhttp.open("GET", url, true);
                     xhttp.send(null);
-                    generate_notification_list({'unread_list': 0});
+                    let empty_list = [];
+                    generate_notification_list({'unread_list': empty_list});
                     let badge = document.getElementsByClassName('badge');
                     badge[0].innerHTML = '0';
                 }
