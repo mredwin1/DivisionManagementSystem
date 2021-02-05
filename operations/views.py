@@ -8,6 +8,7 @@ from django.db.models.functions import Concat
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from notifications.models import Notification
 
 from employees.models import Employee, Attendance, Hold, Counseling, TimeOffRequest, DayOff
 from .forms import EmployeeCreationForm, AttendanceFilterForm, CounselingFilterForm, BulkAssignAttendance, \
@@ -310,13 +311,14 @@ def make_time_off_request(request):
 
 @login_required
 @permission_required('employees.can_view_time_off_reports', raise_exception=True)
-def time_off_reports(request):
+def time_off_reports(request, notification_id=None):
     sort_by = request.GET.get('sort_by')
     status = request.GET.get('status')
     time_off_type = request.GET.get('time_off_type')
     company_name = request.GET.get('company')
     date_range = request.GET.get('date_range')
     search = request.GET.get('search')
+    pk = request.GET.get('pk')
 
     sort_choices = [
         ('', 'Sort By'),
@@ -330,33 +332,40 @@ def time_off_reports(request):
         (datetime.datetime.today() - datetime.timedelta(days=30))
     end_date = datetime.datetime.strptime(date_range[13:], '%m/%d/%Y') if date_range else \
         (datetime.datetime.today() + datetime.timedelta(days=30))
-    time_off_records = TimeOffRequest.objects.filter(is_active=True, employee__is_active=True)
 
-    if search:
-        try:
-            search = int(search)
-            time_off_records = time_off_records.filter(employee__employee_id=search)
+    if notification_id:
+        notification = Notification.objects.get(id=notification_id)
+        notification.mark_as_read()
+    if pk:
+        time_off_records = TimeOffRequest.objects.filter(pk=pk)
+    else:
+        time_off_records = TimeOffRequest.objects.filter(is_active=True, employee__is_active=True)
 
-        except ValueError:
-            time_off_records = TimeOffRequest.objects.annotate(
-                full_name=Concat('employee__first_name', V(' '), 'employee__last_name',
-                                 output_field=CharField())).filter(full_name__icontains=search, is_active=True,
-                                                                   employee__is_active=True)
+        if search:
+            try:
+                search = int(search)
+                time_off_records = time_off_records.filter(employee__employee_id=search)
 
-    if time_off_type:
-        time_off_records = time_off_records.filter(time_off_type__exact=time_off_type)
+            except ValueError:
+                time_off_records = TimeOffRequest.objects.annotate(
+                    full_name=Concat('employee__first_name', V(' '), 'employee__last_name',
+                                     output_field=CharField())).filter(full_name__icontains=search, is_active=True,
+                                                                       employee__is_active=True)
 
-    if status:
-        time_off_records = time_off_records.filter(status__exact=status)
+        if time_off_type:
+            time_off_records = time_off_records.filter(time_off_type__exact=time_off_type)
 
-    if company_name:
-        time_off_records = time_off_records.filter(employee__company__display_name=company_name)
+        if status:
+            time_off_records = time_off_records.filter(status__exact=status)
 
-    if start_date and end_date:
-        time_off_records = time_off_records.filter(request_date__gte=start_date, request_date__lte=end_date)
+        if company_name:
+            time_off_records = time_off_records.filter(employee__company__display_name=company_name)
 
-    if sort_by:
-        time_off_records = time_off_records.order_by(sort_by)
+        if start_date and end_date:
+            time_off_records = time_off_records.filter(request_date__gte=start_date, request_date__lte=end_date)
+
+        if sort_by:
+            time_off_records = time_off_records.order_by(sort_by)
 
     f_form = TimeOffFilterForm(sort_choices=sort_choices, data={
         'sort_by': sort_by,
