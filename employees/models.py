@@ -354,10 +354,10 @@ class Employee(AbstractBaseUser, PermissionsMixin):
     def get_total_attendance_points(self, exclude=None):
         """Gets all the Attendance Objects for the employee and adds all the points then returns it. Optionally pass a
         Attendance object to be excluded"""
-        attendance_records = Attendance.objects.filter(employee=self)
+        attendance_records = Attendance.objects.filter(employee=self, is_active=True)
 
         if exclude:
-            attendance_records.exclude(pk=exclude.id)
+            attendance_records.exclude(id=exclude.id)
 
         return sum([attendance_record.points for attendance_record in attendance_records])
 
