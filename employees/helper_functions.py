@@ -39,7 +39,7 @@ def combine_attendance_documents(attendance_ids):
 
     merged_object.write(buffer)
 
-    return buffer.getbuffer().tobytes()
+    return ContentFile(buffer.getbuffer())
 
 
 def create_phone_list(employees):
