@@ -27,27 +27,28 @@ def home(request, attendance_ids=None):
     download_urls = []
     attendance_ids_list = attendance_ids.split(',')
     attendance_ids_list = [int(attendance_id) for attendance_id in attendance_ids_list]
-    try:
-        if len(attendance_ids) > 1:
-            logging.info(f'{attendance_ids_list}')
-            attendance_document = combine_attendance_documents(attendance_ids_list)
-            s3 = boto3.client('s3',
-                              aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
-                              aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'])
+    if attendance_ids_list and len(attendance_ids_list) > 1:
+        attendance_document = combine_attendance_documents(attendance_ids_list)
+        s3 = boto3.client('s3',
+                          aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+                          aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'])
 
-            with open(attendance_document, 'rb') as f:
-                object_name = f'/tmp/bulk_attendance_{str(uuid.uuid4())}.pdf'
-                object_url = f'https://{settings.AWS_S3_CUSTOM_DOMAIN}/{object_name}/'
-                try:
-                    s3.upload_fileobj(f, os.environ['AWS_STORAGE_BUCKET_NAME'], object_name)
-                except ClientError as e:
-                    logging.error(e)
+        object_name = f'/tmp/bulk_attendance_{str(uuid.uuid4())}.pdf'
+        object_url = f'https://{settings.AWS_S3_CUSTOM_DOMAIN}/{object_name}'
+        try:
+            s3.upload_fileobj(attendance_document, os.environ['AWS_STORAGE_BUCKET_NAME'], object_name)
+        except ClientError as e:
+            logging.error(e)
 
-            download_urls.append(object_url)
-        else:
-            download_urls.append(Attendance.objects.get(attendance_ids[0]).document.url)
-    except TypeError:
-        pass
+        download_urls.append(object_url)
+    elif attendance_ids_list and len(attendance_ids_list) == 1:
+        attendance_object = Attendance.objects.get(id=attendance_ids_list[0])
+        download_urls.append(attendance_object.document.url)
+        try:
+            download_urls.append(attendance_object.counseling.document.url)
+        except Counseling.DoesNotExist:
+            pass
+
     data = {
         'download_urls': download_urls
     }
@@ -58,9 +59,7 @@ def home(request, attendance_ids=None):
 @login_required
 @permission_required('employees.can_assign_attendance', raise_exception=True)
 def bulk_assign_attendance(request):
-    logging.info(f'At bulk assign')
     if request.method == 'POST':
-        logging.info(f'POST')
         form = BulkAssignAttendance(request.POST)
 
         if form.is_valid():
@@ -75,7 +74,6 @@ def bulk_assign_attendance(request):
             return JsonResponse(form.errors, status=400)
 
     else:
-        logging.info(f'GET')
         form = BulkAssignAttendance()
 
         data = {
