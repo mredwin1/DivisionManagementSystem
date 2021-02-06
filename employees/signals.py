@@ -74,7 +74,7 @@ def new_notification(sender, instance, created, **kwargs):
         if field_name == 'email_new_time_off':
             instance.data['url'] = f"{reverse('operations-time-off-reports', args=[instance.id])}?id={instance.data['sender_id']}"
         else:
-            instance.data['url'] = reverse('employee-account', args=[instance.data['employee_id'], None, None, instance.id])
+            instance.data['url'] = reverse('employee-account', args=[instance.data['employee_id'], instance.id])
 
         instance.save()
 

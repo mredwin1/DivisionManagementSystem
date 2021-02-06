@@ -3,9 +3,9 @@ from . import views as employee_views
 
 urlpatterns = [
     path('account/<int:employee_id>/', employee_views.account, name='employee-account'),
-    path('account/<int:employee_id>/<str:download>/', employee_views.account, name='employee-account'),
+    path('account/<int:employee_id>/<int:notification_id>/', employee_views.account, name='employee-account'),
     path('account/<int:employee_id>/<str:download>/<int:download_id>/', employee_views.account, name='employee-account'),
-    path('account/<int:employee_id>/<str:download>/<int:download_id>/<int:notification_id>', employee_views.account, name='employee-account'),
+    path('account/<int:employee_id>/<str:download>/<int:download_id>/<int:notification_id>/', employee_views.account, name='employee-account'),
     path('edit-phonenumbers/<int:employee_id>/', employee_views.edit_phonenumbers, name='employee-edit-phonenumbers'),
     path('edit-info/<int:employee_id>/', employee_views.edit_employeeinfo, name='employee-edit-info'),
     path('assign-attendance-point/<int:employee_id>/', employee_views.assign_attendance, name='employee-assign-attendance'),
