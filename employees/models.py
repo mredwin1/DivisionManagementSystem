@@ -309,6 +309,12 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         """Returns Employees full name as 'first_name last_name'"""
         return f'{self.first_name} {self.last_name}'
 
+    def get_position(self):
+        """Returns pretty position"""
+        pretty_position = self.position.replace('_', ' ')
+
+        return pretty_position.title()
+
     def get_tenure(self):
         """Calculates the employees tenure in Years, Months, Weeks, Days and returns a string"""
         today = datetime.date.today()
