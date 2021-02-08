@@ -88,6 +88,8 @@ class EmployeeCreationForm(forms.Form):
 
         new_employee.save()
 
+        return new_employee
+
 
 class BulkAssignAttendance(forms.Form):
     employee_name1 = forms.CharField(required=True, widget=forms.TextInput(
