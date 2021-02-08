@@ -65,7 +65,7 @@
     </div>
     <hr class="my-0">
     {% for employee in page_obj %}
-        <div class="row py-2 justify-content-center employee-row" >
+        <div class="row py-2 justify-content-center attendance-row" >
             <div class="col-lg-3 col-md-3 col-sm-3">
                 <h4 class="m-0">{{ employee.get_full_name }}</h4>
             </div>
@@ -76,7 +76,7 @@
                 <h4 class="m-0 text-center">{{ employee.termination_date|pretty_date }}</h4>
             </div>
             <div class="col-lg-2 col-md-2 col-sm-2">
-                <h4 class="text-center">{{ employee.termination_type|termination_type_return }}</h4>
+                <h4 class="m-0 text-center">{{ employee.termination_type|termination_type_return }}</h4>
             </div>
             <div class="col-lg-4 col-md-4 col-sm-4">
                 <h4 class="m-0 text-center">{{ employee.termination_comments }}</h4>
