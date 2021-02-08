@@ -277,3 +277,8 @@ def termination_type_return(value):
 @register.filter
 def assignee_return(value):
     return value.get_assignee().get_full_name()
+
+
+@register.filter
+def override_by_return(value):
+    return value.get_override_by().get_full_name() if value.get_override_by() else None
