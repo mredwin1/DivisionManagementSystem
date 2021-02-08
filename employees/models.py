@@ -1498,6 +1498,9 @@ class Counseling(models.Model):
 
         return Employee.objects.get(employee_id=self.assigned_by)
 
+    def get_override_by(self):
+        return Employee.objects.get(employee_id=self.override_by) if self.override_by else None
+
     def get_conduct(self, font_name=None, font_size=None, wrapping_amount=None):
         words = self.conduct.split(' ')
         wrapped_conduct = []
