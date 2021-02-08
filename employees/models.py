@@ -51,14 +51,14 @@ class Employee(AbstractBaseUser, PermissionsMixin):
     """
     POSITION_CHOICES = [
         ('', ''),
+        ('driver', 'Driver'),
         ('mechanic', 'Mechanic'),
         ('utility', 'Utility'),
         ('dispatcher', 'Dispatcher'),
-        ('dispatch_sup', 'Dispatch Supervisor'),
+        ('dispatch_supervisor', 'Dispatch Supervisor'),
         ('driver_scheduler', 'Driver Scheduler'),
         ('hiring_supervisor', 'Hiring Supervisor'),
         ('clerk', 'Clerk'),
-        ('driver', 'Driver'),
         ('agm', 'AGM'),
         ('gm', 'GM'),
         ('it_manager', 'IT Manager')
@@ -308,6 +308,12 @@ class Employee(AbstractBaseUser, PermissionsMixin):
     def get_full_name(self):
         """Returns Employees full name as 'first_name last_name'"""
         return f'{self.first_name} {self.last_name}'
+
+    def get_position(self):
+        """Returns pretty position"""
+        pretty_position = self.position.replace('_', ' ')
+
+        return pretty_position.title()
 
     def get_tenure(self):
         """Calculates the employees tenure in Years, Months, Weeks, Days and returns a string"""

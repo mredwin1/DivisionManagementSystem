@@ -332,9 +332,9 @@ def add_employee(request):
         form = EmployeeCreationForm(request.POST)
 
         if form.is_valid():
-            form.save()
+            new_employee = form.save()
 
-            messages.add_message(request, messages.SUCCESS, 'Driver Successfully Added')
+            messages.add_message(request, messages.SUCCESS, f'{new_employee.get_position()} Successfully Added')
 
             data = {'url': reverse('main-home')}
 
