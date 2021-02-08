@@ -257,45 +257,45 @@
         $(document).ready(function(){
 
             $("#mainModal").on('show.bs.modal', function(event){
-                let button = $(event.relatedTarget) // Button that triggered the modal
-                let title = button.data('title')
+                let button = $(event.relatedTarget); // Button that triggered the modal
+                let title = button.data('title');
 
-                let row1col1 = button.data('row1col1')
-                let row1col2 = button.data('row1col2')
-                let row2col1 = button.data('row2col1')
-                let row2col2 = button.data('row2col2')
-                let row3col1 = button.data('row3col1')
-                let row3col2 = button.data('row3col2')
-                let row4col1 = button.data('row4col1')
-                let row4col2 = button.data('row4col2')
-                let row5col1 = button.data('row5col1')
-                let row5col2 = button.data('row5col2')
-                let row6col1 = button.data('row6col1')
-                let row6col2 = button.data('row6col2')
-                let row7col1 = button.data('row7col1')
-                let row7col2 = button.data('row7col2')
-                let row8col1 = button.data('row8col1')
-                let row8col2 = button.data('row8col2')
-                let row9col1 = button.data('row9col1')
-                let row9col2 = button.data('row9col2')
-                let row10col1 = button.data('row10col1')
-                let row10col2 = button.data('row10col2')
+                let row1col1 = button.data('row1col1');
+                let row1col2 = button.data('row1col2');
+                let row2col1 = button.data('row2col1');
+                let row2col2 = button.data('row2col2');
+                let row3col1 = button.data('row3col1');
+                let row3col2 = button.data('row3col2');
+                let row4col1 = button.data('row4col1');
+                let row4col2 = button.data('row4col2');
+                let row5col1 = button.data('row5col1');
+                let row5col2 = button.data('row5col2');
+                let row6col1 = button.data('row6col1');
+                let row6col2 = button.data('row6col2');
+                let row7col1 = button.data('row7col1');
+                let row7col2 = button.data('row7col2');
+                let row8col1 = button.data('row8col1');
+                let row8col2 = button.data('row8col2');
+                let row9col1 = button.data('row9col1');
+                let row9col2 = button.data('row9col2');
+                let row10col1 = button.data('row10col1');
+                let row10col2 = button.data('row10col2');
 
-                let row3col3 = button.data('row3col3')
-                let row4col3 = button.data('row4col3')
-                let row6col3 = button.data('row6col3')
-                let row8col3 = button.data('row8col3')
-                let row10col3 = button.data('row10col3')
+                let row3col3 = button.data('row3col3');
+                let row4col3 = button.data('row4col3');
+                let row6col3 = button.data('row6col3');
+                let row8col3 = button.data('row8col3');
+                let row10col3 = button.data('row10col3');
 
-                let primary_button_href = button.data('primary-href')
-                let secondary_button_href = button.data('secondary-href')
-                let document_href = button.data('document-href')
+                let primary_button_href = button.data('primary-href');
+                let secondary_button_href = button.data('secondary-href');
+                let document_href = button.data('document-href');
 
-                document.getElementById("primaryButton").innerText = "Edit"
-                document.getElementById("primaryButtonAnchor").href = primary_button_href
-                document.getElementById("secondaryButton").innerText = "Delete"
-                document.getElementById("secondaryButtonForm").action = secondary_button_href
-                document.getElementById("row4col1").href = document_href
+                document.getElementById("primaryButton").innerText = "Edit";
+                document.getElementById("primaryButtonAnchor").href = primary_button_href;
+                document.getElementById("secondaryButton").innerText = "Delete";
+                document.getElementById("secondaryButtonForm").action = secondary_button_href;
+                document.getElementById("row4col1").href = document_href;
 
                 if (primary_button_href === "") {
                     document.getElementById("primaryButtonAnchor").style.display = "none"
@@ -309,35 +309,63 @@
                     document.getElementById("secondaryButtonForm").style.display = "block"
                 }
 
-                modal = $(this)
+                modal = $(this);
 
-                modal.find('.modal-title').text(title)
-                modal.find('#row1col1').text(row1col1)
-                modal.find('#row1col2').text(row1col2)
-                modal.find('#row2col1').text(row2col1)
-                modal.find('#row2col2').text(row2col2)
-                modal.find('#row3col1').text(row3col1)
-                modal.find('#row3col2').text(row3col2)
-                modal.find('#row4col1').text(row4col1)
-                modal.find('#row4col2').text(row4col2)
-                modal.find('#row5col1').text(row5col1)
-                modal.find('#row5col2').text(row5col2)
-                modal.find('#row6col1').text(row6col1)
-                modal.find('#row6col2').text(row6col2)
-                modal.find('#row7col1').text(row7col1)
-                modal.find('#row7col2').text(row7col2)
-                modal.find('#row8col1').text(row8col1)
-                modal.find('#row8col2').text(row8col2)
-                modal.find('#row9col1').text(row9col1)
-                modal.find('#row9col2').text(row9col2)
-                modal.find('#row10col1').text(row10col1)
-                modal.find('#row10col2').text(row10col2)
+                modal.find('.modal-title').text('');
+                modal.find('#row1col1').text('');
+                modal.find('#row1col2').text('');
+                modal.find('#row2col1').text('');
+                modal.find('#row2col2').text('');
+                modal.find('#row3col1').text('');
+                modal.find('#row3col2').text('');
+                modal.find('#row4col1').text('');
+                modal.find('#row4col2').text('');
+                modal.find('#row5col1').text('');
+                modal.find('#row5col2').text('');
+                modal.find('#row6col1').text('');
+                modal.find('#row6col2').text('');
+                modal.find('#row7col1').text('');
+                modal.find('#row7col2').text('');
+                modal.find('#row8col1').text('');
+                modal.find('#row8col2').text('');
+                modal.find('#row9col1').text('');
+                modal.find('#row9col2').text('');
+                modal.find('#row10col1').text('');
+                modal.find('#row10col2').text('');
 
-                modal.find('#row3col3').text(row3col3)
-                modal.find('#row4col3').text(row4col3)
-                modal.find('#row8col3').text(row8col3)
-                modal.find('#row10col3').text(row10col3)
-                modal.find('#row6col3').text(row6col3)
+                modal.find('#row3col3').text('');
+                modal.find('#row4col3').text('');
+                modal.find('#row8col3').text('');
+                modal.find('#row10col3').text('');
+                modal.find('#row6col3').text('');
+
+                modal.find('.modal-title').text(title);
+                modal.find('#row1col1').text(row1col1);
+                modal.find('#row1col2').text(row1col2);
+                modal.find('#row2col1').text(row2col1);
+                modal.find('#row2col2').text(row2col2);
+                modal.find('#row3col1').text(row3col1);
+                modal.find('#row3col2').text(row3col2);
+                modal.find('#row4col1').text(row4col1);
+                modal.find('#row4col2').text(row4col2);
+                modal.find('#row5col1').text(row5col1);
+                modal.find('#row5col2').text(row5col2);
+                modal.find('#row6col1').text(row6col1);
+                modal.find('#row6col2').text(row6col2);
+                modal.find('#row7col1').text(row7col1);
+                modal.find('#row7col2').text(row7col2);
+                modal.find('#row8col1').text(row8col1);
+                modal.find('#row8col2').text(row8col2);
+                modal.find('#row9col1').text(row9col1);
+                modal.find('#row9col2').text(row9col2);
+                modal.find('#row10col1').text(row10col1);
+                modal.find('#row10col2').text(row10col2);
+
+                modal.find('#row3col3').text(row3col3);
+                modal.find('#row4col3').text(row4col3);
+                modal.find('#row8col3').text(row8col3);
+                modal.find('#row10col3').text(row10col3);
+                modal.find('#row6col3').text(row6col3);
 
             });
         });
