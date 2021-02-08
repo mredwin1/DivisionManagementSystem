@@ -115,6 +115,8 @@ class AssignAttendance(forms.Form):
 
         self.employee.save()
 
+        return attendance.id
+
 
 class EditAttendance(AssignAttendance):
     issued_date = forms.DateField(label='Issued Date', widget=forms.TextInput(attrs={'type': 'date'}),
@@ -165,6 +167,8 @@ class EditAttendance(AssignAttendance):
 
         self.employee.save()
         self.attendance.save(update_fields=update_fields)
+
+        return self.attendance.id
 
 
 class AssignCounseling(forms.Form):
@@ -262,6 +266,8 @@ class AssignCounseling(forms.Form):
 
         counseling.save()
 
+        return counseling.id
+
 
 class EditCounseling(AssignCounseling):
     document = forms.FileField(label='Document', required=False)
@@ -320,19 +326,20 @@ class AssignSafetyPoint(forms.Form):
         self.counseling = kwargs.pop('counseling', None)
         super(AssignSafetyPoint, self).__init__(*args, **kwargs)
 
-    def save(self, employee, request):
+    def save(self):
         safety_point = SafetyPoint(
-            employee=employee,
+            employee=self.employee,
             incident_date=self.cleaned_data['incident_date'],
             issued_date=self.cleaned_data['issued_date'],
             points=self.POINTS[self.cleaned_data['reason']],
             reason=self.cleaned_data['reason'],
             unsafe_act=self.cleaned_data['unsafe_act'],
             details=self.cleaned_data['details'],
-            assigned_by=request.user.employee_id,
+            assigned_by=self.request.user.employee_id,
         )
 
         safety_point.save()
+        return safety_point.id
 
 
 class EditSafetyPoint(AssignSafetyPoint):

@@ -227,9 +227,9 @@ class BulkAssignAttendance(forms.Form):
 
             attendance.save()
 
-            attendance_ids.append(attendance.id)
+            attendance_ids.append(str(attendance.id))
 
-        return attendance_ids
+        return ','.join(attendance_ids)
 
 
 class MakeTimeOffRequest(forms.Form):

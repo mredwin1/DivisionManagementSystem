@@ -1,24 +1,56 @@
+import boto3
 import datetime
+import logging
+import os
+import uuid
 
+from botocore.exceptions import ClientError
 from django.contrib import messages
+from django.contrib.auth import settings
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.paginator import Paginator
 from django.db.models import CharField, Value as V
 from django.db.models.functions import Concat
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from notifications.models import Notification
 
+from employees.helper_functions import combine_attendance_documents
 from employees.models import Employee, Attendance, Hold, Counseling, TimeOffRequest, DayOff
 from .forms import EmployeeCreationForm, AttendanceFilterForm, CounselingFilterForm, BulkAssignAttendance, \
     MakeTimeOffRequest, TimeOffFilterForm, FilterForm
 
 
 @login_required
-def home(request, download=None):
+def home(request, attendance_ids=None):
+    download_urls = []
+    attendance_ids_list = attendance_ids.split(',')
+    attendance_ids_list = [int(attendance_id) for attendance_id in attendance_ids_list]
+    if attendance_ids_list and len(attendance_ids_list) > 1:
+        attendance_document = combine_attendance_documents(attendance_ids_list)
+        s3 = boto3.client('s3',
+                          aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+                          aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'])
+
+        object_name = f'/tmp/bulk_attendance_{str(uuid.uuid4())}.pdf'
+        object_url = f'https://{settings.AWS_S3_CUSTOM_DOMAIN}/{object_name}'
+        try:
+            s3.upload_fileobj(attendance_document, os.environ['AWS_STORAGE_BUCKET_NAME'], object_name)
+        except ClientError as e:
+            logging.error(e)
+
+        download_urls.append(object_url)
+    elif attendance_ids_list and len(attendance_ids_list) == 1:
+        attendance_object = Attendance.objects.get(id=attendance_ids_list[0])
+        download_urls.append(attendance_object.document.url)
+        try:
+            download_urls.append(attendance_object.counseling.document.url)
+        except Counseling.DoesNotExist:
+            pass
+
     data = {
-        'download': download
+        'download_urls': download_urls
     }
 
     return render(request, 'operations/home.html', data)
@@ -49,6 +81,39 @@ def bulk_assign_attendance(request):
         }
 
         return render(request, 'operations/bulk_assign_attendance.html', data)
+
+
+@login_required
+@permission_required('employees.can_download_attendance', raise_exception=True)
+def download_attendance(request, employee_id=None, attendance_id=None, attendance_id_list=None):
+    if employee_id:
+        employee = Employee.objects.get(employee_id=employee_id)
+        attendance = Attendance.objects.get(id=attendance_id)
+        pretty_filename = f'{employee.first_name} {employee.last_name} Attendance Point.pdf'
+
+        try:
+            with open(attendance.document.path, 'rb') as f:
+                response = HttpResponse(f, content_type='application/vnd.ms-excel')
+                response['Content-Disposition'] = f'attachment;filename="{pretty_filename}"'
+
+                attendance.downloaded = True
+                attendance.save(update_fields=['downloaded', 'document'])
+
+                return response
+        except:
+            messages.add_message(request, messages.ERROR, 'No File to Download')
+            return redirect('employee-account', employee_id)
+    else:
+        attendance_id_list = attendance_id_list.replace('[', '')
+        attendance_id_list = attendance_id_list.replace(']', '')
+        attendance_id_list = attendance_id_list.split(', ')
+
+        temporary_file = combine_attendance_documents(attendance_id_list)
+
+        response = HttpResponse(temporary_file, content_type='application/vnd.ms-excel')
+        response['Content-Disposition'] = 'attachment;filename="Attendance-Counseling Forms.pdf"'
+
+        return response
 
 
 @login_required
