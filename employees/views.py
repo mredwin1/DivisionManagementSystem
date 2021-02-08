@@ -394,7 +394,6 @@ def edit_safety_point(request, employee_id, safety_point_id):
     employee = Employee.objects.get(employee_id=employee_id)
 
     if request.method == 'POST':
-        print(request.POST, request.FILES['document'])
         s_form = EditSafetyPoint(data=request.POST, files=request.FILES)
 
         if s_form.is_valid():

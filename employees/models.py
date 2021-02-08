@@ -322,7 +322,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         years_str = f'{years} Year' if years == 1 else f'{years} Years'
         months_str = f'{months} Month' if months == 1 else f'{months} Months'
         weeks_str = f'{weeks} Week' if weeks == 1 else f'{weeks} Weeks'
-        days_str = f'{days} Day' if days == 1 else f'{weeks} Days'
+        days_str = f'{days} Day' if days == 1 else f'{days} Days'
 
         if years and months:
             tenure_str = f'{years_str} {months_str}'
