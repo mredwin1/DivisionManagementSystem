@@ -51,14 +51,14 @@ class Employee(AbstractBaseUser, PermissionsMixin):
     """
     POSITION_CHOICES = [
         ('', ''),
+        ('driver', 'Driver'),
         ('mechanic', 'Mechanic'),
         ('utility', 'Utility'),
         ('dispatcher', 'Dispatcher'),
-        ('dispatch_sup', 'Dispatch Supervisor'),
+        ('dispatch_supervisor', 'Dispatch Supervisor'),
         ('driver_scheduler', 'Driver Scheduler'),
         ('hiring_supervisor', 'Hiring Supervisor'),
         ('clerk', 'Clerk'),
-        ('driver', 'Driver'),
         ('agm', 'AGM'),
         ('gm', 'GM'),
         ('it_manager', 'IT Manager')
