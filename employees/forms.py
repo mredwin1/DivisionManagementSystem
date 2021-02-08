@@ -437,8 +437,8 @@ class TimeOffRequestForm(forms.Form):
         duplicate_dates = []
 
         for date in requested_dates:
-            if date < today:
-                self.add_error(date_field, f'The dates selected must be in the future')
+            if date < (today + datetime.timedelta(days=7)):
+                self.add_error(date_field, f'The dates selected must be 7 days in the future')
                 break
             if date.strftime('%m-%d-%Y') in employee_days_off and date not in duplicate_dates:
                 duplicate_dates.append(date.strftime('%m-%d-%Y'))
