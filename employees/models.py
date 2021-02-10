@@ -387,6 +387,11 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         creates the Counseling it will return True else return False
         """
 
+        try:
+            instance.counseling.delete()
+        except Counseling.DoesNotExist:
+            pass
+
         total_points = self.get_total_safety_points()
         introductory_status = self.get_introductory_status()
         if introductory_status:
