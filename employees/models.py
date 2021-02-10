@@ -894,6 +894,29 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         return f'{self.last_name}, {self.first_name}'
 
 
+def wrap_text(string, font_name, font_size, wrapping_amount):
+    words = string.split(' ')
+    str_list = []
+    current_words = []
+    index = 0
+
+    while index < len(words):
+        current_words.append(words[index])
+        wrapped_str = ' '.join(current_words)
+
+        if stringWidth(wrapped_str, font_name, font_size) >= wrapping_amount and index != len(words):
+            wrapped_str = ' '.join(current_words[:-1])
+            current_words = []
+            str_list.append(wrapped_str)
+        elif stringWidth(wrapped_str, font_name, font_size) <= wrapping_amount and index == (len(words) - 1):
+            str_list.append(wrapped_str)
+            index += 1
+        else:
+            index += 1
+
+    return str_list
+
+
 class Attendance(models.Model):
     REASON_CHOICES = [
         ('', ''),
