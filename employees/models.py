@@ -1,7 +1,6 @@
 import datetime
 import io
 import requests
-import textwrap
 
 from PyPDF2 import PdfFileMerger, PdfFileReader
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
@@ -1328,8 +1327,8 @@ class SafetyPoint(models.Model):
         subject_str = subject[self.reason] if self.reason != '0' else f'{subject[self.reason]}/{self.get_pretty_unsafe_act()}'
 
         y = 8.00
-        if p.stringWidth(subject_str, 'Helvetica', 13) > 175.0:
-            wrapped_text = textwrap.wrap(subject_str, width=70)
+        if p.stringWidth(subject_str, 'Helvetica', 13) > 400:
+            wrapped_text = wrap_text(subject_str, 'Helvetica', 13, 400)
             for line in wrapped_text:
                 p.drawString(1.75 * inch, y * inch, line)
                 y -= .20
@@ -1347,8 +1346,8 @@ class SafetyPoint(models.Model):
 
         p.setFont('Times-Roman', 12)
         y -= .05
-        if p.stringWidth(paragraph1, 'Times-Roman', 12) > 175.0:
-            wrapped_text = textwrap.wrap(paragraph1, width=100)
+        if p.stringWidth(paragraph1, 'Times-Roman', 12) > 475:
+            wrapped_text = wrap_text(paragraph1,'Times-Roman', 12, 475)
             for line in wrapped_text:
                 p.drawString(1 * inch, (y + .02) * inch, line)
                 y -= .20
@@ -1360,8 +1359,8 @@ class SafetyPoint(models.Model):
         points = f'{points_str_return[self.points]} safety point ({self.points}).' if self.points == 1 else f'{points_str_return[self.points]} safety points ({self.points}).'
 
         points_line = f'According to company policy {reason} results in {points}'
-        if p.stringWidth(points_line, 'Times-Roman', 12) > 175.0:
-            wrapped_text = textwrap.wrap(points_line, width=100)
+        if p.stringWidth(points_line, 'Times-Roman', 12) > 475:
+            wrapped_text = wrap_text(points_line, 'Times-Roman', 12, 475)
             for line in wrapped_text:
                 p.drawString(1 * inch, y * inch, line)
                 y -= .20
@@ -1395,10 +1394,14 @@ class SafetyPoint(models.Model):
         y -= .4
 
         # HR Paragraph
-        paragraph2 = 'As an employee of MV Transportation you have the right to appeal the decision regarding this accident. If you feel the preventable decision is inaccurate, then you must contact the HR Director within 5 days of this notice. Once an appeal is received, we will have a panel review your accident. For safety reasons this will not delay the retraining that must occur before you can return to revenue service.'
+        paragraph2 = 'As an employee of MV Transportation you have the right to appeal the decision regarding this ' \
+                     'accident. If you feel the preventable decision is inaccurate, then you must contact the HR ' \
+                     'Director within 5 days of this notice. Once an appeal is received, we will have a panel review ' \
+                     'your accident. For safety reasons this will not delay the retraining that must occur before ' \
+                     'you can return to revenue service. '
 
         p.setFont('Helvetica', 10)
-        wrapped_text = textwrap.wrap(paragraph2, width=110)
+        wrapped_text = wrap_text(paragraph2, 'Helvetica', 10, 475)
         for line in wrapped_text:
             p.drawString(1 * inch, (y + .02) * inch, line)
             y -= .20
@@ -1439,10 +1442,13 @@ class SafetyPoint(models.Model):
 
         y -= .4
 
-        paragraph3 = 'By checking this box, you acknowledge that you are requesting Union representation, and that you have 5 business days to have the Union contact the Safety Manager about this point notice. Failure to do so will result in the point(s) and related discipline being issued without representation from the Union.'
+        paragraph3 = 'By checking this box, you acknowledge that you are requesting Union representation, and that ' \
+                     'you have 5 business days to have the Union contact the Safety Manager about this point notice. ' \
+                     'Failure to do so will result in the point(s) and related discipline being issued without ' \
+                     'representation from the Union. '
 
         p.rect(1.625 * inch, y * inch, .1875 * inch, .1875 * inch)
-        wrapped_text = textwrap.wrap(paragraph3, width=90)
+        wrapped_text = wrap_text(paragraph3, 'Helvetica', 10, 475)
         line_num = 1
         x = 1.875
         for line in wrapped_text:
@@ -1523,49 +1529,6 @@ class Counseling(models.Model):
 
     def get_override_by(self):
         return Employee.objects.get(employee_id=self.override_by) if self.override_by else None
-
-    def get_conduct(self, font_name=None, font_size=None, wrapping_amount=None):
-        words = self.conduct.split(' ')
-        wrapped_conduct = []
-        current_words = []
-        index = 0
-
-        while index < len(words):
-            current_words.append(words[index])
-            wrapped_str = ' '.join(current_words)
-
-            if stringWidth(wrapped_str, font_name, font_size) >= wrapping_amount and index != len(words):
-                wrapped_str = ' '.join(current_words[:-1])
-                current_words = []
-                wrapped_conduct.append(wrapped_str)
-            elif stringWidth(wrapped_str, font_name, font_size) <= wrapping_amount and index == (len(words) - 1):
-                wrapped_conduct.append(wrapped_str)
-                index += 1
-            else:
-                index += 1
-
-        return wrapped_conduct
-    
-    def get_conversation(self, font_name=None, font_size=None, wrapping_amount=None):
-        words = self.conversation.split(' ')
-        wrapped_conversation = []
-        current_words = []
-        index = 0
-
-
-        while index < len(words):
-            current_words.append(words[index])
-            wrapped_str = ' '.join(current_words)
-            if stringWidth(wrapped_str, font_name, font_size) >= wrapping_amount and index != len(words):
-                wrapped_str = ' '.join(current_words[:-1])
-                current_words = []
-                wrapped_conversation.append(wrapped_str)
-            elif stringWidth(wrapped_str, font_name, font_size) <= wrapping_amount and index == (len(words) - 1):
-                wrapped_conversation.append(wrapped_str)
-                index += 1
-            else:
-                index += 1
-        return wrapped_conversation
 
     def create_counseling_document(self):
         """Will create a PDF for the Counseling and assign it to the Counseling Object"""
@@ -1650,7 +1613,7 @@ class Counseling(models.Model):
 
         y = 5.50
         if p.stringWidth(self.conduct, 'Helvetica', 10) > 595:
-            wrapped_text = self.get_conduct(font_name='Helvetica', font_size=10, wrapping_amount=595)
+            wrapped_text = wrap_text(self.conduct, 'Helvetica', 10, 595)
             for line in wrapped_text:
                 p.drawString(.5625 * inch, (y + .02) * inch, line)
                 y -= .25
@@ -1670,7 +1633,7 @@ class Counseling(models.Model):
 
         y = 4.25
         if p.stringWidth(self.conversation, 'Helvetica', 10) > 595:
-            wrapped_text = self.get_conversation(font_name='Helvetica', font_size=10, wrapping_amount=595)
+            wrapped_text = wrap_text(self.conversation, 'Helvetica', 10, 595)
             for line in wrapped_text:
                 p.drawString(.5625 * inch, (y + .02) * inch, line)
                 y -= .25
@@ -1824,7 +1787,7 @@ class Settlement(models.Model):
         y = 8.5
 
         if p.stringWidth(intro, 'Times-Roman', 12) > 175.0:
-            wrapped_text = textwrap.wrap(intro, width=93)
+            wrapped_text = wrap_text(intro, 'Times-Roman', 12, 175)
             for line in wrapped_text:
                 p.drawString(1.125 * inch, y * inch, line)
                 y -= .20
@@ -1836,7 +1799,7 @@ class Settlement(models.Model):
         # Details
         for paragraph in self.details.replace('\r', '').split('\n'):
             if p.stringWidth(paragraph, 'Times-Roman', 12) > 175.0:
-                wrapped_text = textwrap.wrap(paragraph, width=93)
+                wrapped_text = wrap_text(paragraph, 'Times-Roman', 12, 175)
                 for line in wrapped_text:
                     p.drawString(1.125 * inch, y * inch, line)
                     y -= .20
@@ -1856,7 +1819,7 @@ class Settlement(models.Model):
                 ' establishment of any past practice or precedent with regard to the interpretation of the' \
                 ' company\'s work rules, polices, and/or the applicable collective bargaining agreement.'
 
-        wrapped_text = textwrap.wrap(outro, width=93)
+        wrapped_text = wrap_text(outro, 'Times-Roman', 12, 93)
         for line in wrapped_text:
             p.drawString(1.125 * inch, y * inch, line)
             y -= .20
