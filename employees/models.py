@@ -1453,7 +1453,7 @@ class SafetyPoint(models.Model):
                      'representation from the Union. '
 
         p.rect(1.625 * inch, y * inch, .1875 * inch, .1875 * inch)
-        wrapped_text = wrap_text(paragraph3, 'Helvetica', 10, 475)
+        wrapped_text = wrap_text(paragraph3, 'Helvetica', 10, 450)
         line_num = 1
         x = 1.875
         for line in wrapped_text:
