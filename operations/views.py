@@ -1,10 +1,8 @@
 import boto3
 import datetime
-import logging
 import os
 import uuid
 
-from botocore.exceptions import ClientError
 from django.contrib import messages
 from django.contrib.auth import settings
 from django.contrib.auth.decorators import login_required, permission_required
@@ -33,19 +31,19 @@ def home(request, attendance_ids=None):
                           aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
                           aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'])
 
-        object_name = f'/tmp/bulk_attendance_{str(uuid.uuid4())}.pdf'
+        object_name = f'tmp/bulk_attendance_{str(uuid.uuid4())}.pdf'
         object_url = f'https://{settings.AWS_S3_CUSTOM_DOMAIN}/{object_name}'
-        try:
-            s3.upload_fileobj(attendance_document, os.environ['AWS_STORAGE_BUCKET_NAME'], object_name)
-        except ClientError as e:
-            logging.error(e)
+        attendance_document.seek(0)
+
+        s3.put_object(Body=attendance_document.read(), Bucket=os.environ['AWS_STORAGE_BUCKET_NAME'], Key=object_name,
+                      ContentType='application/pdf')
 
         download_urls.append(object_url)
     elif attendance_ids_list and len(attendance_ids_list) == 1:
         attendance_object = Attendance.objects.get(id=attendance_ids_list[0])
-        download_urls.append(attendance_object.document.url)
+        download_urls.append(request.build_absolute_uri(attendance_object.document.url))
         try:
-            download_urls.append(attendance_object.counseling.document.url)
+            download_urls.append(request.build_absolute_uri(attendance_object.counseling.document.url))
         except Counseling.DoesNotExist:
             pass
 
