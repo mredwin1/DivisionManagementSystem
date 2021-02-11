@@ -664,6 +664,23 @@ def export_safety_point_history(request, employee_id):
 
 
 @login_required
+@permission_required('employees.can_export_profile', raise_exception=True)
+def export_profile(request, employee_id):
+    employee = Employee.objects.get(employee_id=employee_id)
+
+    filename = f'{employee.first_name} {employee.last_name} Profile History.pdf'
+
+    response = HttpResponse(employee.create_profile_history_document(), content_type='application/force-download')
+    response['Content-Disposition'] = f'attachment;filename="{filename}"'
+
+    return response
+    # except:
+    #     messages.add_message(request, messages.ERROR, 'No File to Download')
+    #
+    #     return redirect('employee-account', employee_id)
+
+
+@login_required
 @permission_required('employees.can_upload_profile_picture', raise_exception=True)
 def upload_profile_picture(request, employee_id):
     employee = Employee.objects.get(employee_id=employee_id)
