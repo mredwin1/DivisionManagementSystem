@@ -82,39 +82,6 @@ def bulk_assign_attendance(request):
 
 
 @login_required
-@permission_required('employees.can_download_attendance', raise_exception=True)
-def download_attendance(request, employee_id=None, attendance_id=None, attendance_id_list=None):
-    if employee_id:
-        employee = Employee.objects.get(employee_id=employee_id)
-        attendance = Attendance.objects.get(id=attendance_id)
-        pretty_filename = f'{employee.first_name} {employee.last_name} Attendance Point.pdf'
-
-        try:
-            with open(attendance.document.path, 'rb') as f:
-                response = HttpResponse(f, content_type='application/vnd.ms-excel')
-                response['Content-Disposition'] = f'attachment;filename="{pretty_filename}"'
-
-                attendance.downloaded = True
-                attendance.save(update_fields=['downloaded', 'document'])
-
-                return response
-        except:
-            messages.add_message(request, messages.ERROR, 'No File to Download')
-            return redirect('employee-account', employee_id)
-    else:
-        attendance_id_list = attendance_id_list.replace('[', '')
-        attendance_id_list = attendance_id_list.replace(']', '')
-        attendance_id_list = attendance_id_list.split(', ')
-
-        temporary_file = combine_attendance_documents(attendance_id_list)
-
-        response = HttpResponse(temporary_file, content_type='application/vnd.ms-excel')
-        response['Content-Disposition'] = 'attachment;filename="Attendance-Counseling Forms.pdf"'
-
-        return response
-
-
-@login_required
 def search_employees(request):
     search = request.GET.get('q')
 
