@@ -185,7 +185,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
 
     profile_picture = ProcessedImageField(upload_to='profile_pictures',
                                           processors=[ResizeToFill(320, 320)],
-                                          format='JPEG',
+                                          format='PNG',
                                           options={'quality': 60})
 
     objects = EmployeeManager()
@@ -596,302 +596,377 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         page for the beginning
         """
         attendance_history = Attendance.objects.filter(employee=self, is_active=True).order_by('-id')
-        buffer = io.BytesIO()
+        if attendance_history:
+            buffer = io.BytesIO()
 
-        merged_object = PdfFileMerger()
-        cover_buffer = io.BytesIO()
+            merged_object = PdfFileMerger()
+            cover_buffer = io.BytesIO()
 
-        reasons = {
-            '0': 'Unexcused',
-            '1': 'Consecutive',
-            '2': '< 1 HR',
-            '3': 'NCNS',
-            '4': 'FTC',
-            '5': 'Missing Safety Meeting',
-            '6': '< 15 MIN',
-            '7': '> 15 MIN',
-            '8': 'Late Lunch',
-        }
+            reasons = {
+                '0': 'Unexcused',
+                '1': 'Consecutive',
+                '2': '< 1 HR',
+                '3': 'NCNS',
+                '4': 'FTC',
+                '5': 'Missing Safety Meeting',
+                '6': '< 15 MIN',
+                '7': '> 15 MIN',
+                '8': 'Late Lunch',
+            }
 
-        exemptions = {
-            '0': 'FMLA',
-            '1': 'Paid Sick',
-            '2': 'Unpaid Sick',
-            '3': 'Union Agreement',
-            '4': 'Excused Absence',
-        }
+            exemptions = {
+                '0': 'FMLA',
+                '1': 'Paid Sick',
+                '2': 'Unpaid Sick',
+                '3': 'Union Agreement',
+                '4': 'Excused Absence',
+            }
 
-        p = canvas.Canvas(cover_buffer, pagesize=letter)
+            p = canvas.Canvas(cover_buffer, pagesize=letter)
 
-        p.setLineWidth(.75)
+            p.setLineWidth(.75)
 
-        # Title
-        title = f"{self.get_full_name()}'s Attendance History"
-        p.setFontSize(18)
-        p.drawCentredString(4.25 * inch, 10 * inch, title)
+            # Title
+            title = f"{self.get_full_name()}'s Attendance History"
+            p.setFontSize(18)
+            p.drawCentredString(4.25 * inch, 10 * inch, title)
 
-        # Written Warning and Removal
-        p.setFontSize(12)
-        p.drawString(.5 * inch, 9.5 * inch, 'Written Warning Issued:')
-        p.drawString(.5 * inch, 9.0 * inch, 'Removal From Service Issued:')
+            # Written Warning and Removal
+            p.setFontSize(12)
+            p.drawString(.5 * inch, 9.5 * inch, 'Written Warning Issued:')
+            p.drawString(.5 * inch, 9.0 * inch, 'Removal From Service Issued:')
 
-        p.line(2.4 * inch, 9.5 * inch, 3.95 * inch, 9.5 * inch)
-        p.line(2.9 * inch, 9.0 * inch, 4.05 * inch, 9.0 * inch)
+            p.line(2.4 * inch, 9.5 * inch, 3.95 * inch, 9.5 * inch)
+            p.line(2.9 * inch, 9.0 * inch, 4.05 * inch, 9.0 * inch)
 
-        written, removal = self.get_last_warnings()
+            written, removal = self.get_last_warnings()
 
-        if written:
-            p.drawString(2.42 * inch, 9.53 * inch, written.strftime('%m-%d-%Y'))
-        if removal:
-            p.drawString(2.92 * inch, 9.03 * inch, removal.strftime('%m-%d-%Y'))
+            if written:
+                p.drawString(2.42 * inch, 9.53 * inch, written.strftime('%m-%d-%Y'))
+            if removal:
+                p.drawString(2.92 * inch, 9.03 * inch, removal.strftime('%m-%d-%Y'))
 
-        total_pages = int(len(attendance_history) / 30) + 1
-        page_num = 1
-        y = 8.25
+            total_pages = int(len(attendance_history) / 30) + 1
+            page_num = 1
+            y = 8.25
 
-        counter = 1
+            counter = 1
 
-        # Adding attendance history to the cover page and setting the written warning removal dates
-        for attendance in attendance_history:
-            y = 9.75 if page_num > 1 else y
-            p.setFont('Helvetica', 10)
+            # Adding attendance history to the cover page and setting the written warning removal dates
+            for attendance in attendance_history:
+                y = 9.75 if page_num > 1 else y
+                p.setFont('Helvetica', 10)
 
-            incident_date = attendance.incident_date.strftime('%m-%d-%Y') if attendance.incident_date else ''
-            issued_date = attendance.issued_date.strftime('%m-%d-%Y') if attendance.issued_date else 'Not Issued'
-            exemption = exemptions[attendance.exemption] if attendance.exemption else 'None'
-            point = str(int(attendance.points)) if float(attendance.points).is_integer() else str(attendance.points)
+                incident_date = attendance.incident_date.strftime('%m-%d-%Y') if attendance.incident_date else ''
+                issued_date = attendance.issued_date.strftime('%m-%d-%Y') if attendance.issued_date else 'Not Issued'
+                exemption = exemptions[attendance.exemption] if attendance.exemption else 'None'
+                point = str(int(attendance.points)) if float(attendance.points).is_integer() else str(attendance.points)
 
-            p.drawString(0.75 * inch, y * inch, incident_date)
-            p.drawString(1.75 * inch, y * inch, issued_date)
-            p.drawString(2.75 * inch, y * inch, reasons[attendance.reason])
-            p.drawString(4.45 * inch, y * inch, point)
-            p.drawString(5.15 * inch, y * inch, attendance.get_assignee().get_full_name())
-            p.drawString(6.75 * inch, y * inch, exemption)
-            p.line(0.65 * inch, (y - .1) * inch, 7.85 * inch, (y - .1) * inch)  # Bottom
+                p.drawString(0.75 * inch, y * inch, incident_date)
+                p.drawString(1.75 * inch, y * inch, issued_date)
+                p.drawString(2.75 * inch, y * inch, reasons[attendance.reason])
+                p.drawString(4.45 * inch, y * inch, point)
+                p.drawString(5.15 * inch, y * inch, attendance.get_assignee().get_full_name())
+                p.drawString(6.75 * inch, y * inch, exemption)
+                p.line(0.65 * inch, (y - .1) * inch, 7.85 * inch, (y - .1) * inch)  # Bottom
 
-            if y == 1 or len(attendance_history) == counter:
-                p.setFont('Helvetica-Bold', 10)
+                if y == 1 or len(attendance_history) == counter:
+                    p.setFont('Helvetica-Bold', 10)
 
-                grid_bottom = y - .1
-                y = 10.00 if page_num > 1 else 8.5
+                    grid_bottom = y - .1
+                    y = 10.00 if page_num > 1 else 8.5
 
-                # Heading
-                p.drawString(0.75 * inch, y * inch, 'Incident Date')
-                p.drawString(1.75 * inch, y * inch, 'Issued Date')
-                p.drawString(2.75 * inch, y * inch, 'Reason')
-                p.drawString(4.45 * inch, y * inch, 'Points')
-                p.drawString(5.15 * inch, y * inch, 'Assigned By')
-                p.drawString(6.75 * inch, y * inch, 'Exemption')
+                    # Heading
+                    p.drawString(0.75 * inch, y * inch, 'Incident Date')
+                    p.drawString(1.75 * inch, y * inch, 'Issued Date')
+                    p.drawString(2.75 * inch, y * inch, 'Reason')
+                    p.drawString(4.45 * inch, y * inch, 'Points')
+                    p.drawString(5.15 * inch, y * inch, 'Assigned By')
+                    p.drawString(6.75 * inch, y * inch, 'Exemption')
 
-                # Footer
-                p.drawString(1 * inch, .5 * inch, datetime.datetime.today().strftime('%A, %B %d, %Y'))
-                p.drawRightString(7.5 * inch, .5 * inch, f'Page {page_num} of {total_pages}')
+                    # Footer
+                    p.drawString(1 * inch, .5 * inch, datetime.datetime.today().strftime('%A, %B %d, %Y'))
+                    p.drawRightString(7.5 * inch, .5 * inch, f'Page {page_num} of {total_pages}')
 
-                # Grid
-                p.line(0.65 * inch, (y - .07) * inch, 7.85 * inch, (y - .07) * inch)  # Top
-                p.line(0.65 * inch, (y - .07) * inch, 0.65 * inch, grid_bottom * inch)  # Left
-                p.line(7.85 * inch, (y - .07) * inch, 7.85 * inch, grid_bottom * inch)  # Right
-                p.line(1.65 * inch, (y - .07) * inch, 1.65 * inch, grid_bottom * inch)  # Vertical 1
-                p.line(2.65 * inch, (y - .07) * inch, 2.65 * inch, grid_bottom * inch)  # Vertical 2
-                p.line(4.35 * inch, (y - .07) * inch, 4.35 * inch, grid_bottom * inch)  # Vertical 3
-                p.line(5.05 * inch, (y - .07) * inch, 5.05 * inch, grid_bottom * inch)  # Vertical 4
-                p.line(6.65 * inch, (y - .07) * inch, 6.65 * inch, grid_bottom * inch)  # Vertical 5
+                    # Grid
+                    p.line(0.65 * inch, (y - .07) * inch, 7.85 * inch, (y - .07) * inch)  # Top
+                    p.line(0.65 * inch, (y - .07) * inch, 0.65 * inch, grid_bottom * inch)  # Left
+                    p.line(7.85 * inch, (y - .07) * inch, 7.85 * inch, grid_bottom * inch)  # Right
+                    p.line(1.65 * inch, (y - .07) * inch, 1.65 * inch, grid_bottom * inch)  # Vertical 1
+                    p.line(2.65 * inch, (y - .07) * inch, 2.65 * inch, grid_bottom * inch)  # Vertical 2
+                    p.line(4.35 * inch, (y - .07) * inch, 4.35 * inch, grid_bottom * inch)  # Vertical 3
+                    p.line(5.05 * inch, (y - .07) * inch, 5.05 * inch, grid_bottom * inch)  # Vertical 4
+                    p.line(6.65 * inch, (y - .07) * inch, 6.65 * inch, grid_bottom * inch)  # Vertical 5
 
-                p.showPage()
+                    p.showPage()
 
-                page_num += 1
+                    page_num += 1
 
-            counter += 1
-            y -= .25
+                counter += 1
+                y -= .25
 
-        p.save()
+            p.save()
 
-        merged_object.append(PdfFileReader(ContentFile(cover_buffer.getbuffer())))
+            merged_object.append(PdfFileReader(ContentFile(cover_buffer.getbuffer())))
 
-        for attendance in attendance_history:
-            remote_file = requests.get(attendance.document.url).content
-            memory_file = io.BytesIO(remote_file)
-            merged_object.append(PdfFileReader(memory_file))
+            for attendance in attendance_history:
+                remote_file = requests.get(attendance.document.url).content
+                memory_file = io.BytesIO(remote_file)
+                merged_object.append(PdfFileReader(memory_file))
 
-        merged_object.write(buffer)
+            merged_object.write(buffer)
 
-        return ContentFile(buffer.getbuffer())
+            return ContentFile(buffer.getbuffer())
+        else:
+            return None
 
     def create_counseling_history_document(self):
         """Gets all the active Counseling Objects for the Employee and merges all documents into one and make a summary
         page for the beginning
         """
         counseling_history = Counseling.objects.filter(employee=self, is_active=True).order_by('-id')
-        buffer = io.BytesIO()
+        if counseling_history:
+            buffer = io.BytesIO()
 
-        merged_object = PdfFileMerger()
-        cover_buffer = io.BytesIO()
+            merged_object = PdfFileMerger()
+            cover_buffer = io.BytesIO()
 
-        action_types = {
-            '0': 'Verbal Counseling',
-            '1': 'Verbal Warning',
-            '2': 'First Written Warning Notice',
-            '3': 'Final Written Warning Notice & 3 Day Suspension',
-            '4': 'Last & Final Warning',
-            '5': 'Discharge for \"Just Cause\"',
-            '6': 'Administrative Removal from Service',
-        }
+            action_types = {
+                '0': 'Verbal Counseling',
+                '1': 'Verbal Warning',
+                '2': 'First Written Warning Notice',
+                '3': 'Final Written Warning Notice & 3 Day Suspension',
+                '4': 'Last & Final Warning',
+                '5': 'Discharge for \"Just Cause\"',
+                '6': 'Administrative Removal from Service',
+            }
 
-        p = canvas.Canvas(cover_buffer, pagesize=letter)
+            p = canvas.Canvas(cover_buffer, pagesize=letter)
 
-        p.setLineWidth(.75)
+            p.setLineWidth(.75)
 
-        # Title
-        title = f"{self.get_full_name()}'s Counseling History"
-        p.setFontSize(18)
-        p.drawCentredString(4.25 * inch, 10 * inch, title)
+            # Title
+            title = f"{self.get_full_name()}'s Counseling History"
+            p.setFontSize(18)
+            p.drawCentredString(4.25 * inch, 10 * inch, title)
 
-        total_pages = int(len(counseling_history) / 30) + 1
-        page_num = 1
-        y = 9.25
+            total_pages = int(len(counseling_history) / 30) + 1
+            page_num = 1
+            y = 9.25
 
-        counter = 1
+            counter = 1
 
-        # Adding counseling history to the cover page and setting the written warning removal dates
-        for counseling in counseling_history:
-            p.setFont('Helvetica', 10)
+            # Adding counseling history to the cover page and setting the written warning removal dates
+            for counseling in counseling_history:
+                p.setFont('Helvetica', 10)
 
-            p.drawString(1.50 * inch, y * inch, counseling.issued_date.strftime('%m-%d-%Y'))
-            p.drawString(3.00 * inch, y * inch, action_types[counseling.action_type])
-            p.drawString(5.40 * inch, y * inch, counseling.get_assignee().get_full_name())
-            p.line(1.40 * inch, (y - .1) * inch, 7.10 * inch, (y - .1) * inch)  # Bottom
+                p.drawString(1.50 * inch, y * inch, counseling.issued_date.strftime('%m-%d-%Y'))
+                p.drawString(3.00 * inch, y * inch, action_types[counseling.action_type])
+                p.drawString(5.40 * inch, y * inch, counseling.get_assignee().get_full_name())
+                p.line(1.40 * inch, (y - .1) * inch, 7.10 * inch, (y - .1) * inch)  # Bottom
 
-            if y == 1 or len(counseling_history) == counter:
-                p.setFont('Helvetica-Bold', 10)
+                if y == 1 or len(counseling_history) == counter:
+                    p.setFont('Helvetica-Bold', 10)
 
-                grid_bottom = y - .1
-                y = 9.50
+                    grid_bottom = y - .1
+                    y = 9.50
 
-                # Heading
-                p.drawString(1.50 * inch, y * inch, 'Issued Date')
-                p.drawString(3.00 * inch, y * inch, 'Action Type')
-                p.drawString(5.40 * inch, y * inch, 'Assigned By')
+                    # Heading
+                    p.drawString(1.50 * inch, y * inch, 'Issued Date')
+                    p.drawString(3.00 * inch, y * inch, 'Action Type')
+                    p.drawString(5.40 * inch, y * inch, 'Assigned By')
 
-                # Footer
-                p.drawString(1 * inch, .5 * inch, datetime.datetime.today().strftime('%A, %B %d, %Y'))
-                p.drawRightString(7.5 * inch, .5 * inch, f'Page {page_num} of {total_pages}')
+                    # Footer
+                    p.drawString(1 * inch, .5 * inch, datetime.datetime.today().strftime('%A, %B %d, %Y'))
+                    p.drawRightString(7.5 * inch, .5 * inch, f'Page {page_num} of {total_pages}')
 
-                # Grid
-                p.line(1.40 * inch, (y - .07) * inch, 7.10 * inch, (y - .07) * inch)  # Top
-                p.line(1.40 * inch, (y - .07) * inch, 1.40 * inch, grid_bottom * inch)  # Left
-                p.line(7.10 * inch, (y - .07) * inch, 7.10 * inch, grid_bottom * inch)  # Right
-                p.line(2.90 * inch, (y - .07) * inch, 2.90 * inch, grid_bottom * inch)  # Vertical 1
-                p.line(5.30 * inch, (y - .07) * inch, 5.30 * inch, grid_bottom * inch)  # Vertical 2
+                    # Grid
+                    p.line(1.40 * inch, (y - .07) * inch, 7.10 * inch, (y - .07) * inch)  # Top
+                    p.line(1.40 * inch, (y - .07) * inch, 1.40 * inch, grid_bottom * inch)  # Left
+                    p.line(7.10 * inch, (y - .07) * inch, 7.10 * inch, grid_bottom * inch)  # Right
+                    p.line(2.90 * inch, (y - .07) * inch, 2.90 * inch, grid_bottom * inch)  # Vertical 1
+                    p.line(5.30 * inch, (y - .07) * inch, 5.30 * inch, grid_bottom * inch)  # Vertical 2
 
-                p.showPage()
+                    p.showPage()
 
-                page_num += 1
+                    page_num += 1
 
-            counter += 1
-            y -= .25
+                counter += 1
+                y -= .25
 
-        p.save()
+            p.save()
 
-        merged_object.append(PdfFileReader(ContentFile(cover_buffer.getbuffer())))
+            merged_object.append(PdfFileReader(ContentFile(cover_buffer.getbuffer())))
 
-        for counseling in counseling_history:
-            remote_file = requests.get(counseling.document.url).content
-            memory_file = io.BytesIO(remote_file)
-            merged_object.append(PdfFileReader(memory_file))
+            for counseling in counseling_history:
+                remote_file = requests.get(counseling.document.url).content
+                memory_file = io.BytesIO(remote_file)
+                merged_object.append(PdfFileReader(memory_file))
 
-        merged_object.write(buffer)
+            merged_object.write(buffer)
 
-        return ContentFile(buffer.getbuffer())
+            return ContentFile(buffer.getbuffer())
+        else:
+            return None
 
     def create_safety_point_history_document(self):
         """Gets all the active Counseling Objects for the Employee and merges all documents into one and make a summary
         page for the beginning
         """
         safety_point_history = SafetyPoint.objects.filter(employee=self, is_active=True).order_by('-id')
+
+        if safety_point_history:
+            buffer = io.BytesIO()
+
+            merged_object = PdfFileMerger()
+            cover_buffer = io.BytesIO()
+
+            reason_choices = {
+                '0': 'Unsafe maneuver(s) or act',
+                '1': 'Failure to cycle wheelchair lift',
+                '2': 'Failure to do a proper vehicle inspection (DVI)',
+                '3': 'Improper following distance',
+                '4': 'Conviction of a minor traffic violation',
+                '5': 'Backing Accident',
+                '6': 'Minor Preventable incident',
+                '7': 'Use of a non company-issued electronic device',
+                '8': 'Major preventable incident',
+                '9': 'Major preventable incident',
+                '10': 'Any preventable roll-away incident',
+                '11': 'Failure to properly secure/transport a mobility device',
+                '12': 'Failure to immediately report a citation or incident',
+                '13': 'Tampering with with Drive Cam or other monitoring equipment',
+                '14': 'Conviction of a major traffic violation'
+            }
+
+            p = canvas.Canvas(cover_buffer, pagesize=letter)
+
+            p.setLineWidth(.75)
+
+            # Title
+            title = f"{self.get_full_name()}'s Safety Point History"
+            p.setFontSize(18)
+            p.drawCentredString(4.25 * inch, 10 * inch, title)
+
+            total_pages = int(len(safety_point_history) / 30) + 1
+            page_num = 1
+            y = 9.25
+
+            counter = 1
+
+            # Adding counseling history to the cover page and setting the written warning removal dates
+            for safety_point in safety_point_history:
+                p.setFont('Helvetica', 10)
+
+                p.drawString(1.00 * inch, y * inch, safety_point.issued_date.strftime('%m-%d-%Y'))
+                p.drawString(2.00 * inch, y * inch, reason_choices[safety_point.reason])
+                p.drawString(6.00 * inch, y * inch, safety_point.get_assignee().get_full_name())
+                p.line(0.90 * inch, (y - .1) * inch, 7.60 * inch, (y - .1) * inch)  # Bottom
+
+                if y == 1 or len(safety_point_history) == counter:
+                    p.setFont('Helvetica-Bold', 10)
+
+                    grid_bottom = y - .1
+                    y = 9.50
+
+                    # Heading
+                    p.drawString(1.00 * inch, y * inch, 'Issued Date')
+                    p.drawString(2.00 * inch, y * inch, 'Action Type')
+                    p.drawString(6.00 * inch, y * inch, 'Assigned By')
+
+                    # Footer
+                    p.drawString(1 * inch, .5 * inch, datetime.datetime.today().strftime('%A, %B %d, %Y'))
+                    p.drawRightString(7.5 * inch, .5 * inch, f'Page {page_num} of {total_pages}')
+
+                    # Grid
+                    p.line(0.90 * inch, (y - .07) * inch, 7.60 * inch, (y - .07) * inch)  # Top
+                    p.line(0.90 * inch, (y - .07) * inch, 0.90 * inch, grid_bottom * inch)  # Left
+                    p.line(7.60 * inch, (y - .07) * inch, 7.60 * inch, grid_bottom * inch)  # Right
+                    p.line(1.90 * inch, (y - .07) * inch, 1.90 * inch, grid_bottom * inch)  # Vertical 1
+                    p.line(5.90 * inch, (y - .07) * inch, 5.90 * inch, grid_bottom * inch)  # Vertical 2
+
+                    p.showPage()
+
+                    page_num += 1
+
+                counter += 1
+                y -= .25
+
+            p.save()
+
+            merged_object.append(PdfFileReader(ContentFile(cover_buffer.getbuffer())))
+
+            for safety_point in safety_point_history:
+                remote_file = requests.get(safety_point.document.url).content
+                memory_file = io.BytesIO(remote_file)
+                merged_object.append(PdfFileReader(memory_file))
+
+            merged_object.write(buffer)
+
+            return ContentFile(buffer.getbuffer())
+        else:
+            return None
+
+    def create_profile_history_document(self):
         buffer = io.BytesIO()
 
         merged_object = PdfFileMerger()
         cover_buffer = io.BytesIO()
 
-        reason_choices = {
-            '0': 'Unsafe maneuver(s) or act',
-            '1': 'Failure to cycle wheelchair lift',
-            '2': 'Failure to do a proper vehicle inspection (DVI)',
-            '3': 'Improper following distance',
-            '4': 'Conviction of a minor traffic violation',
-            '5': 'Backing Accident',
-            '6': 'Minor Preventable incident',
-            '7': 'Use of a non company-issued electronic device',
-            '8': 'Major preventable incident',
-            '9': 'Major preventable incident',
-            '10': 'Any preventable roll-away incident',
-            '11': 'Failure to properly secure/transport a mobility device',
-            '12': 'Failure to immediately report a citation or incident',
-            '13': 'Tampering with with Drive Cam or other monitoring equipment',
-            '14': 'Conviction of a major traffic violation'
-        }
-        
         p = canvas.Canvas(cover_buffer, pagesize=letter)
 
         p.setLineWidth(.75)
 
-        # Title
-        title = f"{self.get_full_name()}'s Safety Point History"
+        # Profile Picture
+        profile_picture_url = self.profile_picture.url if self.profile_picture else '/main/blank-profile-picture.png'
+        absolute_url = urljoin(settings.STATIC_URL, profile_picture_url[1:])  # Removing the first /
+        import logging
+        logging.info(f'{absolute_url}')
+        profile_picture = ImageReader(absolute_url)
+        p.drawImage(profile_picture, 1 * inch, 8.5 * inch, 2 * inch, 2 * inch, mask='auto')
+
+        # Name & ID
+        title = f"{self.get_full_name()}"
         p.setFontSize(18)
-        p.drawCentredString(4.25 * inch, 10 * inch, title)
+        p.drawString(3.25 * inch, 10 * inch, title)
 
-        total_pages = int(len(safety_point_history) / 30) + 1
-        page_num = 1
-        y = 9.25
+        p.setFontSize(12)
+        p.setFillColor('gray')
+        employee_id = str(self.employee_id)
+        p.drawString(3.25 * inch, 9.85 * inch, employee_id)
 
-        counter = 1
+        p.setFontSize(14)
+        p.setFillColor('black')
 
-        # Adding counseling history to the cover page and setting the written warning removal dates
-        for safety_point in safety_point_history:
-            p.setFont('Helvetica', 10)
+        # General Information
+        primary_phone = f'{self.primary_phone.as_e164[:-10]}({self.primary_phone.as_e164[-10:-7]}) {self.primary_phone.as_e164[-7:-4]}-{self.primary_phone.as_e164[-4:]}' if self.primary_phone else ''
+        secondary_phone = f'{self.secondary_phone.as_e164[:-10]}({self.secondary_phone.as_e164[-10:-7]}) {self.secondary_phone.as_e164[-7:-4]}-{self.secondary_phone.as_e164[-4:]}' if self.secondary_phone else ''
+        email = self.email
+        hire_date = self.hire_date.strftime('%m-%d-%Y')
+        company = self.company.display_name
+        position = self.get_position()
 
-            p.drawString(1.00 * inch, y * inch, safety_point.issued_date.strftime('%m-%d-%Y'))
-            p.drawString(2.00 * inch, y * inch, reason_choices[safety_point.reason])
-            p.drawString(6.00 * inch, y * inch, safety_point.get_assignee().get_full_name())
-            p.line(0.90 * inch, (y - .1) * inch, 7.60 * inch, (y - .1) * inch)  # Bottom
+        p.drawString(1 * inch, 7.0 * inch, f'Primary Phone Number: {primary_phone}')
+        p.drawString(1 * inch, 6.5 * inch, f'Secondary Phone Number: {secondary_phone}')
+        p.drawString(1 * inch, 6.0 * inch, f'Email: {email}')
+        p.drawString(1 * inch, 5.5 * inch, f'Hire Date: {hire_date}')
+        p.drawString(1 * inch, 5.0 * inch, f'Company: {company}')
+        p.drawString(1 * inch, 4.5 * inch, f'Position: {position}')
 
-            if y == 1 or len(safety_point_history) == counter:
-                p.setFont('Helvetica-Bold', 10)
-
-                grid_bottom = y - .1
-                y = 9.50
-
-                # Heading
-                p.drawString(1.00 * inch, y * inch, 'Issued Date')
-                p.drawString(2.00 * inch, y * inch, 'Action Type')
-                p.drawString(6.00 * inch, y * inch, 'Assigned By')
-
-                # Footer
-                p.drawString(1 * inch, .5 * inch, datetime.datetime.today().strftime('%A, %B %d, %Y'))
-                p.drawRightString(7.5 * inch, .5 * inch, f'Page {page_num} of {total_pages}')
-
-                # Grid
-                p.line(0.90 * inch, (y - .07) * inch, 7.60 * inch, (y - .07) * inch)  # Top
-                p.line(0.90 * inch, (y - .07) * inch, 0.90 * inch, grid_bottom * inch)  # Left
-                p.line(7.60 * inch, (y - .07) * inch, 7.60 * inch, grid_bottom * inch)  # Right
-                p.line(1.90 * inch, (y - .07) * inch, 1.90 * inch, grid_bottom * inch)  # Vertical 1
-                p.line(5.90 * inch, (y - .07) * inch, 5.90 * inch, grid_bottom * inch)  # Vertical 2
-
-                p.showPage()
-
-                page_num += 1
-
-            counter += 1
-            y -= .25
-
+        p.showPage()
         p.save()
 
         merged_object.append(PdfFileReader(ContentFile(cover_buffer.getbuffer())))
+        attendance_history = self.create_attendance_history_document()
+        counseling_history = self.create_counseling_history_document()
+        safety_point_history = self.create_safety_point_history_document()
 
-        for safety_point in safety_point_history:
-            remote_file = requests.get(safety_point.document.url).content
-            memory_file = io.BytesIO(remote_file)
-            merged_object.append(PdfFileReader(memory_file))
+        if attendance_history:
+            merged_object.append(PdfFileReader(attendance_history))
+        if counseling_history:
+            merged_object.append(PdfFileReader(counseling_history))
+        if safety_point_history:
+            merged_object.append(PdfFileReader(safety_point_history))
 
         merged_object.write(buffer)
 
