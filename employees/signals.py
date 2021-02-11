@@ -70,17 +70,23 @@ def hold_notification(sender, instance, created,**kwargs):
 @receiver(post_save, sender=Notification)
 def new_notification(sender, instance, created, **kwargs):
     if created:
-        instance.data['url'] = reverse('employee-account', args=[instance.data['employee_id'], None, instance.id])
+        field_name = instance.data['type']
+        import logging
+        logging.info(str(field_name))
+        if field_name == 'email_new_time_off':
+            instance.data['url'] = f"{reverse('operations-time-off-reports', args=[instance.id])}?pk={instance.data['sender_pk']}"
+        else:
+            instance.data['url'] = reverse('employee-account', args=[instance.data['employee_id'], None, instance.id])
 
         instance.save()
 
-        field_name = instance.data['type']
+        logging.info(str(instance.data['url']))
 
         if getattr(instance.recipient, field_name):
             domain = Site.objects.get_current().domain
             data = {
                 'notification_message': instance.verb,
-                'notification_href': domain + reverse('employee-account', args=[instance.data['employee_id'], None, instance.id]),
+                'notification_href': domain + instance.data['url'],
                 'preferences_href': domain + reverse('employee-notification-settings')
             }
 
@@ -240,7 +246,7 @@ def check_floating_holiday(sender, instance, created, update_fields, **kwargs):
 
         group = Employee.objects.filter(groups__name=notification_type)
         notify.send(sender=instance, recipient=group,
-                    verb=verb,
+                    verb=verb, sender_pk=instance.pk,
                     type=notification_type, employee_id=instance.employee.employee_id)
 
     instance.employee.save()

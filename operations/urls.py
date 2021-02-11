@@ -10,6 +10,7 @@ urlpatterns = [
     path('attendance-reports/', operations_views.attendance_reports, name='operations-attendance-reports'),
     path('counseling-reports/', operations_views.counseling_reports, name='operations-counseling-reports'),
     path('time-off-reports/', operations_views.time_off_reports, name='operations-time-off-reports'),
+    path('time-off-reports/<int:notification_id>/', operations_views.time_off_reports, name='operations-time-off-reports'),
     path('hold-list/', operations_views.view_hold_list, name='operations-hold-list'),
     path('make-time-off-request/', operations_views.make_time_off_request, name='operations-make-time-off-request'),
     path('make-time-off-request/search-employees/', operations_views.search_employees, name='operations-search-employees'),
