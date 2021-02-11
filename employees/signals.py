@@ -1,14 +1,17 @@
 import datetime
 
+from django.contrib.auth import settings
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.template.loader import render_to_string
+from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.html import strip_tags
 from notifications.models import Notification
 from notifications.signals import notify
+from urllib.parse import urljoin
 
 from employees.models import Attendance, Counseling, SafetyPoint, Hold, Employee, Settlement, TimeOffRequest
 from main.tasks import send_email
@@ -58,7 +61,7 @@ def hold_delete(sender, instance, **kwargs):
 @receiver(post_save, sender=Hold)
 def hold_notification(sender, instance, created,**kwargs):
     if created:
-        verb = f'{instance.employee.get_full_name()} has been placed on hold by {instance.assigned_by}. Reason: {instance.reason}'
+        verb = f'{instance.employee.get_full_name()} has been placed on hold by {instance.get_assignee().get_full_name()}. Reason: {instance.reason}'
         notification_type = 'email_add_hold'
 
         group = Employee.objects.filter(groups__name=notification_type).exclude(employee_id=instance.assigned_by)
@@ -83,9 +86,11 @@ def new_notification(sender, instance, created, **kwargs):
             data = {
                 'notification_message': instance.verb,
                 'notification_href': domain + instance.data['url'],
-                'preferences_href': domain + reverse('employee-notification-settings')
+                'preferences_href': domain + reverse('employee-notification-settings'),
+                'logo_url': urljoin(settings.STATIC_URL, 'main/MV_Transportation_logo.png')
             }
-
+            import logging
+            logging.info(data['logo_url'])
             subject = 'New Notification'
             html_message = render_to_string('main/notification_email.html', data)
             plain_message = strip_tags(html_message)

@@ -3,10 +3,10 @@ import io
 import requests
 
 from PyPDF2 import PdfFileMerger, PdfFileReader
+from django.contrib.auth import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.core.files.base import ContentFile
 from django.db import models
-from django.templatetags.static import static
 
 from imagekit.models import ProcessedImageField
 from imagekit.processors import ResizeToFill
@@ -18,6 +18,7 @@ from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
 from titlecase import titlecase
+from urllib.parse import urljoin
 
 from .managers import EmployeeManager
 from .validators import pdf_extension
@@ -1306,10 +1307,10 @@ class SafetyPoint(models.Model):
         p.drawRightString(7.75 * inch, 9.65 * inch, header5)
 
         # Logo
-        logo_url = static('\main\\MV_Transportation_logo.png')
-        logging.info(f'Absolute URL: {logo_url}')
-        logo = ImageReader(logo_url)
-        p.drawInlineImage(logo, 1 * inch, 9.5 * inch, 1.5 * inch, .75 * inch)
+        logo_url = 'main/MV_Transportation_logo.png'
+        absolute_url = urljoin(settings.STATIC_URL, logo_url)
+        logo = ImageReader(absolute_url)
+        p.drawImage(logo, 1 * inch, 9.5 * inch, 1.5 * inch, .75 * inch, mask='auto')
 
         # Title
         title = 'SAFETY POINT NOTICE'
@@ -1780,8 +1781,10 @@ class Settlement(models.Model):
         p.setLineWidth(.75)
 
         # Logo
-        # p.drawInlineImage(settings.STATIC_ROOT + '/main/MV_Transportation_logo.png', 3.5 * inch, 10 * inch, 1.5 * inch,
-        #                   .75 * inch)
+        logo_url = 'main/MV_Transportation_logo.png'
+        absolute_url = urljoin(settings.STATIC_URL, logo_url)
+        logo = ImageReader(absolute_url)
+        p.drawImage(logo, 3.5 * inch, 10 * inch, 1.5 * inch, .75 * inch, mask='auto')
 
         # Title
         p.drawCentredString(4.25 * inch, 9.3875 * inch, "SETTLEMENT AGREEMENT")
