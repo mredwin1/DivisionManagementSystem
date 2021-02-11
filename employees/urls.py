@@ -29,5 +29,6 @@ urlpatterns = [
     path('export-attendance-history/<int:employee_id>/', employee_views.export_attendance_history, name='employee-export-attendance-history'),
     path('export-counseling-history/<int:employee_id>/', employee_views.export_counseling_history, name='employee-export-counseling-history'),
     path('export-safety-point-history/<int:employee_id>/', employee_views.export_safety_point_history, name='employee-export-safety-point-history'),
+    path('export-profile/<int:employee_id>/', employee_views.export_profile, name='employee-export-profile'),
     path('upload-profile-picture/<int:employee_id>/', employee_views.upload_profile_picture, name='employee-upload-profile-picture'),
 ]
