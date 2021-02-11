@@ -88,6 +88,8 @@ class EmployeeCreationForm(forms.Form):
 
         new_employee.save()
 
+        return new_employee
+
 
 class BulkAssignAttendance(forms.Form):
     employee_name1 = forms.CharField(required=True, widget=forms.TextInput(
@@ -227,9 +229,9 @@ class BulkAssignAttendance(forms.Form):
 
             attendance.save()
 
-            attendance_ids.append(attendance.id)
+            attendance_ids.append(str(attendance.id))
 
-        return attendance_ids
+        return ','.join(attendance_ids)
 
 
 class MakeTimeOffRequest(forms.Form):

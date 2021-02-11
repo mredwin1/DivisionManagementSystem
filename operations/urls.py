@@ -2,8 +2,8 @@ from django.urls import path
 from . import views as operations_views
 
 urlpatterns = [
-    path('', operations_views.home, name='operations-home'),
-    path('download/<str:download>/', operations_views.home, name='operations-home'),
+    path('home/', operations_views.home, name='operations-home'),
+    path('home/<str:attendance_ids>/', operations_views.home, name='operations-home'),
     path('add-employee/', operations_views.add_employee, name='operations-add-employee'),
     path('bulk-assign-attendance/', operations_views.bulk_assign_attendance, name='operations-bulk-assign-attendance'),
     path('bulk-assign-attendance/search-employees/', operations_views.search_employees, name='operations-search-employees'),

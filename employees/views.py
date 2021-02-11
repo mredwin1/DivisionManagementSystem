@@ -7,19 +7,36 @@ from notifications.models import Notification
 from django.urls import reverse
 
 from .forms import *
-from .helper_functions import *
 from .models import Employee, SafetyPoint, TimeOffRequest
 
 
 @login_required
-def account(request, employee_id, download=None, notification_id=None):
+def account(request, employee_id, download=None, download_id=None, notification_id=None):
     if employee_id == request.user.employee_id or request.user.has_perm('employees.can_view_all_accounts'):
         employee = Employee.objects.get(employee_id=employee_id)
-        attendance = Attendance.objects.filter(employee=employee, is_active=True).order_by('-id')
-        counseling = Counseling.objects.filter(employee=employee, is_active=True).order_by('-id')
+        attendance = Attendance.objects.filter(employee=employee, is_active=True).order_by('-incident_date')
+        counseling = Counseling.objects.filter(employee=employee, is_active=True).order_by('-issued_date')
         safety_point = SafetyPoint.objects.filter(employee=employee, is_active=True).order_by('-incident_date')
         time_off = TimeOffRequest.objects.filter(employee=employee, is_active=True).order_by('-request_date')
         settlements = Settlement.objects.filter(employee=employee, is_active=True).order_by('-created_date')
+
+        if download == 'Attendance':
+            download_object = attendance.get(id=download_id)
+        elif download == 'Counseling':
+            download_object = counseling.get(id=download_id)
+        elif download == 'Safety Point':
+            download_object = safety_point.get(id=download_id)
+        else:
+            download_object = None
+
+        if download_object:
+            download_urls = [request.build_absolute_uri(download_object.document.url)]
+            try:
+                download_urls.append(request.build_absolute_uri(download_object.counseling.document.url))
+            except (Counseling.DoesNotExist, AttributeError):
+                pass
+        else:
+            download_urls = []
 
         data = {
             'employee': employee,
@@ -28,13 +45,12 @@ def account(request, employee_id, download=None, notification_id=None):
             'safety_point': safety_point,
             'time_off': time_off,
             'settlements': settlements,
-            'download': download,
+            'download_urls': download_urls,
         }
 
         if notification_id:
             notification = Notification.objects.get(id=notification_id)
-            notification.unread = False
-            notification.save()
+            notification.mark_as_read()
 
         return render(request, 'employees/account.html', data)
     else:
@@ -136,11 +152,11 @@ def assign_attendance(request, employee_id):
         a_form = AssignAttendance(data=request.POST, employee=employee, request=request)
 
         if a_form.is_valid():
-            a_form.save()
+            attendance_id = a_form.save()
 
             messages.add_message(request, messages.SUCCESS, 'Attendance Point Successfully Assigned')
 
-            data = {'url': reverse('employee-account', args=[employee.employee_id, 'Attendance'])}
+            data = {'url': reverse('employee-account', args=[employee.employee_id, 'Attendance', attendance_id])}
 
             return JsonResponse(data, status=200)
         else:
@@ -197,7 +213,7 @@ def edit_attendance(request, employee_id, attendance_id):
         if a_form.is_valid():
             a_form.save()
 
-            data = {'url': reverse('employee-account', args=[employee_id])}
+            data = {'url': reverse('employee-account', args=[employee_id, 'Attendance', attendance_id])}
 
             return JsonResponse(data, status=200)
         else:
@@ -222,39 +238,6 @@ def edit_attendance(request, employee_id, attendance_id):
 
 
 @login_required
-@permission_required('employees.can_download_attendance', raise_exception=True)
-def download_attendance(request, employee_id=None, attendance_id=None, attendance_id_list=None):
-    if employee_id:
-        employee = Employee.objects.get(employee_id=employee_id)
-        attendance = Attendance.objects.get(id=attendance_id)
-        pretty_filename = f'{employee.first_name} {employee.last_name} Attendance Point.pdf'
-
-        try:
-            with open(attendance.document.path, 'rb') as f:
-                response = HttpResponse(f, content_type='application/vnd.ms-excel')
-                response['Content-Disposition'] = f'attachment;filename="{pretty_filename}"'
-
-                attendance.downloaded = True
-                attendance.save(update_fields=['downloaded', 'document'])
-
-                return response
-        except:
-            messages.add_message(request, messages.ERROR, 'No File to Download')
-            return redirect('employee-account', employee_id)
-    else:
-        attendance_id_list = attendance_id_list.replace('[', '')
-        attendance_id_list = attendance_id_list.replace(']', '')
-        attendance_id_list = attendance_id_list.split(', ')
-
-        temporary_file = combine_attendance_documents(attendance_id_list)
-
-        response = HttpResponse(temporary_file, content_type='application/vnd.ms-excel')
-        response['Content-Disposition'] = 'attachment;filename="Attendance-Counseling Forms.pdf"'
-
-        return response
-
-
-@login_required
 @permission_required('employees.can_assign_counseling', raise_exception=True)
 def assign_counseling(request, employee_id):
     employee = Employee.objects.get(employee_id=employee_id)
@@ -263,12 +246,12 @@ def assign_counseling(request, employee_id):
         c_form = AssignCounseling(data=request.POST, employee=employee, request=request)
 
         if c_form.is_valid():
-            c_form.save()
+            counseling_id = c_form.save()
 
             messages.add_message(request, messages.SUCCESS, 'Counseling Successfully Added')
 
             data = {
-                'url': reverse('employee-account', args=[employee_id, 'Counseling'])
+                'url': reverse('employee-account', args=[employee_id, 'Counseling', counseling_id])
             }
 
             return JsonResponse(data, status=200)
@@ -321,7 +304,7 @@ def edit_counseling(request, employee_id, counseling_id):
 
             messages.add_message(request, messages.SUCCESS, 'Counseling Edited Successfully')
 
-            data = {'url': reverse('employee-account', args=[employee_id])}
+            data = {'url': reverse('employee-account', args=[employee_id, 'Counseling', counseling_id])}
 
             return JsonResponse(data, status=200)
         else:
@@ -347,41 +330,19 @@ def edit_counseling(request, employee_id, counseling_id):
 
 
 @login_required
-@permission_required('employees.can_download_counseling', raise_exception=True)
-def download_counseling(request, employee_id, counseling_id):
-    employee = Employee.objects.get(employee_id=employee_id)
-    counseling = Counseling.objects.get(id=counseling_id)
-    pretty_filename = f'{employee.first_name} {employee.last_name} Counseling Form.pdf'
-
-    try:
-        with open(counseling.document.path, 'rb') as f:
-            response = HttpResponse(f, content_type='application/vnd.ms-excel')
-            response['Content-Disposition'] = f'attachment;filename="{pretty_filename}"'
-
-            counseling.downloaded = True
-            counseling.save(update_fields=['downloaded', 'document'])
-
-            return response
-    except:
-        messages.add_message(request, messages.ERROR, 'No File to Download')
-
-        return redirect('employee-account', employee_id)
-
-
-@login_required
 @permission_required('employees.can_assign_safety_point', raise_exception=True)
 def assign_safety_point(request, employee_id):
     employee = Employee.objects.get(employee_id=employee_id)
 
     if request.method == 'POST':
-        s_form = AssignSafetyPoint(request.POST)
+        s_form = AssignSafetyPoint(request.POST, employee=employee, request=request)
 
         if s_form.is_valid():
-            s_form.save(employee, request)
+            safety_point_id = s_form.save()
 
             messages.add_message(request, messages.SUCCESS, 'Safety Point Successfully Assigned')
 
-            data = {'url': reverse('employee-account', args=[employee_id, 'Safety Point'])}
+            data = {'url': reverse('employee-account', args=[employee_id, 'Safety Point', safety_point_id])}
 
             return JsonResponse(data, status=200)
         else:
@@ -433,7 +394,6 @@ def edit_safety_point(request, employee_id, safety_point_id):
     employee = Employee.objects.get(employee_id=employee_id)
 
     if request.method == 'POST':
-        print(request.POST, request.FILES['document'])
         s_form = EditSafetyPoint(data=request.POST, files=request.FILES)
 
         if s_form.is_valid():
@@ -441,7 +401,7 @@ def edit_safety_point(request, employee_id, safety_point_id):
 
             messages.add_message(request, messages.SUCCESS, 'Safety Point Edited Successfully')
 
-            data = {'url': reverse('employee-account', args=[employee_id])}
+            data = {'url': reverse('employee-account', args=[employee_id, 'Safety Point', safety_point_id])}
 
             return JsonResponse(data, status=200)
 
@@ -464,28 +424,6 @@ def edit_safety_point(request, employee_id, safety_point_id):
         }
 
         return render(request, 'employees/edit_safety_point.html', data)
-
-
-@login_required
-@permission_required('employees.can_download_safety_point', raise_exception=True)
-def download_safety_point(request, employee_id, safety_point_id):
-    employee = Employee.objects.get(employee_id=employee_id)
-    safety_point = SafetyPoint.objects.get(id=safety_point_id)
-    pretty_filename = f'{employee.first_name} {employee.last_name} Safety Point.pdf'
-
-    try:
-        with open(safety_point.document.path, 'rb') as f:
-            response = HttpResponse(f, content_type='application/vnd.ms-excel')
-            response['Content-Disposition'] = f'attachment;filename="{pretty_filename}"'
-
-            safety_point.downloaded = True
-            safety_point.save(update_fields=['downloaded', 'document'])
-
-            return response
-    except:
-        messages.add_message(request, messages.ERROR, 'No File to Download')
-
-        return redirect('employee-account', employee_id)
 
 
 @login_required
@@ -585,7 +523,7 @@ def create_settlement(request, employee_id):
 @login_required
 @permission_required('employees.can_view_settlement', raise_exception=True)
 def view_settlement(request, settlement_id):
-    settlement = Settlement.objects.get(pk=settlement_id)
+    settlement = Settlement.objects.get(id=settlement_id)
     if request.method == 'POST':
         s_form = ViewSettlement(instance=settlement, data=request.POST, files=request.FILES)
         if s_form.is_valid():
@@ -617,7 +555,7 @@ def view_settlement(request, settlement_id):
 @login_required
 @permission_required('employees.can_create_settlement', raise_exception=True)
 def delete_settlement(request, settlement_id):
-    settlement = Settlement.objects.get(pk=settlement_id)
+    settlement = Settlement.objects.get(id=settlement_id)
 
     settlement.is_active = False
     settlement.save(update_fields=['is_active', 'document'])

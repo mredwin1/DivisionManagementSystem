@@ -186,37 +186,6 @@ def param_replace(context, **kwargs):
 
 
 @register.filter()
-def document_download(value):
-    """Takes an object and checks if there is a document to download if so it returns it's url it also checks if that
-    object has a counseling object associated with it and document to download and will also return that url.
-
-    :param value: Attendance object
-    :return: A list with Url for PDF download and URL for Counseling PDF download if there is one
-    """
-    download_urls = [value.document.url]
-
-    try:
-        download_urls.append(value.counseling.document.url)
-    except (Counseling.DoesNotExist, AttributeError):
-        pass
-
-    return download_urls
-
-
-@register.filter()
-def bulk_attendance_download(value, arg):
-    """
-    Takes a list of Attendance Ids and returns a url for the download
-
-    :param value: str with ids
-    :return: URL to download the PDF
-    """
-
-    attendance_download_url = arg + reverse('employee-attendance-download', args=[value])
-
-    return attendance_download_url
-
-@register.filter()
 def to_list(value):
     """
     Takes a List that has been turned into a string and returns a list (', ' is the delimiter) and removes '[]'
@@ -308,3 +277,8 @@ def termination_type_return(value):
 @register.filter
 def assignee_return(value):
     return value.get_assignee().get_full_name()
+
+
+@register.filter
+def override_by_return(value):
+    return value.get_override_by().get_full_name() if value.get_override_by() else None

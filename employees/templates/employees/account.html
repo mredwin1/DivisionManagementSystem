@@ -92,7 +92,7 @@
                         <div class="card scroll1 my-3">
                             <ul class="list-group list-group-flush h-100">
                                 {% for record in attendance %}
-                                    <li {% if perms.employees.can_view_all_details or can_view_attendance_details %}class="list-group-item cursor-pointer" data-toggle="modal" data-target="#mainModal" data-title="Attendance Point" data-document-href="{% if record.document %}{{ record.document.url }}{% endif %}" data-secondary-href="{% url 'employee-remove-attendance' employee_id=employee.employee_id attendance_id=record.id %}" data-primary-href="{% url 'employee-edit-attendance' employee_id=employee.employee_id attendance_id=record.id %}" data-row1col1="Incident Date" data-row1col2="Issued Date" data-row2col1="{{ record.incident_date|pretty_date }}" data-row2col2="{{ record.issued_date|pretty_date }}" data-row3col1="Document" data-row3col2="Assigned By" data-row4col1="Attendace PDF File" data-row4col2="{{ record|assignee_return }}" data-row5col1="Reason" data-row5col2="Points" data-row6col1="{{ record.reason|attendance_reason_return }}" data-row6col2="{{ record.points|points_return }}" data-row6col3="" data-row7col1="Exemption" data-row7col2="Counseling" data-row8col1="{{ record.exemption|exemption_return }}" data-row8col2="{{ record.counseling.action_type|action_type_return }}" data-row8col3="" data-row9col1="{% if record.edited_date %}Edited Date{% endif %}" data-row9col2="{% if record.edited_by %}Edited By{% endif %}" data-row10col1="{% if record.edited_date %}{{ record.edited_date|pretty_date }}{% endif %}" data-row10col2="{% if record.edited_by %}{{ record.edited_by }}{% endif %}" data-row10col3="" {% else %}class="list-group-item"{% endif %}>
+                                    <li {% if perms.employees.can_view_all_details or can_view_attendance_details %}class="list-group-item cursor-pointer" data-toggle="modal" data-target="#mainModal" data-title="Attendance Point" data-document-href="{% if record.document %}{{ record.document.url }}{% endif %}" data-secondary-href="{% url 'employee-remove-attendance' employee_id=employee.employee_id attendance_id=record.id %}" data-primary-href="{% url 'employee-edit-attendance' employee_id=employee.employee_id attendance_id=record.id %}" data-row1col1="Incident Date" data-row1col2="Issued Date" data-row2col1="{{ record.incident_date|pretty_date }}" data-row2col2="{{ record.issued_date|pretty_date }}" data-row3col1="Document" data-row3col2="Assigned By" data-row4col1="Attendace PDF File" data-row4col2="{{ record|assignee_return }}" data-row5col1="Reason" data-row5col2="Points" data-row6col1="{{ record.reason|attendance_reason_return }}" data-row6col2="{{ record.points|points_return }}" data-row6col3="" data-row7col1="Exemption" data-row7col2="Counseling" data-row8col1="{{ record.exemption|exemption_return }}" data-row8col2="{% if record.counseling.is_active %}{{ record.counseling.action_type|action_type_return }}{% else %}None{% endif %}" data-row8col3="" data-row9col1="{% if record.edited_date %}Edited Date{% endif %}" data-row9col2="{% if record.edited_by %}Edited By{% endif %}" data-row10col1="{% if record.edited_date %}{{ record.edited_date|pretty_date }}{% endif %}" data-row10col2="{% if record.edited_by %}{{ record.edited_by }}{% endif %}" data-row10col3="" {% else %}class="list-group-item"{% endif %}>
                                         <div class="row">
                                             <div class="col-6">
                                                 <small><b>Incident Date:</b> {{ record.incident_date|pretty_date }}</small>
@@ -174,7 +174,7 @@
                         <div class="card scroll1 my-3">
                             <ul class="list-group list-group-flush h-100">
                                 {% for record in counseling %}
-                                    <li {% if perms.employees.can_view_all_details or can_view_counseling_details %}class="list-group-item cursor-pointer" data-toggle="modal" data-target="#mainModal" data-title="Counseling" data-document-href="{% if record.document %}{{ record.document.url }}{% endif %}" data-secondary-href="{% url 'employee-remove-counseling' employee_id=employee.employee_id counseling_id=record.id %}" data-primary-href="{% url 'employee-edit-counseling' employee_id=employee.employee_id counseling_id=record.id %}" data-row1col1="Assigned By" data-row1col2="Issued Date" data-row2col1="{{ record|assignee_return }}" data-row2col2="{{ record.issued_date|pretty_date }}" data-row3col1="Document" data-row3col2="Hearing Date" data-row4col1="Counseling PDF File" data-row4col2="{{ record.hearing_datetime|pretty_datetime }}" data-row5col1="Type of Action" data-row5col2="" data-row6col1="" data-row6col2="" data-row6col3="{{ record.action_type|action_type_return }}" data-row7col1="Employee Conduct" data-row7col2="" data-row8col1="" data-row8col2="" data-row8col3="{{ record.conduct }}" data-row9col1="Conversation" data-row9col2="" data-row10col1="" data-row10col2="" data-row10col3="{{ record.conversation }}" {% else %}class="list-group-item"{% endif %}>
+                                    <li {% if perms.employees.can_view_all_details or can_view_counseling_details %}class="list-group-item cursor-pointer" data-toggle="modal" data-target="#mainModal" data-title="Counseling" data-document-href="{% if record.document %}{{ record.document.url }}{% endif %}" data-secondary-href="{% url 'employee-remove-counseling' employee_id=employee.employee_id counseling_id=record.id %}" data-primary-href="{% url 'employee-edit-counseling' employee_id=employee.employee_id counseling_id=record.id %}" data-row1col1="Assigned By" data-row1col2="Issued Date" data-row2col1="{{ record|assignee_return }}" data-row2col2="{{ record.issued_date|pretty_date }}" data-row3col1="Document" data-row3col2="Hearing Date" data-row4col1="Counseling PDF File" data-row4col2="{{ record.hearing_datetime|pretty_datetime }}" data-row5col1="Type of Action" data-row5col2="Override By" data-row6col1="{{ record.action_type|action_type_return }}" data-row6col2="{{ record|override_by_return }}" data-row6col3="" data-row7col1="Employee Conduct" data-row7col2="" data-row8col1="" data-row8col2="" data-row8col3="{{ record.conduct }}" data-row9col1="Conversation" data-row9col2="" data-row10col1="" data-row10col2="" data-row10col3="{{ record.conversation }}" {% else %}class="list-group-item"{% endif %}>
                                         <div class="row">
                                             <div class="col-5">
                                                 <small><b>Issued Date:</b> {{ record.issued_date|pretty_date }}</small>
@@ -249,69 +249,53 @@
               $("#message").fadeOut().empty();
             }
         });
-        {% if download == 'Attendance' and attendance.first.downloaded == False %}
-            {% for url in attendance.first|document_download %}
-                {% if url %}
-                    window.open('{{ url }}');
-                {% endif %}
-            {% endfor %}
-        {% endif %}
-        {% if download == 'Counseling' and counseling.first.downloaded == False %}
-            {% for url in counseling.first|document_download %}
-                {% if url %}
-                    window.open('{{ url }}');
-                {% endif %}
-            {% endfor %}
-        {% endif %}
-        {% if download == 'Safety Point' and safety_point.first.downloaded == False %}
-            {% for url in safety_point.first|document_download %}
-                {% if url %}
-                    window.open('{{ url }}');
-                {% endif %}
+        {% if download_urls %}
+            {% for url in download_urls %}
+                window.open('{{ url }}');
             {% endfor %}
         {% endif %}
         $(document).ready(function(){
 
             $("#mainModal").on('show.bs.modal', function(event){
-                let button = $(event.relatedTarget) // Button that triggered the modal
-                let title = button.data('title')
+                let button = $(event.relatedTarget); // Button that triggered the modal
+                let title = button.data('title');
 
-                let row1col1 = button.data('row1col1')
-                let row1col2 = button.data('row1col2')
-                let row2col1 = button.data('row2col1')
-                let row2col2 = button.data('row2col2')
-                let row3col1 = button.data('row3col1')
-                let row3col2 = button.data('row3col2')
-                let row4col1 = button.data('row4col1')
-                let row4col2 = button.data('row4col2')
-                let row5col1 = button.data('row5col1')
-                let row5col2 = button.data('row5col2')
-                let row6col1 = button.data('row6col1')
-                let row6col2 = button.data('row6col2')
-                let row7col1 = button.data('row7col1')
-                let row7col2 = button.data('row7col2')
-                let row8col1 = button.data('row8col1')
-                let row8col2 = button.data('row8col2')
-                let row9col1 = button.data('row9col1')
-                let row9col2 = button.data('row9col2')
-                let row10col1 = button.data('row10col1')
-                let row10col2 = button.data('row10col2')
+                let row1col1 = button.data('row1col1');
+                let row1col2 = button.data('row1col2');
+                let row2col1 = button.data('row2col1');
+                let row2col2 = button.data('row2col2');
+                let row3col1 = button.data('row3col1');
+                let row3col2 = button.data('row3col2');
+                let row4col1 = button.data('row4col1');
+                let row4col2 = button.data('row4col2');
+                let row5col1 = button.data('row5col1');
+                let row5col2 = button.data('row5col2');
+                let row6col1 = button.data('row6col1');
+                let row6col2 = button.data('row6col2');
+                let row7col1 = button.data('row7col1');
+                let row7col2 = button.data('row7col2');
+                let row8col1 = button.data('row8col1');
+                let row8col2 = button.data('row8col2');
+                let row9col1 = button.data('row9col1');
+                let row9col2 = button.data('row9col2');
+                let row10col1 = button.data('row10col1');
+                let row10col2 = button.data('row10col2');
 
-                let row3col3 = button.data('row3col3')
-                let row4col3 = button.data('row4col3')
-                let row6col3 = button.data('row6col3')
-                let row8col3 = button.data('row8col3')
-                let row10col3 = button.data('row10col3')
+                let row3col3 = button.data('row3col3');
+                let row4col3 = button.data('row4col3');
+                let row6col3 = button.data('row6col3');
+                let row8col3 = button.data('row8col3');
+                let row10col3 = button.data('row10col3');
 
-                let primary_button_href = button.data('primary-href')
-                let secondary_button_href = button.data('secondary-href')
-                let document_href = button.data('document-href')
+                let primary_button_href = button.data('primary-href');
+                let secondary_button_href = button.data('secondary-href');
+                let document_href = button.data('document-href');
 
-                document.getElementById("primaryButton").innerText = "Edit"
-                document.getElementById("primaryButtonAnchor").href = primary_button_href
-                document.getElementById("secondaryButton").innerText = "Delete"
-                document.getElementById("secondaryButtonForm").action = secondary_button_href
-                document.getElementById("row4col1").href = document_href
+                document.getElementById("primaryButton").innerText = "Edit";
+                document.getElementById("primaryButtonAnchor").href = primary_button_href;
+                document.getElementById("secondaryButton").innerText = "Delete";
+                document.getElementById("secondaryButtonForm").action = secondary_button_href;
+                document.getElementById("row4col1").href = document_href;
 
                 if (primary_button_href === "") {
                     document.getElementById("primaryButtonAnchor").style.display = "none"
@@ -325,35 +309,63 @@
                     document.getElementById("secondaryButtonForm").style.display = "block"
                 }
 
-                modal = $(this)
+                modal = $(this);
 
-                modal.find('.modal-title').text(title)
-                modal.find('#row1col1').text(row1col1)
-                modal.find('#row1col2').text(row1col2)
-                modal.find('#row2col1').text(row2col1)
-                modal.find('#row2col2').text(row2col2)
-                modal.find('#row3col1').text(row3col1)
-                modal.find('#row3col2').text(row3col2)
-                modal.find('#row4col1').text(row4col1)
-                modal.find('#row4col2').text(row4col2)
-                modal.find('#row5col1').text(row5col1)
-                modal.find('#row5col2').text(row5col2)
-                modal.find('#row6col1').text(row6col1)
-                modal.find('#row6col2').text(row6col2)
-                modal.find('#row7col1').text(row7col1)
-                modal.find('#row7col2').text(row7col2)
-                modal.find('#row8col1').text(row8col1)
-                modal.find('#row8col2').text(row8col2)
-                modal.find('#row9col1').text(row9col1)
-                modal.find('#row9col2').text(row9col2)
-                modal.find('#row10col1').text(row10col1)
-                modal.find('#row10col2').text(row10col2)
+                modal.find('.modal-title').text('');
+                modal.find('#row1col1').text('');
+                modal.find('#row1col2').text('');
+                modal.find('#row2col1').text('');
+                modal.find('#row2col2').text('');
+                modal.find('#row3col1').text('');
+                modal.find('#row3col2').text('');
+                modal.find('#row4col1').text('');
+                modal.find('#row4col2').text('');
+                modal.find('#row5col1').text('');
+                modal.find('#row5col2').text('');
+                modal.find('#row6col1').text('');
+                modal.find('#row6col2').text('');
+                modal.find('#row7col1').text('');
+                modal.find('#row7col2').text('');
+                modal.find('#row8col1').text('');
+                modal.find('#row8col2').text('');
+                modal.find('#row9col1').text('');
+                modal.find('#row9col2').text('');
+                modal.find('#row10col1').text('');
+                modal.find('#row10col2').text('');
 
-                modal.find('#row3col3').text(row3col3)
-                modal.find('#row4col3').text(row4col3)
-                modal.find('#row8col3').text(row8col3)
-                modal.find('#row10col3').text(row10col3)
-                modal.find('#row6col3').text(row6col3)
+                modal.find('#row3col3').text('');
+                modal.find('#row4col3').text('');
+                modal.find('#row8col3').text('');
+                modal.find('#row10col3').text('');
+                modal.find('#row6col3').text('');
+
+                modal.find('.modal-title').text(title);
+                modal.find('#row1col1').text(row1col1);
+                modal.find('#row1col2').text(row1col2);
+                modal.find('#row2col1').text(row2col1);
+                modal.find('#row2col2').text(row2col2);
+                modal.find('#row3col1').text(row3col1);
+                modal.find('#row3col2').text(row3col2);
+                modal.find('#row4col1').text(row4col1);
+                modal.find('#row4col2').text(row4col2);
+                modal.find('#row5col1').text(row5col1);
+                modal.find('#row5col2').text(row5col2);
+                modal.find('#row6col1').text(row6col1);
+                modal.find('#row6col2').text(row6col2);
+                modal.find('#row7col1').text(row7col1);
+                modal.find('#row7col2').text(row7col2);
+                modal.find('#row8col1').text(row8col1);
+                modal.find('#row8col2').text(row8col2);
+                modal.find('#row9col1').text(row9col1);
+                modal.find('#row9col2').text(row9col2);
+                modal.find('#row10col1').text(row10col1);
+                modal.find('#row10col2').text(row10col2);
+
+                modal.find('#row3col3').text(row3col3);
+                modal.find('#row4col3').text(row4col3);
+                modal.find('#row8col3').text(row8col3);
+                modal.find('#row10col3').text(row10col3);
+                modal.find('#row6col3').text(row6col3);
 
             });
         });
