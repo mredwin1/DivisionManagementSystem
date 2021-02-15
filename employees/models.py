@@ -186,7 +186,8 @@ class Employee(AbstractBaseUser, PermissionsMixin):
     profile_picture = ProcessedImageField(upload_to='profile_pictures',
                                           processors=[ResizeToFill(320, 320)],
                                           format='PNG',
-                                          options={'quality': 60})
+                                          options={'quality': 60},
+                                          blank=True)
 
     objects = EmployeeManager()
 
