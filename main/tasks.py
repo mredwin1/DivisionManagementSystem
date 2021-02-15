@@ -93,7 +93,7 @@ def import_attendance(path):
 
         except KeyError:
             pass
-
+        counter = 0
         for row in sheet.iter_rows(min_row=2):
             points = {
                 '0': 1,
@@ -132,12 +132,15 @@ def import_attendance(path):
                 )
 
                 new_attendance.save()
+                counter += 1
             except Employee.DoesNotExist:
                 pass
     try:
         os.remove(path)
     except FileNotFoundError:
         pass
+
+    return f'Imported a total of {counter} employees'
 
 
 @shared_task
