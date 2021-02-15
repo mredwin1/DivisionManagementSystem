@@ -7,7 +7,7 @@ class Command(BaseCommand):
     help = 'This command goes through all the Time Off Records and deletes anything older than 6 months'
 
     def handle(self, *args, **options):
-        time_off_records = TimeOffRequest.objects.order_by('incident_date')
+        time_off_records = TimeOffRequest.objects.order_by('request_date')
         today = datetime.datetime.today().date()
         deleted_records = 0
 
