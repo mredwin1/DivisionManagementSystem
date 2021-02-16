@@ -9,8 +9,8 @@
                 <div class="col shadow bg-white round">
                     <div class="row justify-content-center">
                         <div class="col-11">
-                            <a class="{% if not perms.employees.can_edit_employee_info %}cursor-default{% else %}{% endif %}" href="{% if perms.employees.can_edit_employee_info %}{% url 'employee-upload-profile-picture' employee.employee_id %}{% else %}#{% endif %}">
-                                {% if perms.employees.can_edit_employee_info %}
+                            <a class="{% if not perms.employees.can_upload_profile_picture %}cursor-default{% else %}{% endif %}" href="{% if perms.employees.can_upload_profile_picture %}{% url 'employee-upload-profile-picture' employee.employee_id %}{% else %}#{% endif %}">
+                                {% if perms.employees.can_upload_profile_picture4 %}
                                     <div class="h-100 w-100 img-edit-container rounded-circle p-3">
                                         <i class="fas fa-pen fa-lg img-edit"></i>
                                     </div>
