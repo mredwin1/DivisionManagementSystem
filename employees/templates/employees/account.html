@@ -65,7 +65,7 @@
                                             <i class="far fa-pause-circle fa-lg{% if perms.employees.can_place_hold %} cursor-pointer{% endif %} icon-link" title="Place Hold"></i>
                                         </a>
                                     {% endif %}
-                                    <a class="cursor-default" href="{% if perms.employees.can_export_profile %}{% else %}#{% endif %}">
+                                    <a class="cursor-default" href="{% if perms.employees.can_export_profile %}{% url 'employee-export-profile' employee_id=employee.employee_id %}{% else %}#{% endif %}">
                                         <i class="fas fa-file-export fa-lg{% if perms.employees.can_export_profile %} cursor-pointer{% endif %} icon-link" title="Export Profile"></i>
                                     </a>
                                     <i class="far fa-file-alt fa-lg{% if perms.employees.can_view_settlement and settlements %} cursor-pointer{% endif %} icon-link" title="View Settlements"{% if perms.employees.can_view_settlement and settlements %} data-toggle="modal" data-target="#secondaryModal"{% endif %}></i>

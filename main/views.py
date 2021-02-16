@@ -98,7 +98,7 @@ def export_phone_list(request):
 
     filename = 'Division 12 - Phone List.pdf'
 
-    response = HttpResponse(phone_list, content_type='application/vnd.ms-excel')
+    response = HttpResponse(phone_list, content_type='application/force-download')
     response['Content-Disposition'] = f'attachment;filename="{filename}"'
 
     return response
@@ -112,7 +112,7 @@ def export_seniority_list(request):
 
     filename = 'Division 12 - Seniority List.pdf'
 
-    response = HttpResponse(seniority_list, content_type='application/vnd.ms-excel')
+    response = HttpResponse(seniority_list, content_type='application/force-download')
     response['Content-Disposition'] = f'attachment;filename="{filename}"'
 
     return response
@@ -126,7 +126,7 @@ def export_driver_list(request):
 
     filename = 'Division 12 - Driver List.pdf'
 
-    response = HttpResponse(driver_list, content_type='application/vnd.ms-excel')
+    response = HttpResponse(driver_list, content_type='application/force-download')
     response['Content-Disposition'] = f'attachment;filename="{filename}"'
 
     return response
@@ -162,7 +162,7 @@ def export_custom_list(request):
 
     filename = 'Division 12 - Custom List.pdf'
 
-    response = HttpResponse(custom_list, content_type='application/vnd.ms-excel')
+    response = HttpResponse(custom_list, content_type='application/force-download')
     response['Content-Disposition'] = f'attachment;filename="{filename}"'
 
     return response

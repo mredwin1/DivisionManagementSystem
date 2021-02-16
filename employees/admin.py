@@ -17,6 +17,7 @@ class EmployeeAdmin(UserAdmin):
         ('General Information', {
             'fields': (
                 ('is_active', 'is_superuser', 'is_staff'),
+                'profile_picture',
                 ('username', 'password'),
                 ('first_name', 'last_name', 'email'),
                 ('employee_id', 'company', 'position'),

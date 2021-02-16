@@ -24,9 +24,9 @@ def import_drivers(path):
             driver_info = zipfile.read('drivers/drivers.xlsx')
 
             wb = load_workbook(filename=BytesIO(driver_info))
-
             try:
                 sheet = wb['data']
+                counter = 0
                 for row in sheet.iter_rows(min_row=2):
                     try:
                         last_name = f'{row[0].value.lower()[0].upper()}{row[0].value.lower()[1:]}'
@@ -71,6 +71,7 @@ def import_drivers(path):
                             pass
 
                         new_employee.save()
+                        counter += 1
                     except:
                         pass
             except KeyError:
@@ -81,6 +82,8 @@ def import_drivers(path):
         os.remove(path)
     except FileNotFoundError:
         pass
+
+    return f'Imported a total of {counter} employees'
 
 
 @shared_task
@@ -93,7 +96,6 @@ def import_attendance(path):
 
         except KeyError:
             pass
-
         for row in sheet.iter_rows(min_row=2):
             points = {
                 '0': 1,
