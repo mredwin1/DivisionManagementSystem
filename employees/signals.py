@@ -6,8 +6,7 @@ from django.contrib.sites.models import Site
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.template.loader import render_to_string
-from django.templatetags.static import static
-from django.urls import reverse
+from django.urls import reverse, NoReverseMatch
 from django.utils.html import strip_tags
 from notifications.models import Notification
 from notifications.signals import notify
@@ -72,36 +71,36 @@ def hold_notification(sender, instance, created,**kwargs):
 
 @receiver(post_save, sender=Notification)
 def new_notification(sender, instance, created, **kwargs):
-    if created:
-        field_name = instance.data['type']
-        if field_name == 'email_new_time_off':
-            instance.data['url'] = f"{reverse('operations-time-off-reports', args=[instance.id])}?id={instance.data['sender_id']}"
-        else:
-            instance.data['url'] = reverse('employee-account', args=[instance.data['employee_id'], instance.id])
-
-        instance.save()
-
-        if getattr(instance.recipient, field_name):
-            domain = Site.objects.get_current().domain
-            data = {
-                'notification_message': instance.verb,
-                'notification_href': domain + instance.data['url'],
-                'preferences_href': domain + reverse('employee-notification-settings'),
-                'logo_url': urljoin(settings.STATIC_URL, 'main/MV_Transportation_logo.png')
-            }
-            import logging
-            logging.info(data['logo_url'])
-            subject = 'New Notification'
-            html_message = render_to_string('main/notification_email.html', data)
-            plain_message = strip_tags(html_message)
-            to = instance.recipient.email
-
-            send_email.delay(subject, plain_message, to, html_message)
-
-            instance.emailed = True
+    try:
+        if created:
+            field_name = instance.data['type']
+            if field_name == 'email_new_time_off':
+                instance.data['url'] = f"{reverse('operations-time-off-reports', args=[instance.id])}?id={instance.data['sender_id']}"
+            else:
+                instance.data['url'] = reverse('employee-account', args=[instance.data['employee_id'], instance.id])
 
             instance.save()
 
+            if getattr(instance.recipient, field_name):
+                domain = Site.objects.get_current().domain
+                data = {
+                    'notification_message': instance.verb,
+                    'notification_href': domain + instance.data['url'],
+                    'preferences_href': domain + reverse('employee-notification-settings'),
+                    'logo_url': urljoin(settings.STATIC_URL, 'main/MV_Transportation_logo.png')
+                }
+                subject = 'New Notification'
+                html_message = render_to_string('main/notification_email.html', data)
+                plain_message = strip_tags(html_message)
+                to = instance.recipient.email
+
+                send_email.delay(subject, plain_message, to, html_message)
+
+                instance.emailed = True
+
+                instance.save()
+    except NoReverseMatch:
+        pass
 
 @receiver(post_save, sender=Counseling)
 def add_counseling_document(sender, instance, created, update_fields, **kwargs):
