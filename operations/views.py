@@ -9,13 +9,14 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.paginator import Paginator
 from django.db.models import CharField, Value as V
 from django.db.models.functions import Concat
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.utils import timezone
 from notifications.models import Notification
 
 from employees.helper_functions import combine_attendance_documents
-from employees.models import Employee, Attendance, Hold, Counseling, TimeOffRequest, DayOff
+from employees.models import Employee, Attendance, Hold, Counseling, TimeOffRequest, DayOff, Settlement
 from .forms import EmployeeCreationForm, AttendanceFilterForm, CounselingFilterForm, BulkAssignAttendance, \
     MakeTimeOffRequest, TimeOffFilterForm, FilterForm
 
@@ -23,32 +24,51 @@ from .forms import EmployeeCreationForm, AttendanceFilterForm, CounselingFilterF
 @login_required
 def home(request, attendance_ids=None):
     download_urls = []
-    attendance_ids_list = attendance_ids.split(',')
-    attendance_ids_list = [int(attendance_id) for attendance_id in attendance_ids_list]
-    if attendance_ids_list and len(attendance_ids_list) > 1:
-        attendance_document = combine_attendance_documents(attendance_ids_list)
-        s3 = boto3.client('s3',
-                          aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
-                          aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'])
+    if attendance_ids:
+        attendance_ids_list = attendance_ids.split(',')
+        attendance_ids_list = [int(attendance_id) for attendance_id in attendance_ids_list]
+        if attendance_ids_list and len(attendance_ids_list) > 1:
+            attendance_document = combine_attendance_documents(attendance_ids_list)
+            s3 = boto3.client('s3',
+                              aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+                              aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'])
 
-        object_name = f'tmp/bulk_attendance_{str(uuid.uuid4())}.pdf'
-        object_url = f'https://{settings.AWS_S3_CUSTOM_DOMAIN}/{object_name}'
-        attendance_document.seek(0)
+            object_name = f'tmp/bulk_attendance_{str(uuid.uuid4())}.pdf'
+            object_url = f'https://{settings.AWS_S3_CUSTOM_DOMAIN}/{object_name}'
+            attendance_document.seek(0)
 
-        s3.put_object(Body=attendance_document.read(), Bucket=os.environ['AWS_STORAGE_BUCKET_NAME'], Key=object_name,
-                      ContentType='application/pdf')
+            s3.put_object(Body=attendance_document.read(), Bucket=os.environ['AWS_STORAGE_BUCKET_NAME'], Key=object_name,
+                          ContentType='application/pdf')
 
-        download_urls.append(object_url)
-    elif attendance_ids_list and len(attendance_ids_list) == 1:
-        attendance_object = Attendance.objects.get(id=attendance_ids_list[0])
-        download_urls.append(request.build_absolute_uri(attendance_object.document.url))
-        try:
-            download_urls.append(request.build_absolute_uri(attendance_object.counseling.document.url))
-        except Counseling.DoesNotExist:
-            pass
+            download_urls.append(object_url)
+        elif attendance_ids_list and len(attendance_ids_list) == 1:
+            attendance_object = Attendance.objects.get(id=attendance_ids_list[0])
+            download_urls.append(request.build_absolute_uri(attendance_object.document.url))
+            try:
+                download_urls.append(request.build_absolute_uri(attendance_object.counseling.document.url))
+            except Counseling.DoesNotExist:
+                pass
+
+    all_employees = Employee.objects.filter(is_active=True).order_by('last_name')
+    pending_term = all_employees.filter(is_pending_term=True)
+    at_10_attendance = [employee for employee in all_employees if employee.get_total_attendance_points() >= 10]
+    all_settlements = Settlement.objects.filter(is_active=True).order_by('created_date')[:9]
+    last_final = all_employees.filter(counseling__action_type='4')
+    no_sick_days = [employee for employee in all_employees if (employee.unpaid_sick + employee.paid_sick) <= 0]
+    recent_terms = Employee.objects.filter(is_active=False).order_by('termination_date')[:6]
+    no_attendance_6_months = [employee for employee in all_employees if not employee.has_attendance_in_6_months()]
+    recent_hires = all_employees.filter(hire_date__gte=timezone.now() - datetime.timedelta(days=30))
 
     data = {
-        'download_urls': download_urls
+        'download_urls': download_urls,
+        'pending_term': pending_term,
+        'at_10_attendance': at_10_attendance,
+        'all_settlements': all_settlements,
+        'last_final': last_final,
+        'no_sick_days': no_sick_days,
+        'recent_terms': recent_terms,
+        'no_attendance_6_months': no_attendance_6_months,
+        'recent_hires': recent_hires,
     }
 
     return render(request, 'operations/home.html', data)
