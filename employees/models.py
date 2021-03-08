@@ -7,6 +7,7 @@ from django.contrib.auth import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.core.files.base import ContentFile
 from django.db import models
+from django.utils import timezone
 
 from imagekit.models import ProcessedImageField
 from imagekit.processors import ResizeToFill
@@ -376,6 +377,14 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         tenure = (datetime.date.today() - self.hire_date).days
 
         return False if tenure > 89 else True
+
+    def has_attendance_in_6_months(self):
+        attendance_records = Attendance.objects.filter(employee=self, incident_date__gte=timezone.now() - datetime.timedelta(days=180))
+
+        if attendance_records:
+            return True
+        else:
+            return False
 
     def set_pending_term(self, status):
         """Sets the status of is_pending_term
