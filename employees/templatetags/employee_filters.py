@@ -106,6 +106,7 @@ def exemption_return(value):
         '2': 'Unpaid Sick',
         '3': 'Union Agreement',
         '4': 'Excused Absence',
+        '5': 'Attendance Incentive',
     }
 
     if value:
