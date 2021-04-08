@@ -1030,7 +1030,7 @@ class Attendance(models.Model):
         ('2', 'Unpaid Sick'),
         ('3', 'Union Agreement'),
         ('4', 'Excused Absence'),
-        ('4', 'Attendance Incentives'),
+        ('5', 'Attendance Incentive'),
     ]
 
     is_active = models.BooleanField(default=True)
@@ -1092,6 +1092,7 @@ class Attendance(models.Model):
             '2': 'Unpaid Sick',
             '3': 'Union Agreement',
             '4': 'Excused Absence',
+            '5': 'Attendance Incentive',
         }
 
         p.setFontSize(12)

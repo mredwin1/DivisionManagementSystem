@@ -130,7 +130,8 @@ def import_attendance(path):
                     reason=reason,
                     exemption=exemption,
                     assigned_by=assigned_by,
-                    points=point
+                    points=point,
+                    uploaded=True
                 )
 
                 new_attendance.save()
