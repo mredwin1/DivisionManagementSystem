@@ -61,9 +61,12 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         ('dispatch_supervisor', 'Dispatch Supervisor'),
         ('driver_scheduler', 'Driver Scheduler'),
         ('hiring_supervisor', 'Hiring Supervisor'),
+        ('road_supervisor', 'Road Supervisor'),
+        ('operations_supervisor', 'Operations Supervisor'),
         ('clerk', 'Clerk'),
         ('agm', 'AGM'),
         ('gm', 'GM'),
+        ('drive_cam_manager', 'Drive Cam Manager'),
         ('it_manager', 'IT Manager')
     ]
 
