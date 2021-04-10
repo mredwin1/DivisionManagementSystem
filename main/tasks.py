@@ -114,7 +114,7 @@ def import_attendance(path):
                 incident_date = datetime.datetime.strptime(str(row[1].value), '%Y%m%d')
                 reason = str(row[2].value)
                 exemption = str(row[3].value) if row[3].value else ''
-                assigned_by = row[4].value
+                assigned_by = int(row[4].value)
                 point = 0 if exemption else points[reason]
 
                 if exemption == '1':
@@ -178,7 +178,7 @@ def import_safety_points(path):
                 incident_date = datetime.datetime.strptime(str(row[1].value), '%Y%m%d')
                 issued_date = datetime.datetime.strptime(str(row[2].value), '%Y%m%d')
                 reason = str(row[3].value)
-                assigned_by = row[4].value
+                assigned_by = int(row[4].value)
 
                 new_safety_point = SafetyPoint(
                     employee=employee,
