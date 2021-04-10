@@ -67,6 +67,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         ('agm', 'AGM'),
         ('gm', 'GM'),
         ('drive_cam_manager', 'Drive Cam Manager'),
+        ('safety_manager', 'Safety Manager'),
         ('it_manager', 'IT Manager')
     ]
 
