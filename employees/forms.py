@@ -162,6 +162,7 @@ class EditAttendance(AssignAttendance):
             self.attendance.document = self.request.FILES['document']
             self.attendance.uploaded = True
             update_fields.append('document')
+            update_fields.append('uploaded')
         except KeyError:
             pass
 
@@ -278,6 +279,7 @@ class EditCounseling(AssignCounseling):
             self.counseling.document = self.request.FILES['document']
             self.counseling.uploaded = True
             update_fields.append('document')
+            update_fields.append('uploaded')
         except KeyError:
             pass
 
@@ -351,6 +353,7 @@ class EditSafetyPoint(AssignSafetyPoint):
             safety_point.document = self.files['document']
             safety_point.uploaded = True
             update_fields.append('document')
+            update_fields.append('uploaded')
         except KeyError:
             pass
         safety_point.incident_date = self.cleaned_data['incident_date']
