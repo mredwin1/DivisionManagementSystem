@@ -135,6 +135,7 @@ def attendance_reports(request):
         ('-incident_date', 'Incident Date'),
         ('employee__first_name', 'First Name'),
         ('employee_id', 'Employee ID'),
+        ('points', 'Points'),
     ]
 
     if search:
