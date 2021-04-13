@@ -1796,9 +1796,9 @@ class Counseling(models.Model):
 
 class Hold(models.Model):
     hold_date = models.DateField()
-    incident_date = models.DateField(null=True)
-    training_datetime = models.DateTimeField(null=True)
-    release_date = models.DateTimeField(null=True)
+    incident_date = models.DateField(null=True, blank=True)
+    training_datetime = models.DateTimeField(null=True, blank=True)
+    release_date = models.DateTimeField(null=True, blank=True)
     reason = models.CharField(max_length=30)
     assigned_by = models.IntegerField()
     employee = models.OneToOneField(Employee, on_delete=models.CASCADE)
