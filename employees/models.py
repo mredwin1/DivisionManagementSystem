@@ -64,11 +64,14 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         ('road_supervisor', 'Road Supervisor'),
         ('operations_supervisor', 'Operations Supervisor'),
         ('clerk', 'Clerk'),
-        ('agm', 'AGM'),
-        ('gm', 'GM'),
         ('drive_cam_manager', 'Drive Cam Manager'),
         ('safety_manager', 'Safety Manager'),
-        ('it_manager', 'IT Manager')
+        ('operations_manager', 'Operations Manager'),
+        ('maintenance_manager', 'Maintenance Manager'),
+        ('it_manager', 'IT Manager'),
+        ('agm', 'AGM'),
+        ('gm', 'GM'),
+
     ]
 
     TERMINATION_CHOICES = [
