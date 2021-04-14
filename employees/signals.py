@@ -135,22 +135,23 @@ def add_counseling_document(sender, instance, created, update_fields, **kwargs):
                                 verb=verb,
                                 type=notification_type, employee_id=instance.employee.employee_id)
 
-                    instance.employee.set_pending_term(True)
+                    if not instance.attendance:
+                        instance.employee.set_pending_term(True)
+                        
+                        try:
+                            instance.employee.hold.delete()
+                        except Hold.DoesNotExist:
+                            pass
 
-                    try:
-                        instance.employee.hold.delete()
-                    except Hold.DoesNotExist:
-                        pass
-
-                    hold = Hold(
-                        reason='Pending Termination',
-                        hold_date=datetime.date.today(),
-                        assigned_by=instance.assigned_by,
-                        employee=instance.employee,
-                    )
+                        hold = Hold(
+                            reason='Pending Termination',
+                            hold_date=datetime.date.today(),
+                            assigned_by=instance.assigned_by,
+                            employee=instance.employee,
+                        )
+                        hold.save()
 
                     instance.employee.save()
-                    hold.save()
     except TypeError:
         pass
 
