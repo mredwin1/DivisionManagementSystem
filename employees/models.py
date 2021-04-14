@@ -1546,7 +1546,7 @@ class SafetyPoint(models.Model):
         y -= .4
 
         paragraph3 = 'By checking this box, you acknowledge that you are requesting Union representation, and that ' \
-                     'you have 5 business days to have the Union contact the Safety Manager about this point notice. ' \
+                     'you have 10 business days to have the Union contact the Safety Manager about this point notice. ' \
                      'Failure to do so will result in the point(s) and related discipline being issued without ' \
                      'representation from the Union. '
 
