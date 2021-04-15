@@ -264,7 +264,8 @@ def view_hold_list(request):
         ('employee__employee_id', 'Employee ID'),
         ('employee__position', 'Position'),
         ('employee__hire_date', 'Hire Date'),
-        ('hold_date', 'hold_date'),
+        ('-hold_date', 'Hold Date'),
+        ('reason', 'Reason'),
     ]
 
     start_date = datetime.datetime.strptime(date_range[:10], '%m/%d/%Y') if date_range else \
