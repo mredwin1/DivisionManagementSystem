@@ -1356,7 +1356,7 @@ class SafetyPoint(models.Model):
         }
 
         paragraph1_return = {
-            '0': 'committed and unsafe act while operating a company vehicle.',
+            '0': 'committed an unsafe act while operating a company vehicle.',
             '1': 'failed to cycle a wheelchair lift.',
             '2': 'failed to do a proper vehicle inspection (DVI).',
             '3': 'failed to maintain a proper following distance of 4-5 seconds.',

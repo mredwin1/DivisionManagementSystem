@@ -304,7 +304,7 @@ class MakeTimeOffRequest(forms.Form):
 
         time_off_request = TimeOffRequest(
             employee=employee,
-            request_date=datetime.datetime.today(),
+            request_date=self.cleaned_data['request_date'],
             time_off_type=self.cleaned_data['time_off_type'],
             status='0',
             reason=self.cleaned_data['reason'],

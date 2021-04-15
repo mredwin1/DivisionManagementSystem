@@ -264,7 +264,8 @@ def view_hold_list(request):
         ('employee__employee_id', 'Employee ID'),
         ('employee__position', 'Position'),
         ('employee__hire_date', 'Hire Date'),
-        ('hold_date', 'hold_date'),
+        ('-hold_date', 'Hold Date'),
+        ('reason', 'Reason'),
     ]
 
     start_date = datetime.datetime.strptime(date_range[:10], '%m/%d/%Y') if date_range else \
@@ -289,7 +290,7 @@ def view_hold_list(request):
     if start_date and end_date:
         employee_holds = employee_holds.filter(hold_date__gte=start_date, hold_date__lte=end_date)
     if sort_by:
-        employee_holds.order_by(sort_by)
+        employee_holds = employee_holds.order_by(sort_by)
 
     f_form = FilterForm(sort_choices=sort_choices, data={
         'company': company,
