@@ -47,7 +47,7 @@ def log_in(request):
 def employee_info(request):
     company_name = request.GET.get('company')
     search = request.GET.get('search')
-    sort_by = request.GET.get('sort_by')
+    sort_by = request.GET.get('sort_by') if request.GET.get('sort_by') else 'id'
     position = request.GET.get('position')
 
     f_form = DriverFilterForm(data={
