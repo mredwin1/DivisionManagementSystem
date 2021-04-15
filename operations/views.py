@@ -290,7 +290,7 @@ def view_hold_list(request):
     if start_date and end_date:
         employee_holds = employee_holds.filter(hold_date__gte=start_date, hold_date__lte=end_date)
     if sort_by:
-        employee_holds.order_by(sort_by)
+        employee_holds = employee_holds.order_by(sort_by)
 
     f_form = FilterForm(sort_choices=sort_choices, data={
         'company': company,
