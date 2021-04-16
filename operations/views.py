@@ -253,7 +253,6 @@ def counseling_reports(request):
 @permission_required('employees.can_view_hold_list', raise_exception=True)
 def view_hold_list(request):
     company = request.GET.get('company')
-    date_range = request.GET.get('date_range')
     search = request.GET.get('search')
     sort_by = request.GET.get('sort_by')
 
@@ -267,11 +266,6 @@ def view_hold_list(request):
         ('-hold_date', 'Hold Date'),
         ('reason', 'Reason'),
     ]
-
-    start_date = datetime.datetime.strptime(date_range[:10], '%m/%d/%Y') if date_range else \
-        (datetime.datetime.today() - datetime.timedelta(days=365))
-    end_date = datetime.datetime.strptime(date_range[13:], '%m/%d/%Y') if date_range else \
-        datetime.datetime.today()
 
     employee_holds = Hold.objects.filter(employee__is_active=True)
     if search:
@@ -287,14 +281,11 @@ def view_hold_list(request):
 
     if company:
         employee_holds = employee_holds.filter(employee__company__display_name__exact=company)
-    if start_date and end_date:
-        employee_holds = employee_holds.filter(hold_date__gte=start_date, hold_date__lte=end_date)
     if sort_by:
         employee_holds = employee_holds.order_by(sort_by)
 
     f_form = FilterForm(sort_choices=sort_choices, data={
         'company': company,
-        'date_range': date_range,
         'search': search,
         'sort_by': sort_by
     })
@@ -306,8 +297,6 @@ def view_hold_list(request):
     data = {
         'page_obj': page_obj,
         'f_form': f_form,
-        'start_date': start_date.strftime('%m/%d/%Y'),
-        'end_date': end_date.strftime('%m/%d/%Y'),
     }
     return render(request, 'operations/hold_list.html', data)
 

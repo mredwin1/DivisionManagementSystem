@@ -2,24 +2,6 @@
 {% load employee_filters %}
 {% load crispy_forms_filters %}
 {% block content%}
-    <script>
-        $(document).ready(function(){
-            $('#id_date_range').daterangepicker({
-                ranges: {
-                    'Last Month': [moment().subtract(1, 'month'), moment()],
-                    'Last 6 Months': [moment().subtract(6, 'month'), moment()],
-                    'Last Year': [moment().subtract(1, 'year'), moment()]
-                },
-                "autoApply": true,
-                "startDate": "{{ start_date }}",
-                "endDate": "{{ end_date }}",
-                "opens": "left"
-                });
-            $('#id_date_range').on('apply.daterangepicker', function(ev, picker) {
-              $('#filter-form').submit();
-            });
-        });
-    </script>
     <div class="row justify-content-center">
         <div class="col-lg-3 col-md-3 col-sm-3 justify-content-center">
             <h1 class="text-center pt-3">Employee Hold List</h1>
@@ -37,9 +19,6 @@
             </div>
             <div class="col-lg-2 col-md-2 col-sm-2">
                 {{ f_form.company|as_crispy_field }}
-            </div>
-            <div class="col-lg-2 col-md-2 col-sm-2">
-                {{ f_form.date_range|as_crispy_field }}
             </div>
             <div class="col-lg-2 col-md-2 col-sm-2">
                 {{ f_form.search|as_crispy_field }}
