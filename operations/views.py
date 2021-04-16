@@ -282,8 +282,8 @@ def view_hold_list(request):
 
         except ValueError:
             employee_holds = Hold.objects.annotate(
-                full_name=Concat('first_name', V(' '), 'last_name', output_field=CharField())).filter(
-                full_name__icontains=search, employee__is_active=True)
+                full_name=Concat('employee__first_name', V(' '), 'employee__last_name', output_field=CharField())).filter(
+                full_name__icontains=search)
 
     if company:
         employee_holds = employee_holds.filter(employee__company__display_name__exact=company)
