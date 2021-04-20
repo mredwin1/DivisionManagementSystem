@@ -45,4 +45,4 @@ class Command(BaseCommand):
         for notification_type in notification_types:
             group = Employee.objects.filter(groups__name=notification_type)
             notify.send(sender=sender, recipient=group,
-                        verb=verb, type=notification_type, employee_id=sender.employee_id)
+                        verb=verb, type=notification_type, employee_id=sender.employee.employee_id)
