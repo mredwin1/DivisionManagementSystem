@@ -1893,8 +1893,8 @@ class Settlement(models.Model):
                 f' {self.employee.get_full_name()}.'
         y = 8.5
 
-        if p.stringWidth(intro, 'Times-Roman', 12) > 175.0:
-            wrapped_text = wrap_text(intro, 'Times-Roman', 12, 175)
+        if p.stringWidth(intro, 'Times-Roman', 12) > 455.0:
+            wrapped_text = wrap_text(intro, 'Times-Roman', 12, 455)
             for line in wrapped_text:
                 p.drawString(1.125 * inch, y * inch, line)
                 y -= .20
@@ -1905,8 +1905,8 @@ class Settlement(models.Model):
         y -= .3
         # Details
         for paragraph in self.details.replace('\r', '').split('\n'):
-            if p.stringWidth(paragraph, 'Times-Roman', 12) > 175.0:
-                wrapped_text = wrap_text(paragraph, 'Times-Roman', 12, 175)
+            if p.stringWidth(paragraph, 'Times-Roman', 12) > 455.0:
+                wrapped_text = wrap_text(paragraph, 'Times-Roman', 12, 455)
                 for line in wrapped_text:
                     p.drawString(1.125 * inch, y * inch, line)
                     y -= .20
@@ -1926,7 +1926,7 @@ class Settlement(models.Model):
                 ' establishment of any past practice or precedent with regard to the interpretation of the' \
                 ' company\'s work rules, polices, and/or the applicable collective bargaining agreement.'
 
-        wrapped_text = wrap_text(outro, 'Times-Roman', 12, 93)
+        wrapped_text = wrap_text(outro, 'Times-Roman', 12, 455)
         for line in wrapped_text:
             p.drawString(1.125 * inch, y * inch, line)
             y -= .20
