@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         logging.info('Running safety point notification...')
-        safety_point_records = SafetyPoint.objects.filter(is_active=True).order_by('issued_date')
+        safety_point_records = SafetyPoint.objects.filter(is_active=True, employee__is_active=True).order_by('issued_date')
 
         today = datetime.datetime.today().date()
 
@@ -45,4 +45,4 @@ class Command(BaseCommand):
         for notification_type in notification_types:
             group = Employee.objects.filter(groups__name=notification_type)
             notify.send(sender=sender, recipient=group,
-                        verb=verb, type=notification_type, employee_id=sender.employee_id)
+                        verb=verb, type=notification_type, employee_id=sender.employee.employee_id)
