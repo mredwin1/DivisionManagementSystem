@@ -935,10 +935,12 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         p.setLineWidth(.75)
 
         # Profile Picture
-        profile_picture_url = self.profile_picture.url if self.profile_picture else '/main/blank-profile-picture.png'
-        absolute_url = urljoin(settings.STATIC_URL, profile_picture_url[1:])  # Removing the first /
-        import logging
-        logging.info(f'{absolute_url}')
+        if self.profile_picture:
+            absolute_url = self.profile_picture.url
+        else:
+            profile_picture_url = 'main/blank-profile-picture.png'
+            absolute_url = urljoin(settings.STATIC_URL, profile_picture_url)  # Removing the first /
+
         profile_picture = ImageReader(absolute_url)
         p.drawImage(profile_picture, 1 * inch, 8.5 * inch, 2 * inch, 2 * inch, mask='auto')
 
