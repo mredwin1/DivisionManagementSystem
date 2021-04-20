@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         logging.info('Running safety point notification...')
-        safety_point_records = SafetyPoint.objects.filter(is_active=True).order_by('issued_date')
+        safety_point_records = SafetyPoint.objects.filter(is_active=True, employee__is_active=True).order_by('issued_date')
 
         today = datetime.datetime.today().date()
 

@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         logging.info('Running settlement notification...')
-        settlement_records = Settlement.objects.filter(is_active=True).order_by('created_date')
+        settlement_records = Settlement.objects.filter(is_active=True, employee__is_active=True).order_by('created_date')
 
         today = datetime.datetime.today().date()
 
