@@ -55,6 +55,9 @@ A django web application geared towards the transportation industry to help orga
 3. Create a .env for all required environment variables
     - SECRET_KEY: The django secret key. [This](https://djecrety.ir/) can be used to generate a random secret key. More info on how this affects the project can be read [here](https://docs.djangoproject.com/en/3.1/ref/settings/#secret-key).
     - DEBUG: The django debug mode is used to display detailed error messages on the site. Here set it to either 1 or 0(True or False), it is reccommended to set it to 0 for production puposes. More info how this affects the application can be read [here](https://docs.djangoproject.com/en/3.1/ref/settings/#debug).
+    - EMAIL_HOST: The host which emails will be sent from
+    - EMAIL_PORT: The port to use to send emails
+    - EMAIL_USE_TLS: Use TLS or not when sending emails (0 or 1)
     - EMAIL_HOST_USER: The email from which notifications will be sent.
     - EMAIL_HOST_PASSWORD: The password for the email provided.
     - SUPER_USERNAME: The username you want to set for the superuser that will be created.
