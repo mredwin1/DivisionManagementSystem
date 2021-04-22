@@ -57,8 +57,8 @@
                             <div class="col px-3 border-top border-dark">
                                 <div class="d-flex justify-content-between p-3">
                                     {% if employee.hold %}
-                                        <a class="cursor-default" href="{% if perms.employees.can_place_hold %}{% if not employee.is_pending_term %}{% url 'employee-remove-hold' employee_id=employee.employee_id hold_id=employee.hold.id %}{% else %}#{% endif %}{% endif %}">
-                                            <i class="far fa-play-circle fa-lg{% if perms.employees.can_place_hold %}{% if not employee.is_pending_term %} cursor-pointer{% endif %}{% endif %} icon-link" title="Remove Hold"></i>
+                                        <a class="cursor-default" href="{% if perms.employees.can_place_hold %}{% url 'employee-remove-hold' employee_id=employee.employee_id hold_id=employee.hold.id %}{% endif %}">
+                                            <i class="far fa-play-circle fa-lg{% if perms.employees.can_place_hold %} cursor-pointer{% endif %} icon-link" title="Remove Hold"></i>
                                         </a>
                                     {% else %}
                                         <a href="{% if perms.employees.can_place_hold %}{% url 'employee-place-hold' employee_id=employee.employee_id %}{% else %}#{% endif %}">
