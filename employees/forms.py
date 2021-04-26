@@ -551,8 +551,10 @@ class AssignSettlement(forms.Form):
             assigned_by=request.user.employee_id,
         )
 
-        if employee.hold:
+        try:
             employee.hold.delete()
+        except Hold.DoesNotExist:
+            pass
 
         settlement.save()
 
