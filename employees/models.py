@@ -253,6 +253,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
             ('can_import_safety_point_data', 'Can import safety point data'),
 
             # Operation's Views Permissions
+            ('can_view_operations_home', 'Can view operations home'),
             ('can_add_employee', 'Can add employee'),
             ('can_view_hold_list', 'Can view hold list'),
             ('can_view_attendance_reports', 'Can view attendance reports'),

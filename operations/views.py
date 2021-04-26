@@ -22,6 +22,7 @@ from .forms import EmployeeCreationForm, AttendanceFilterForm, CounselingFilterF
 
 
 @login_required
+@permission_required('employees.can_view_operations_home', raise_exception=True)
 def home(request, attendance_ids=None):
     download_urls = []
     if attendance_ids:
