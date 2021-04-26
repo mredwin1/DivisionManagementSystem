@@ -43,11 +43,9 @@
                                     <h5 class="pt-2" title="Hire Date"><i class="far fa-calendar-alt pr-3"></i>{{ employee.hire_date|pretty_date }}</h5>
                                     <h5 class="pt-2" title="Company Name"><i class="far fa-building pr-3"></i>{{ employee.company }}</h5>
                                     <h5 class="pt-2" title="Position"><i class="fas fa-user-tag pr-3"></i>{{ employee.position|pretty_position }}</h5>
-                                    {% if employee.position == 'driver' %}
-                                        <h5 class="pt-2">Paid Sick: {{ employee.paid_sick }}</h5>
-                                        <h5 class="pt-2">Unpaid Sick: {{ employee.unpaid_sick }}</h5>
-                                        <h5 class="pt-2">Floating Holiday: {{ employee.floating_holiday }}</h5>
-                                    {% endif %}
+                                    <h5 class="pt-2">Paid Sick: {{ employee.paid_sick }}</h5>
+                                    <h5 class="pt-2">Unpaid Sick: {{ employee.unpaid_sick }}</h5>
+                                    <h5 class="pt-2">Floating Holiday: {{ employee.floating_holiday }}</h5>
                                 </div>
                             </div>
                         </div>
