@@ -42,9 +42,89 @@ def combine_attendance_documents(attendance_ids):
     return buffer
 
 
-def create_phone_list(employees):
+def create_safety_meeting_attendance(employees):
+    """This function takes a query set of employees and creates a PDF with all the names and their IDs and a spot to
+    sign, meant to be used for safety meeting attendance.
+
+    :param employees: QuerySet
+
+    :return phone_list: ContentFile (The PDF)
     """
-    This function takes a query set of employees and creates a PDF with all the phone numbers (Primary and Secondary)
+    buffer = io.BytesIO()
+
+    p = canvas.Canvas(buffer, pagesize=letter)
+
+    p.setLineWidth(.75)
+
+    # Title
+    title = 'Safety Meeting Attendance List'
+    p.setFontSize(18)
+    p.drawCentredString(4.25 * inch, 10.5 * inch, title)
+
+    # Disclaimers
+    p.setFontSize(10)
+    p.drawString(.5 * inch, 10 * inch, 'On')
+    p.line(.70 * inch, 10 * inch, 3.0 * inch, 10 * inch)
+
+    p.drawString(3.10 * inch, 10 * inch, 'at')
+    p.line(3.25 * inch, 10 * inch, 3.80 * inch, 10 * inch)
+
+    p.drawString(3.85 * inch, 10 * inch, 'training was conducted on these topics:')
+    p.line(6.35 * inch, 10 * inch, 8 * inch, 10 * inch)
+
+    p.line(.5 * inch, 9.65 * inch, 8 * inch, 9.65 * inch)
+    p.line(.5 * inch, 9.35 * inch, 8 * inch, 9.35 * inch)
+    p.line(.5 * inch, 9.05 * inch, 8 * inch, 9.05 * inch)
+
+    p.drawString(.5 * inch, 8.75 * inch, 'This training is in compliance with Federal, State, and local regulations, as well as MV company policy.')
+    p.drawString(.5 * inch, 8.55 * inch, 'The following were in attendance:')
+
+    total_pages = int(len(employees) / 18) + 1
+    page_num = 1
+    y = 7.5
+
+    counter = 1
+    p.setFontSize(12)
+    for employee in employees:
+        p.drawString(.625 * inch, y * inch, str(counter))
+        p.drawString(1.0 * inch, y * inch, employee.get_full_name())
+        p.drawString(2.75 * inch, y * inch, str(employee.employee_id))
+        p.line(0.5 * inch, (y - .2) * inch, 8 * inch, (y - .2) * inch)  # Bottom
+
+        if y <= 1 or len(employees) == counter:
+            grid_bottom = y - .2
+            y = 7.9 if page_num == 1 else 10.4
+            # Heading
+            p.drawString(1.00 * inch, y * inch, 'Name')
+            p.drawString(2.75 * inch, y * inch, 'Employee #')
+            p.drawString(4.00 * inch, y * inch, 'Time')
+            p.drawString(5.50 * inch, y * inch, 'Signature')
+
+            # Footer
+            p.drawString(1 * inch, .5 * inch, datetime.datetime.today().strftime('%A, %B %d, %Y'))
+            p.drawRightString(7.5 * inch, .5 * inch, f'Page {page_num} of {total_pages}')
+
+            # Grid
+            p.line(0.5 * inch, (y - .07) * inch, 8 * inch, (y - .07) * inch)  # Top
+            p.line(3.9 * inch, (y - .07) * inch, 3.9 * inch, grid_bottom * inch)  # Vertical 1
+            p.line(4.9 * inch, (y - .07) * inch, 4.9 * inch, grid_bottom * inch)  # Vertical 2
+
+            p.showPage()
+
+            page_num += 1
+
+            y = 7.9 if page_num == 1 else 10.4
+
+        counter += 1
+        y -= .5
+
+    p.save()
+
+    return ContentFile(buffer.getbuffer())
+
+
+def create_phone_list(employees):
+    """This function takes a query set of employees and creates a PDF with all the phone numbers (Primary and Secondary)
     of each of them.
 
     :param employees: QuerySet

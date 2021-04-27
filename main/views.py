@@ -12,7 +12,8 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from employees.helper_functions import create_phone_list, create_seniority_list, create_driver_list, create_custom_list
+from employees.helper_functions import create_phone_list, create_seniority_list, create_driver_list, create_custom_list,\
+    create_safety_meeting_attendance
 from employees.models import Employee
 from .forms import DriverFilterForm, DriverImportForm, AttendanceImportForm, SafetyPointImportForm
 from .tasks import import_drivers, import_attendance, import_safety_points
@@ -88,6 +89,20 @@ def employee_info(request):
     }
 
     return render(request, 'main/employee_info.html', data)
+
+
+@login_required
+@permission_required('employees.can_export_safety_meeting_attendance', raise_exception=True)
+def export_safety_meeting_attendance(request):
+    employees = Employee.objects.filter(is_active=True, position='driver').order_by('last_name')
+    safety_meeting_attendance = create_safety_meeting_attendance(employees)
+
+    filename = 'Safety Meeting Attendance.pdf'
+
+    response = HttpResponse(safety_meeting_attendance, content_type='application/force-download')
+    response['Content-Disposition'] = f'attachment;filename="{filename}"'
+
+    return response
 
 
 @login_required
