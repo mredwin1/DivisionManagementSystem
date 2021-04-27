@@ -87,7 +87,7 @@ def create_safety_meeting_attendance(employees):
     p.setFontSize(12)
     for employee in employees:
         p.drawString(.625 * inch, y * inch, str(counter))
-        p.drawString(1.0 * inch, y * inch, employee.get_full_name())
+        p.drawString(1.0 * inch, y * inch, str(employee))
         p.drawString(2.75 * inch, y * inch, str(employee.employee_id))
         p.line(0.5 * inch, (y - .2) * inch, 8 * inch, (y - .2) * inch)  # Bottom
 
