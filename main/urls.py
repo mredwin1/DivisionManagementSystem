@@ -5,6 +5,7 @@ from main import views as main_views
 urlpatterns = [
     path('', main_views.employee_info, name='main-home'),
     path('employee-info/', main_views.employee_info, name='main-employee-info'),
+    path('export-safety-meeting-attendance/', main_views.export_safety_meeting_attendance, name='main-export-safety-meeting-attendance'),
     path('export-phone-list/', main_views.export_phone_list, name='main-export-phone-list'),
     path('export-seniority-list/', main_views.export_seniority_list, name='main-export-seniority-list'),
     path('export-driver-list/', main_views.export_driver_list, name='main-export-driver-list'),
