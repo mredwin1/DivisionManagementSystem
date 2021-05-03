@@ -67,8 +67,8 @@
                                         <i class="fas fa-file-export fa-lg{% if perms.employees.can_export_profile %} cursor-pointer{% endif %} icon-link" title="Export Profile"></i>
                                     </a>
                                     <i class="far fa-file-alt fa-lg{% if perms.employees.can_view_settlement and settlements %} cursor-pointer{% endif %} icon-link" title="View Settlements"{% if perms.employees.can_view_settlement and settlements %} data-toggle="modal" data-target="#secondaryModal"{% endif %}></i>
-                                    <a class="cursor-default" href="{% if perms.employees.can_terminate_employee %}{% if employee.is_pending_term %}{% url 'employee-terminate-settlement' employee_id=employee.employee_id %}{% else %}#{% endif %}{% endif %}">
-                                        <i class="fas fa-walking fa-lg{% if perms.employees.can_terminate_employee %}{% if employee.is_pending_term %} cursor-pointer{% endif %}{% endif %} icon-link" title="Terminate"></i>
+                                    <a class="cursor-default" href="{% if perms.employees.can_terminate_employee %}{% url 'employee-terminate-settlement' employee_id=employee.employee_id %}{% else %}#{% endif %}">
+                                        <i class="fas fa-walking fa-lg{% if perms.employees.can_terminate_employee %} cursor-pointer{% endif %} icon-link" title="Terminate"></i>
                                     </a>
                                 </div>
                             </div>
