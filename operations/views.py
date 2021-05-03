@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.contrib.auth import settings
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.paginator import Paginator
-from django.db.models import CharField, Value as V
+from django.db.models import Sum, Q, OuterRef, Subquery, CharField, Value as V
 from django.db.models.functions import Concat
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
@@ -137,6 +137,7 @@ def attendance_reports(request):
         ('employee__first_name', 'First Name'),
         ('employee_id', 'Employee ID'),
         ('-points', 'Points'),
+        ('-total_points', 'Total Points'),
     ]
 
     if search:
@@ -149,7 +150,13 @@ def attendance_reports(request):
                 full_name=Concat('employee__first_name', V(' '), 'employee__last_name', output_field=CharField())).filter(
                 full_name__icontains=search, is_active=True, employee__is_active=True)
 
-    if sort_by:
+    if sort_by == '-total_points':
+        records = attendance_records.annotate(full_name=Concat('employee__first_name', V(' '), 'employee__last_name', output_field=CharField())).values('full_name').annotate(total_points=Sum('points'))
+
+        attendance_records = attendance_records.annotate(total_points=Subquery(records.filter(Q(full_name__icontains=OuterRef('employee__first_name')) & Q(full_name__icontains=OuterRef('employee__last_name'))).values('total_points')[:1]))
+
+        attendance_records = attendance_records.order_by('-total_points')
+    elif sort_by:
         attendance_records = attendance_records.order_by(sort_by)
 
     if reasons:
@@ -404,7 +411,7 @@ def time_off_reports(request, notification_id=None):
             time_off_records = time_off_records.filter(employee__company__display_name=company_name)
 
         if start_date and end_date:
-            time_off_records = time_off_records.filter(request_date__gte=start_date, request_date__lte=end_date)
+            time_off_records = time_off_records.filter(dayoff__requested_date__gte=start_date, dayoff__requested_date__lte=end_date)
 
         if sort_by:
             time_off_records = time_off_records.order_by(sort_by)

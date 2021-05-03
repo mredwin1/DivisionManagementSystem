@@ -242,7 +242,9 @@ def time_off_return(value):
         '5': 'Extended Medical Leave',
         '6': 'Family Medical Leave',
         '7': 'Floating Holiday',
-        '8': 'Other',
+        '8': 'Personal',
+        '9': 'Doctor Appointment',
+        '10': 'Other',
     }
 
     return time_off[value]
