@@ -36,7 +36,6 @@ class EmployeeAdmin(UserAdmin):
         ('Other Infomation', {
             'classes': ('collapse',),
             'fields': (
-                ('is_pending_term'),
                 ('termination_date', 'termination_type'),
                 ('termination_comments')
             )
