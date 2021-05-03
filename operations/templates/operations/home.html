@@ -5,27 +5,6 @@
         <div class="col-4">
             <div class="card">
                 <div class="card-body">
-                    <h3 class="card-title">Pending Term</h3>
-                    <h6 class="card-subtitle mb-2 text-muted">This is a list of all the employees that are currently pending termination.</h6>
-                </div>
-                <ul class="list-group list-group-flush scroll1">
-                    {% if pending_term %}
-                        {% for employee in pending_term %}
-                            <li class="list-group-item">
-                                <a href="{% url 'employee-account' employee.employee_id  %}">{{ employee.get_full_name }}</a>
-                            </li>
-                        {% endfor %}
-                    {% else %}
-                        <li class="list-group-item">
-                            No Employees Pending Term
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-        <div class="col-4">
-            <div class="card">
-                <div class="card-body">
                     <h3 class="card-title">At 10 Attendance Points</h3>
                     <h6 class="card-subtitle mb-2 text-muted">This is a list of all the employees that are currently at or above 10 attendance points.</h6>
                 </div>
@@ -65,6 +44,28 @@
                 </ul>
             </div>
         </div>
+        <div class="col-4">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Recent Settlement</h3>
+                    <h6 class="card-subtitle mb-2 text-muted">This is a list of the most recent 10 settlements</h6>
+                </div>
+                <ul class="list-group list-group-flush scroll1">
+                {% if all_settlements %}
+                    {% for settlement in all_settlements %}
+                        <li class="list-group-item">
+                            <a href="{% url 'employee-account' settlement.employee.employee_id  %}">{{ settlement.employee.get_full_name }}</a>
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="list-group-item">
+                        No Settlements
+                    </li>
+                {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
     </div>
     <div class="row pt-2">
         <div class="col-4">
@@ -148,27 +149,6 @@
                 {% else %}
                     <li class="list-group-item">
                         No Recent Terms
-                    </li>
-                {% endif %}
-                </ul>
-            </div>
-        </div>
-        <div class="col-4">
-            <div class="card">
-                <div class="card-body">
-                    <h3 class="card-title">Recent Settlement</h3>
-                    <h6 class="card-subtitle mb-2 text-muted">This is a list of the most recent 10 settlements</h6>
-                </div>
-                <ul class="list-group list-group-flush scroll1">
-                {% if all_settlements %}
-                    {% for settlement in all_settlements %}
-                        <li class="list-group-item">
-                            <a href="{% url 'employee-account' settlement.employee.employee_id  %}">{{ settlement.employee.get_full_name }}</a>
-                        </li>
-                    {% endfor %}
-                {% else %}
-                    <li class="list-group-item">
-                        No Settlements
                     </li>
                 {% endif %}
                 </ul>
