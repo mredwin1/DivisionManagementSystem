@@ -479,7 +479,7 @@ def termination_reports(request):
     company = request.GET.get('company')
     date_range = request.GET.get('date_range')
     search = request.GET.get('search')
-    sort_by = request.POST.get('sort_by')
+    sort_by = request.GET.get('sort_by')
 
     sort_choices = [
         ('', 'Sort By'),
@@ -488,7 +488,7 @@ def termination_reports(request):
         ('employee_id', 'Employee ID'),
         ('position', 'Position'),
         ('hire_date', 'Hire Date'),
-        ('termination_date', 'Termination Date'),
+        ('-termination_date', 'Termination Date'),
     ]
 
     start_date = datetime.datetime.strptime(date_range[:10], '%m/%d/%Y') if date_range else \
@@ -513,7 +513,7 @@ def termination_reports(request):
     if start_date and end_date:
         termed_drivers = termed_drivers.filter(termination_date__gte=start_date, termination_date__lte=end_date)
     if sort_by:
-        termed_drivers.order_by(sort_by)
+        termed_drivers = termed_drivers.order_by(sort_by)
 
     f_form = FilterForm(sort_choices=sort_choices, data={
         'company': company,

@@ -44,10 +44,6 @@ def safety_point_delete(sender, instance, **kwargs):
 
 @receiver(post_delete, sender=Hold)
 def hold_delete(sender, instance, **kwargs):
-    if instance.employee.is_pending_term:
-        instance.employee.is_pending_term = False
-        instance.employee.save()
-
     verb = f'{instance.employee.get_full_name()}\'s hold has been removed'
     notification_type = 'email_rem_hold'
 

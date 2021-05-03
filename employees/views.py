@@ -179,13 +179,6 @@ def delete_attendance(request, employee_id, attendance_id):
     except Counseling.DoesNotExist:
         pass
 
-    if employee.is_pending_term:
-        employee.is_pending_term = False
-        try:
-            employee.hold.delete()
-        except Hold.DoesNotExist:
-            pass
-
     attendance_point.save(update_fields=['is_active', 'document'])
 
     if exemption == '1':
@@ -276,14 +269,6 @@ def delete_counseling(request, employee_id, counseling_id):
 
     counseling.is_active = False
 
-    if counseling.employee.is_pending_term:
-        counseling.employee.is_pending_term = False
-        counseling.employee.save()
-        try:
-            counseling.employee.hold.delete()
-        except Hold.DoesNotExist:
-            pass
-
     counseling.save(update_fields=['is_active', 'document'])
 
     messages.add_message(request, messages.SUCCESS, 'Counseling Successfully Deleted')
@@ -372,13 +357,6 @@ def delete_safety_point(request, employee_id, safety_point_id):
         safety_point.counseling.save(update_fields=['document', 'is_active'])
     except Counseling.DoesNotExist:
         pass
-
-    if safety_point.employee.is_pending_term:
-        safety_point.employee.is_pending_term = False
-        try:
-            safety_point.employee.hold.delete()
-        except Hold.DoesNotExist:
-            pass
 
     safety_point.save(update_fields=['is_active', 'document'])
 

@@ -84,7 +84,6 @@ class Employee(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False, verbose_name='Superuser')
     is_staff = models.BooleanField(default=False, verbose_name='Staff')
     is_part_time = models.BooleanField(default=False, verbose_name='Part Time')
-    is_pending_term = models.BooleanField(default=False, verbose_name='Pending Termination')
     is_neighbor_link = models.BooleanField(default=False, verbose_name='NeighborLink Driver')
 
     email_7attendance = models.BooleanField(default=True, verbose_name="7 Attendance Points",
@@ -393,12 +392,6 @@ class Employee(AbstractBaseUser, PermissionsMixin):
             return True
         else:
             return False
-
-    def set_pending_term(self, status):
-        """Sets the status of is_pending_term
-        """
-        self.is_pending_term = status
-        self.save()
 
     def safety_point_removal_required(self, instance):
         """Checks if the Employee needs to be removed from service based on SafetyPoint history and if so removes them
