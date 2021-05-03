@@ -411,7 +411,7 @@ def time_off_reports(request, notification_id=None):
             time_off_records = time_off_records.filter(employee__company__display_name=company_name)
 
         if start_date and end_date:
-            time_off_records = time_off_records.filter(request_date__gte=start_date, request_date__lte=end_date)
+            time_off_records = time_off_records.filter(dayoff__requested_date__gte=start_date, dayoff__requested_date__lte=end_date)
 
         if sort_by:
             time_off_records = time_off_records.order_by(sort_by)
