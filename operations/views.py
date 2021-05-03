@@ -51,18 +51,16 @@ def home(request, attendance_ids=None):
                 pass
 
     all_employees = Employee.objects.filter(is_active=True).order_by('last_name')
-    pending_term = all_employees.filter(is_pending_term=True)
     at_10_attendance = [employee for employee in all_employees if employee.get_total_attendance_points() >= 10]
-    all_settlements = Settlement.objects.filter(is_active=True).order_by('created_date')[:9]
+    all_settlements = Settlement.objects.filter(is_active=True).order_by('-created_date')[:10]
     last_final = all_employees.filter(counseling__action_type='4')
     no_sick_days = [employee for employee in all_employees if (employee.unpaid_sick + employee.paid_sick) <= 0]
-    recent_terms = Employee.objects.filter(is_active=False).order_by('termination_date')[:6]
+    recent_terms = Employee.objects.filter(is_active=False).order_by('-termination_date')[:5]
     no_attendance_6_months = [employee for employee in all_employees if not employee.has_attendance_in_6_months()]
     recent_hires = all_employees.filter(hire_date__gte=timezone.now() - datetime.timedelta(days=30))
 
     data = {
         'download_urls': download_urls,
-        'pending_term': pending_term,
         'at_10_attendance': at_10_attendance,
         'all_settlements': all_settlements,
         'last_final': last_final,
