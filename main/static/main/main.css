@@ -446,14 +446,18 @@ a.account-content {
   }
 }
 
-/* Small devices (landscape phones, 576px and down) */
+/* Extra small devices (landscape phones, 576px and down) */
 @media (max-width: 575px) {
     .navbar-brand {
-        width: 290px !important;
+        width: 220px !important;
+    }
+
+    body {
+        padding-top: 52.34px;
     }
 }
 
-
+/* Small devices (landscape phones, 576px and up) */
 @media (min-width: 576px) {
     .form-group {
         margin-bottom: 1rem;
@@ -466,11 +470,17 @@ a.account-content {
     .nav-border {
         border-right-style: none;
     }
+
+    body {
+        padding-top: 52.34px;
+    }
 }
 
 /* Medium devices (tablets, 768px and up) The navbar toggle appears at this breakpoint */
 @media (min-width: 768px) {
-
+    body {
+        padding-top: 66.45px;
+    }
 }
 
 /* Large devices (desktops, 992px and up) */
