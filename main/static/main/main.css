@@ -232,7 +232,7 @@ h6 {
 }
 
 .employee-row:hover {
-    background-image: linear-gradient(to right, #ffffff 7%, #ADD8E6 -10%, #ADD8E6 90%, #ffffff 90%);
+    background-color: #ADD8E6;
 }
 
 a.employee-row:hover {
