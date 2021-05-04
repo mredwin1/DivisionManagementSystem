@@ -210,12 +210,6 @@ h6 {
     color: #072F5F !important;
 }
 
-.nav-border {
-    border-right-style: solid;
-    border-right-width: 2px;
-    border-color: #444444;"
-}
-
 .dropdown-menu {
     font-size: .8rem;
 }
@@ -452,14 +446,45 @@ a.account-content {
   }
 }
 
-@media screen and (max-width: 992px) {
+/* Small devices (landscape phones, 576px and down) */
+@media (max-width: 575px) {
+    .navbar-brand {
+        width: 290px !important;
+    }
+}
+
+
+@media (min-width: 576px) {
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .navbar-brand {
+        width: 290px !important;
+    }
+
     .nav-border {
         border-right-style: none;
     }
 }
 
-@media screen and (max-width: 576px) {
-    .form-group {
-        margin-bottom: 1rem;
+/* Medium devices (tablets, 768px and up) The navbar toggle appears at this breakpoint */
+@media (min-width: 768px) {
+
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+    .nav-border {
+        border-right-style: solid;
+        border-right-width: 2px;
+        border-color: #444444;
+    }
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+    .navbar-brand {
+        width: 320px !important;
     }
 }
