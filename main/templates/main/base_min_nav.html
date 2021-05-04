@@ -1,0 +1,141 @@
+{% load static %}
+{% load employee_filters %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+        <!-- Font Awesome Icons -->
+        <script src="https://kit.fontawesome.com/09db1f97d7.js" crossorigin="anonymous"></script>
+
+        <!--Bootstrap Modals-->
+        <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+
+        <!-- MultiDate Picker CSS -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker3.min.css" rel="stylesheet"/>
+
+        <!--Date Range CSS and JS-->
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="{% static 'main/main.css' %}">
+
+        <!-- favicon -->
+        <link rel="shortcut icon" type="image/png" href="{% static 'main/favicon.ico' %}"/>
+
+        {% if title %}
+            <title>{{ title }} - Division 12 Management System</title>
+        {% else %}
+            <title>Division 12 Management System</title>
+        {% endif %}
+    </head>
+    <body>
+        <!-- Primary Modal -->
+        <div class="modal fade" id="mainModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title font-weight-bold" id="mainModalTitle"></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        {% block modal-body %}{% endblock %}
+                    </div>
+                    <div class="modal-footer">
+                        {% block modal-footer %}{% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% block secondary-modal %}{% endblock %}
+        <header class="site-header">
+            <nav class="navbar navbar-expand-lg fixed-top navbar-light bg-light py-1 px-md-5 px-0 shadow-sm">
+                <div class="container-fluid px-xl-5 mx-xl-5 px-0">
+                    <a class="navbar-brand p-0 m-0" href="/">
+                        <div class="d-flex justify-content-start align-items-center">
+                            <img src="{% static 'main/MV_Transportation_logo.png' %}" alt="" width="40%">
+                            <p class="pl-3 m-0 navbar-title">
+                                Division 12
+                            </p>
+                        </div>
+                    </a>
+                    {% block navbar %}{% endblock %}
+                </div>
+            </nav>
+        </header>
+        {% if request.resolver_match.url_name == 'main-employee-info' or request.resolver_match.url_name == 'operations-attendance-reports' or request.resolver_match.url_name == 'operations-counseling-reports' or request.resolver_match.url_name == 'operations-time-off-reports' or request.resolver_match.url_name == 'operations-termination-reports' or request.resolver_match.url_name == 'main-home'%}
+            <main role="main" class="fluid-container pt-3 mx-5 px-5" id="main">
+        {% elif request.resolver_match.url_name == 'employee-account' or request.resolver_match.url_name == 'operations-hold-list' %}
+            <main role="main" class="container-fluid pt-3" id="main">
+        {% else %}
+            <main role="main" class="container pt-3" id="main">
+        {% endif %}
+
+        {% if messages %}
+            <div class="row" id="message">
+                <div class="col">
+                    {% for message in messages%}
+                        <div class="custom-alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif%}
+        {% block content %}{% endblock %}
+        {% if page_obj.has_next or page_obj.has_previous %}
+            <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center mt-2">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% param_replace page=page_obj.previous_page_number %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                    </li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <a class="page-link" href="#">{{ page_obj.number }}<span class="sr-only">(current)</span></a>
+                        </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?{% param_replace page=num %}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% param_replace page=page_obj.next_page_number %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        </main>
+        <div class="loader" id="preloader">Loading...</div>
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.5/dist/latest/bootstrap-autocomplete.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.js"></script>
+        {% block scripts %}{% endblock %}
+    </body>
+</html>
