@@ -19,8 +19,8 @@ class DriverFilterForm(forms.Form):
         ('hire_date', 'Hire Date'),
     ]
 
-    company = forms.CharField(initial='Filter by Company', required=False)
-    position = forms.CharField(initial='Filter by Position', required=False)
+    company = forms.CharField(initial='Company Filter', required=False)
+    position = forms.CharField(initial='Position Filter', required=False)
     sort_by = forms.CharField(initial='Sort By', widget=forms.Select(choices=SORT_CHOICES,
                                                                      attrs={'style': 'font-size: 14px',
                                                                             'onchange': 'form.submit();'}),
@@ -35,9 +35,9 @@ class DriverFilterForm(forms.Form):
         self.helper.form_show_labels = False
 
         company_choices = [(company.display_name, company.display_name) for company in Company.objects.all()]
-        company_choices.insert(0, ('', 'Filter by Company'))
+        company_choices.insert(0, ('', 'Company Filter'))
         position_choices = Employee.POSITION_CHOICES
-        position_choices[0] = ('', 'Filter by Position')
+        position_choices[0] = ('', 'Position Filter')
 
         self.fields['company'].widget = forms.Select(choices=company_choices, attrs={'style': 'font-size: 14px',
                                                                                      'onchange': 'form.submit();'})
