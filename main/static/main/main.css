@@ -497,4 +497,8 @@ a.account-content {
     .navbar-brand {
         width: 320px !important;
     }
+
+    body {
+        padding-top: 72.5px;
+    }
 }
