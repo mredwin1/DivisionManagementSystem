@@ -51,7 +51,7 @@
                     <h3 class="text-right">ASSIGNEE</h3>
                 </div>
             </div>
-            <hr class="my-0 mb-1">
+            <hr class="my-0">
             {% for record in page_obj %}
                 <a class="employee-row" href="{% url 'employee-account' employee_id=record.employee.employee_id %}">
                     <div class="row py-2 px-4 justify-content-center attendance-row" >
