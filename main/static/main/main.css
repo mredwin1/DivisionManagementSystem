@@ -245,7 +245,7 @@ a.employee-row:hover {
 }
 
 .time-off-row:hover {
-    background-image: linear-gradient(to right, #ffffff 5%, #ADD8E6 -10%, #ADD8E6 95%, #ffffff 90%);
+    background-color: #ADD8E6;
 }
 
 .attendance-row {
