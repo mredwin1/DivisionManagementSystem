@@ -367,6 +367,20 @@ class EditSafetyPoint(AssignSafetyPoint):
 
 
 class PlaceHold(forms.Form):
+    REASON_CHOICES = [
+        ('', ''),
+        ('Training', 'Training'),
+        ('Re-Training', 'Re-Training'),
+        ('BTW', 'BTW'),
+        ('FMLA', 'FMLA'),
+        ('Personal', 'Personal'),
+        ('Light Duty', 'Light Duty'),
+        ('Safety', 'Safety'),
+        ('Pending Term', 'Pending Term'),
+        ('Resigned', 'Resigned'),
+        ('Other', 'Other'),
+    ]
+
     incident_date = forms.DateField(label='Incident Date', help_text='If incident, date of the incident',
                                     widget=forms.TextInput(attrs={'type': 'date'}), required=False)
     training_date = forms.DateField(label='Training Date', help_text='If training, date of the training',
@@ -375,7 +389,25 @@ class PlaceHold(forms.Form):
                                     widget=forms.TextInput(attrs={'type': 'time'}), required=False)
     release_date = forms.DateField(label='Release Date', help_text='If date of release known put it above',
                                    widget=forms.TextInput(attrs={'type': 'date'}), required=False)
-    reason = forms.CharField(label='Reason', help_text='Type the reason for being placed on hold')
+    reason = forms.CharField(
+        label='Reason',
+        widget=forms.Select(choices=REASON_CHOICES, attrs={'onchange': 'reason_change()'}),
+        help_text='Select a reason for the hold'
+    )
+
+    other_reason = forms.CharField(
+        label='Reason',
+        widget=forms.TextInput(
+            attrs={'class': 'textinput textInput form-control',
+                   'required': '', 'style': 'display="none"', 'maxlength': '30'}),
+        required=False,
+        help_text='Please Specify the Reason'
+    )
+
+    def clean(self):
+        super(PlaceHold, self).clean()
+        if self.cleaned_data['reason'] == 'Other':
+            self.cleaned_data['reason'] = self.cleaned_data['other_reason']
 
     def save(self, employee, request):
         if self.cleaned_data['training_date']:
