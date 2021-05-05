@@ -7,8 +7,9 @@ function reason_change () {
         other_reason_container.style.display = 'block';
         other_reason_field.required = true;
     } else {
-        other_reason_container.value = ''
-        other_reason_container.required = false;
+        console.log(other_reason_field)
+        other_reason_field.value = ''
+        other_reason_field.required = false;
         other_reason_container.style.display = 'none';
     }
 }
