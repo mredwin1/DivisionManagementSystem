@@ -253,7 +253,7 @@ a.employee-row:hover {
 }
 
 .attendance-row:hover {
-    background-image: linear-gradient(to right, #ADD8E6 0%, #ADD8E6 100%);
+    background-color: #ADD8E6;
 }
 
 a.attendance-row:hover {

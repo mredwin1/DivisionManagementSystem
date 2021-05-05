@@ -132,8 +132,6 @@ def add_counseling_document(sender, instance, created, update_fields, **kwargs):
                                 type=notification_type, employee_id=instance.employee.employee_id)
 
                     if not instance.attendance:
-                        instance.employee.set_pending_term(True)
-                        
                         try:
                             instance.employee.hold.delete()
                         except Hold.DoesNotExist:

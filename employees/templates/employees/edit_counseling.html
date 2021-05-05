@@ -3,37 +3,38 @@
 {% load static %}
 {% block content %}
     <script src="{% static 'JS/form_preloader.js' %}"></script>
-    <h1 class="mt-5">Edit Counseling</h1>
+    <h1 class="mt-3">{{ employee.get_full_name }}</h1>
+    <h3>Edit Counseling</h3>
     <div class="row mt-3">
         <div class="col">
             <form method="POST" role="form" enctype="multipart/form-data" action="{% url 'employee-edit-counseling' employee_id=counseling.employee.employee_id counseling_id=counseling.id %}" onsubmit="return confirm('If you have not uploaded a PDF a new document will be created with the new information!');">
                 {% csrf_token %}
                 <div class="form-row justify-content-start">
-                    <div class="form-group col-4">
+                    <div class="form-group col-md-4 col-12">
                         {{ c_form.issued_date|as_crispy_field }}
                     </div>
-                    <div class="form-group col-4">
+                    <div class="form-group col-md-4 col-12">
                         {{ c_form.action_type|as_crispy_field }}
                     </div>
                     {% if perms.employees.can_override_progressive_discipline_lock %}
-                        <div class="form-group col-4 pt-4" style="display: none" id="pd_check_override">
+                        <div class="form-group col-md-4 col-12 pt-md-4" style="display: none" id="pd_check_override">
                             {{ c_form.pd_check_override|as_crispy_field }}
                         </div>
                     {% endif %}
                 </div>
                 <div class="form-row justify-content-start">
-                    <div class="form-group col-4">
+                    <div class="form-group col-sm-6 col-12">
                         {{ c_form.hearing_date|as_crispy_field }}
                     </div>
-                    <div class="form-group col-4">
+                    <div class="form-group col-sm-6 col-12">
                         {{ c_form.hearing_time|as_crispy_field }}
                     </div>
                 </div>
                 <div class="form-row justify-content-start">
-                    <div class="form-group col-6">
+                    <div class="form-group col-sm-6 col-12">
                         {{ c_form.conduct|as_crispy_field }}
                     </div>
-                    <div class="form-group col-6">
+                    <div class="form-group col-sm-6 col-12">
                         {{ c_form.conversation|as_crispy_field }}
                     </div>
                 </div>

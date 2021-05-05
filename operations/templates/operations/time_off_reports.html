@@ -49,26 +49,26 @@
     </script>
     <form method="GET" id="filter-form">
        <div class="row mt-3 align-items-center justify-content-center">
-            <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+            <div class="col-xl-1 col-12 p-0">
                 <h1 class="text-center mb-0">{{ page_obj.paginator.count }}</h1>
                 <h3 class="text-center mt-0">Records</h3>
             </div>
-            <div class="col-lg-2 col-md-2 col-sm-2">
+            <div class="col-xl-1 col-lg-2 col-12 mb-1">
                 {{ f_form.sort_by|as_crispy_field }}
             </div>
-            <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+            <div class="col-lg-2 col-12 mb-1">
                 {{ f_form.status|as_crispy_field }}
             </div>
-            <div class="col-lg-2 col-md-2 col-sm-2">
+            <div class="col-lg-2 col-12 mb-1">
                 {{ f_form.time_off_type|as_crispy_field }}
             </div>
-            <div class="col-lg-2 col-md-2 col-sm-2">
+            <div class="col-lg-2 col-12 mb-1">
                 {{ f_form.company|as_crispy_field }}
             </div>
-            <div class="col-lg-2 col-md-2 col-sm-2">
+            <div class="col-lg-2 col-12 mb-1">
                 {{ f_form.date_range }}
             </div>
-            <div class="col-lg-2 col-md-2 col-sm-2">
+            <div class="col-lg-2 col-12 mb-1">
                 {{ f_form.search|as_crispy_field }}
             </div>
             <input type=submit hidden>
@@ -77,22 +77,22 @@
     <div class="row">
         <div class="col">
             <div class="row mt-2 align-items-end justify-content-center">
-                <div class="col-lg-2 col-md-2 col-sm-2 p-0">
-                    <h3 class="pl-3">EMPLOYEE NAME</h3>
+                <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                    <h3>EMPLOYEE NAME</h3>
                 </div>
-                <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                <div class="col-1 d-xl-block d-none">
                     <h3 class="text-center">COMPANY</h3>
                 </div>
-                <div class="col-lg-2 col-md-2 col-sm-2 p-0">
+                <div class="col-md-2 col-3 d-sm-block d-none">
                     <h3 class="text-center">DATE REQUESTED</h3>
                 </div>
-                <div class="col-lg-2 col-md-2 col-sm-2 p-0">
+                <div class="col-3 d-sm-block d-none">
                     <h3 class="text-center">TIME OFF TYPE</h3>
                 </div>
-                <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                <div class="col-sm-2 col-6">
                     <h3 class="text-center">STATUS</h3>
                 </div>
-                <div class="col-lg-2 col-md-2 col-sm-2 p-0">
+                <div class="col-2 d-md-block d-none">
                     <h3 class="text-center">STATUS CHANGE BY</h3>
                 </div>
             </div>
@@ -101,22 +101,22 @@
     <hr class="my-0">
     {% for record in page_obj %}
         <div class="row py-2 justify-content-center time-off-row" data-name="{{ record.employee|full_name }}" data-company="{{ record.employee.company }}" data-date-requested="{{ record.request_date|pretty_date }}" data-status="{{ record.status|status_return }}" data-requested-dates="{{ record|pretty_requested_dates }}" data-time-off-type="{{ record.time_off_type|time_off_return }}" data-reason="{{ record.reason }}" data-comments="{{ record.comments }}" data-time-off-id="{{ record.id }}">
-            <div class="col-lg-2 col-md-2 col-sm-2 p-0">
-                <h4 class="m-0 pl-3">{{ record.employee|full_name }}</h4>
+            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                <h4 class="m-0">{{ record.employee|full_name }}</h4>
             </div>
-            <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+            <div class="col-1 d-xl-block d-none">
                 <h4 class="text-center m-0">{{ record.employee.company }}</h4>
             </div>
-            <div class="col-lg-2 col-md-2 col-sm-2 p-0">
+            <div class="col-md-2 col-3 d-sm-block d-none">
                 <h4 class="text-center m-0">{{ record.request_date|pretty_date }}</h4>
             </div>
-            <div class="col-lg-2 col-md-2 col-sm-2 p-0">
+            <div class="col-3 d-sm-block d-none">
                 <h4 class="text-center m-0">{{ record.time_off_type|time_off_return }}</h4>
             </div>
-            <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+            <div class="col-sm-2 col-6">
                 <h4 class="text-center m-0">{{ record.status|status_return }}</h4>
             </div>
-            <div class="col-lg-2 col-md-2 col-sm-2 p-0">
+            <div class="col-2 d-md-block d-none">
                 <h4 class="text-center m-0">{{ record.status_change_by }}</h4>
             </div>
         </div>
