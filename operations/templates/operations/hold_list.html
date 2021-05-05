@@ -68,7 +68,7 @@
                             <h4 class="text-center m-0">{{ record.training_datetime|pretty_datetime }}</h4>
                         </div>
                         <div class="col-xl-1 col-2 d-lg-block d-none">
-                            <h4 class="text-center m-0">{{ record.release_date|pretty_date }}</h4>
+                            <h4 class="text-center m-0 {{ record.release_date|release_date_color_return }}">{{ record.release_date|pretty_date }}</h4>
                         </div>
                         <div class="col-xl-1 col-lg-2 col-md-3 col-5">
                             <h4 class="text-center m-0">{{ record.reason }}</h4>
