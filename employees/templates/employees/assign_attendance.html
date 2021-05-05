@@ -3,23 +3,24 @@
 {% load static %}
 {% block content %}
     <script src="{% static 'JS/form_preloader.js' %}"></script>
-    <h1 class="mt-5">Assign Attendance Point</h1>
+    <h1 class="mt-3">{{ employee.get_full_name }}</h1>
+    <h3>Assign Attendance Point</h3>
     <div class="row mt-3">
         <div class="col">
             <form method="POST" role="form" action="{% url 'employee-assign-attendance' employee.employee_id %}" data-custom-text="Creating Document...">
                 {% csrf_token %}
                 <div class="form-row justify-content-start">
-                    <div class="form-group col-4">
+                    <div class="form-group col-sm-4 col-12">
                         {{ a_form.incident_date|as_crispy_field }}
                     </div>
-                    <div class="form-group col-4">
+                    <div class="form-group col-sm-4 col-12">
                         {{ a_form.reason|as_crispy_field }}
                     </div>
-                    <div class="form-group col-4">
+                    <div class="form-group col-sm-4 col-12">
                         {{ a_form.exemption|as_crispy_field }}
                     </div>
                 </div>
-                <div class="form-row">
+                <div class="form-row mb-3">
                     <a href="{% url 'employee-account' employee.employee_id %}" class="account-content mr-2">
                         <div class="btn btn-secondary">
                             Cancel

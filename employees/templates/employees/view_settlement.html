@@ -3,7 +3,8 @@
 {% load static %}
 {% block content %}
     <script src="{% static 'JS/form_preloader.js' %}"></script>
-    <h1 class="mt-5">Settlement Details</h1>
+    <h1 class="mt-3">{{ employee.get_full_name }}</h1>
+    <h3>Settlement Details</h3>
     <div class="row mt-3">
         <div class="col">
             <form method="POST" role="form" id="settlementForm" enctype="multipart/form-data" onsubmit="return confirm('If no file is uploaded a new document will be created, are you sure you would like to continue?');">

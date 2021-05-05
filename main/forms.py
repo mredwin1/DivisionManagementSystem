@@ -19,14 +19,15 @@ class DriverFilterForm(forms.Form):
         ('hire_date', 'Hire Date'),
     ]
 
-    company = forms.CharField(initial='Filter by Company', required=False)
-    position = forms.CharField(initial='Filter by Position', required=False)
+    company = forms.CharField(initial='Company Filter', required=False)
+    position = forms.CharField(initial='Position Filter', required=False)
     sort_by = forms.CharField(initial='Sort By', widget=forms.Select(choices=SORT_CHOICES,
-                                                                     attrs={'style': 'font-size: 14px',
+                                                                     attrs={'style': 'font-size: 14px;'
+                                                                                     'padding-left: 2px',
                                                                             'onchange': 'form.submit();'}),
                               required=False)
-    search = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'placeholder': 'Search by Name or ID',
-                                                                          'style': 'font-size: 14px'}),
+    search = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'placeholder': 'Search Name/ID',
+                                                                          'style': 'font-size: 14px; padding-left: 2px'}),
                              required=False)
 
     def __init__(self, *args, **kwargs):
@@ -35,13 +36,15 @@ class DriverFilterForm(forms.Form):
         self.helper.form_show_labels = False
 
         company_choices = [(company.display_name, company.display_name) for company in Company.objects.all()]
-        company_choices.insert(0, ('', 'Filter by Company'))
+        company_choices.insert(0, ('', 'Company Filter'))
         position_choices = Employee.POSITION_CHOICES
-        position_choices[0] = ('', 'Filter by Position')
+        position_choices[0] = ('', 'Position Filter')
 
-        self.fields['company'].widget = forms.Select(choices=company_choices, attrs={'style': 'font-size: 14px',
+        self.fields['company'].widget = forms.Select(choices=company_choices, attrs={'style': 'font-size: 14px;'
+                                                                                              'padding-left: 2px',
                                                                                      'onchange': 'form.submit();'})
-        self.fields['position'].widget = forms.Select(choices=position_choices, attrs={'style': 'font-size: 14px',
+        self.fields['position'].widget = forms.Select(choices=position_choices, attrs={'style': 'font-size: 14px;'
+                                                                                                'padding-left: 2px',
                                                                                        'onchange': 'form.submit();'})
 
 

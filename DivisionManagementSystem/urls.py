@@ -29,7 +29,7 @@ urlpatterns = [
     path('employees/', include('employees.urls'), name='employees'),
     path('operations/', include('operations.urls'), name='operations'),
     path('login/', log_in, name='login'),
-    path('logout/', auth_views.LogoutView.as_view(template_name='main/logout.html'), name='logout'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('password-reset/', auth_views.PasswordResetView.as_view(template_name='main/password_reset.html'),
          name='password_reset'),
     path('password-reset/done',

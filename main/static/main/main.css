@@ -1,5 +1,5 @@
 body {
-    padding-top: 80px;
+    padding-top: 66.45px;
     font-size: 1rem;
     background-color: #ffffff;
 }
@@ -210,12 +210,6 @@ h6 {
     color: #072F5F !important;
 }
 
-.nav-border {
-    border-right-style: solid;
-    border-right-width: 2px;
-    border-color: #444444;"
-}
-
 .dropdown-menu {
     font-size: .8rem;
 }
@@ -238,7 +232,7 @@ h6 {
 }
 
 .employee-row:hover {
-    background-image: linear-gradient(to right, #ffffff 7%, #ADD8E6 -10%, #ADD8E6 90%, #ffffff 90%);
+    background-color: #ADD8E6;
 }
 
 a.employee-row:hover {
@@ -259,7 +253,7 @@ a.employee-row:hover {
 }
 
 .attendance-row:hover {
-    background-image: linear-gradient(to right, #ADD8E6 0%, #ADD8E6 100%);
+    background-color: #ADD8E6;
 }
 
 a.attendance-row:hover {
@@ -452,14 +446,59 @@ a.account-content {
   }
 }
 
-@media screen and (max-width: 992px) {
-    .nav-border {
-        border-right-style: none;
+/* Extra small devices (landscape phones, 576px and down) */
+@media (max-width: 575px) {
+    .navbar-brand {
+        width: 220px !important;
+    }
+
+    body {
+        padding-top: 52.34px;
     }
 }
 
-@media screen and (max-width: 576px) {
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) {
     .form-group {
         margin-bottom: 1rem;
+    }
+
+    .navbar-brand {
+        width: 280px !important;
+    }
+
+    .nav-border {
+        border-right-style: none;
+    }
+
+    body {
+        padding-top: 52.34px;
+    }
+}
+
+/* Medium devices (tablets, 768px and up) The navbar toggle appears at this breakpoint */
+@media (min-width: 768px) {
+    body {
+        padding-top: 66.45px;
+    }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+    .nav-border {
+        border-right-style: solid;
+        border-right-width: 2px;
+        border-color: #444444;
+    }
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+    .navbar-brand {
+        width: 320px !important;
+    }
+
+    body {
+        padding-top: 72.5px;
     }
 }

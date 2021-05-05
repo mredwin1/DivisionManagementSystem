@@ -2,25 +2,25 @@
 {% load employee_filters %}
 {% load crispy_forms_filters %}
 {% block content%}
-    <div class="row justify-content-center">
-        <div class="col-lg-3 col-md-3 col-sm-3 justify-content-center">
-            <h1 class="text-center pt-3">Employee Hold List</h1>
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-center">Employee Hold List</h1>
         </div>
     </div>
     <form method="GET" id="filter-form" autocomplete="off">
        {% csrf_token %}
-        <div class="row mt-3 align-items-center justify-content-center">
-            <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+        <div class="row align-items-center justify-content-center">
+            <div class="col-md-3 col-12 p-0">
                 <h1 class="text-center mb-0">{{ page_obj.paginator.count }}</h1>
                 <h3 class="text-center mt-0">Employees</h3>
             </div>
-            <div class="col-lg-2 col-md-2 col-sm-2">
+            <div class="col-md-3 col-12 mb-1">
                 {{ f_form.sort_by|as_crispy_field }}
             </div>
-            <div class="col-lg-2 col-md-2 col-sm-2">
+            <div class="col-md-3 col-12 mb-1">
                 {{ f_form.company|as_crispy_field }}
             </div>
-            <div class="col-lg-2 col-md-2 col-sm-2">
+            <div class="col-md-3 col-12 mb-1">
                 {{ f_form.search|as_crispy_field }}
             </div>
             <input type=submit hidden>
@@ -29,57 +29,51 @@
     <div class="row pt-3 mx-2">
         <div class="col p-0">
             <div class="row align-items-end justify-content-center px-4">
-                <div class="col-lg-2 col-md-2 col-sm-2 p-0">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-7">
                     <h3>EMPLOYEE NAME</h3>
                 </div>
-                <div class="col-lg-1 col-md-1 col-sm-1 p-0">
-                    <h3 class="text-center">Company</h3>
-                </div>
-                <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                <div class="col-md-2 col-3 d-sm-block d-none">
                     <h3 class="text-center">HOLD DATE</h3>
                 </div>
-                <div class="col-lg-2 col-md-2 col-sm-2 p-0">
+                <div class="col-2 d-md-block d-none">
                     <h3 class="text-center">INCIDENT DATE</h3>
                 </div>
-                <div class="col-lg-2 col-md-2 col-sm-2 p-0">
+                <div class="col-2 d-xl-block d-none">
                     <h3 class="text-center">TRAINING DATE/TIME</h3>
                 </div>
-                <div class="col-lg-2 col-md-2 col-sm-2 p-0">
+                <div class="col-xl-1 col-2 d-lg-block d-none">
                     <h3 class="text-center">RELEASE DATE</h3>
                 </div>
-                <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                <div class="col-xl-1 col-lg-2 col-md-3 col-5">
                     <h3 class="text-center">REASON</h3>
                 </div>
-                <div class="col-lg-1 col-md-1 col-sm-1 p-0">
-                    <h3 class="text-right">ASSIGNED BY</h3>
+                <div class="col-2 d-md-block d-none">
+                    <h3 class="text-right">ASSIGNEE</h3>
                 </div>
             </div>
             <hr class="my-0 mb-1">
             {% for record in page_obj %}
                 <a class="employee-row" href="{% url 'employee-account' employee_id=record.employee.employee_id %}">
                     <div class="row py-2 px-4 justify-content-center attendance-row" >
-                        <div class="col-lg-2 col-md-2 col-sm-2 p-0">
+                        <div class="col-lg-2 col-md-3 col-sm-4 col-7">
                             <h4 class="m-0">{{ record.employee|full_name }}</h4>
                         </div>
-                        <div class="col-lg-1 col-md-1 col-sm-1 p-0">
-                            <h4 class="text-center m-0">{{ record.employee.company.display_name }}</h4>
-                        </div>
-                        <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                        <div class="col-md-2 col-3 d-sm-block d-none">
                             <h4 class="text-center m-0">{{ record.hold_date }}</h4>
                         </div>
-                        <div class="col-lg-2 col-md-2 col-sm-2 p-0">
+                        <div class="col-2 d-md-block d-none">
                             <h4 class="text-center m-0">{{ record.incident_date|pretty_date }}</h4>
                         </div>
-                        <div class="col-lg-2 col-md-2 col-sm-2 p-0">
+                        <div class="col-2 d-xl-block d-none">
                             <h4 class="text-center m-0">{{ record.training_datetime|pretty_datetime }}</h4>
                         </div>
-                        <div class="col-lg-2 col-md-2 col-sm-2 p-0">
+                        <div class="col-xl-1 col-2 d-lg-block d-none">
                             <h4 class="text-center m-0">{{ record.release_date|pretty_date }}</h4>
                         </div>
-                        <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                        <div class="col-xl-1 col-lg-2 col-md-3 col-5">
                             <h4 class="text-center m-0">{{ record.reason }}</h4>
                         </div>
-                        <div class="col-lg-1 col-md-1 col-sm-1 p-0">
+                        <div class="col-2 d-md-block d-none">
                             <h4 class="m-0 text-right">{{ record|assignee_return }}</h4>
                         </div>
                     </div>

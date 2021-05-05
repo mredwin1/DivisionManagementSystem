@@ -78,18 +78,18 @@
         }
     </script>
     <script src="{% static 'JS/form_preloader.js' %}"></script>
-    <h1 class="mt-4">Assign Attendance Points</h1>
+    <h1 class="mt-3">Assign Attendance Points</h1>
     <div class="row justify-content-center mt-5">
-        <div class="col-lg-3 col-md-3 col-sm-3">
-            <h3>EMPLOYEE NAME</h3>
+        <div class="col-3">
+            <h3>NAME</h3>
         </div>
-        <div class="col-lg-3 col-md-3 col-sm-3">
-            <h3>INCIDENT DATE</h3>
+        <div class="col-3">
+            <h3>DATE</h3>
         </div>
-        <div class="col-lg-3 col-md-3 col-sm-3">
+        <div class="col-3">
             <h3>REASON</h3>
         </div>
-        <div class="col-lg-3 col-md-3 col-sm-3">
+        <div class="col-3">
             <h3>EXEMPTION</h3>
         </div>
     </div>
@@ -100,16 +100,16 @@
                 {% csrf_token %}
                 {% for field_set in form.get_all_fields %}
                     <div class="form-row justify-content-center" id="attendanceFormRow{{ forloop.counter }}">
-                        <div class="form-group col-lg-3 col-md-3 col-sm-3 mb-0">
+                        <div class="form-group col-3 mb-0">
                             {{ field_set.0|as_crispy_field }}
                         </div>
-                        <div class="form-group col-lg-3 col-md-3 col-sm-3 mb-0">
+                        <div class="form-group col-3 mb-0">
                             {{ field_set.1|as_crispy_field }}
                         </div>
-                        <div class="form-group col-lg-3 col-md-3 col-sm-3 mb-0">
+                        <div class="form-group col-3 mb-0">
                             {{ field_set.2|as_crispy_field }}
                         </div>
-                        <div class="form-group col-lg-3 col-md-3 col-sm-3 mb-0">
+                        <div class="form-group col-3 mb-0">
                             {{ field_set.3|as_crispy_field }}
                         </div>
                     </div>

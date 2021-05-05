@@ -324,13 +324,13 @@ class MakeTimeOffRequest(forms.Form):
 
 
 class FilterForm(forms.Form):
-    company = forms.CharField(initial='Filter by Company', required=False)
+    company = forms.CharField(initial='Company Filter', required=False)
     date_range = fields.DateRangeField(input_formats=['%m/%d/%Y'],
                                        widget=widgets.DateRangeWidget(format='%m/%d/%Y',
                                                                       attrs={'style': 'font-size: 14px'}),
                                        required=False)
     search = forms.CharField(max_length=30, widget=forms.TextInput(
-        attrs={'placeholder': 'Search by Name or ID', 'style': 'font-size: 14px'}), required=False)
+        attrs={'placeholder': 'Search Name/ID', 'style': 'font-size: 14px'}), required=False)
 
     sort_by = forms.CharField(required=False)
 
@@ -340,7 +340,7 @@ class FilterForm(forms.Form):
         self.helper.form_show_labels = False
 
         company_choices = [(company.display_name, company.display_name) for company in Company.objects.all()]
-        company_choices.insert(0, ('', 'Filter by Company'))
+        company_choices.insert(0, ('', 'Company Filter'))
 
         self.fields['company'].widget = forms.Select(choices=company_choices, attrs={'style': 'font-size: 14px',
                                                                                      'onchange': 'form.submit();'})
@@ -354,33 +354,33 @@ class AttendanceFilterForm(FilterForm):
     def __init__(self, sort_choices, *args, **kwargs):
         super(AttendanceFilterForm, self).__init__(sort_choices, *args, **kwargs)
         reason_choices = Attendance.REASON_CHOICES
-        reason_choices[0] = ('', 'Filter by Reason')
+        reason_choices[0] = ('', 'Reason Filter')
         self.fields['reasons'].widget = forms.Select(choices=reason_choices,
                                                      attrs={'style': 'font-size: 14px', 'onchange': 'form.submit();'})
 
 
 class CounselingFilterForm(FilterForm):
-    action_type = forms.CharField(initial='Filter by Action Type', required=False)
+    action_type = forms.CharField(initial='Action Type Filter', required=False)
 
     def __init__(self, sort_choices, *args, **kwargs):
         super(CounselingFilterForm, self).__init__(sort_choices, *args, **kwargs)
         action_choices = Counseling.ACTION_CHOICES
-        action_choices[0] = ('', 'Filter by Action Type')
+        action_choices[0] = ('', 'Action Type Filter')
         self.fields['action_type'].widget = forms.Select(choices=action_choices,
                                                          attrs={'style': 'font-size: 14px',
                                                                 'onchange': 'form.submit();'})
 
 
 class TimeOffFilterForm(FilterForm):
-    status = forms.CharField(initial='Filter by Status', required=False)
-    time_off_type = forms.CharField(initial='Filter by Action Type', required=False)
+    status = forms.CharField(initial='Status Filter', required=False)
+    time_off_type = forms.CharField(initial='Action Type Filter', required=False)
 
     def __init__(self, sort_choices, *args, **kwargs):
         super(TimeOffFilterForm, self).__init__(sort_choices, *args, **kwargs)
         status_choices = TimeOffRequest.STATUS_CHOICES
-        status_choices[0] = ('', 'Filter by Status')
+        status_choices[0] = ('', 'Status Filter')
         time_off_choices = TimeOffRequest.TIME_OFF_CHOICES
-        time_off_choices[0] = ('', 'Filter by Time off type')
+        time_off_choices[0] = ('', 'Time off type Filter')
         self.fields['status'].widget = forms.Select(choices=status_choices,
                                                     attrs={'style': 'font-size: 14px',
                                                            'onchange': 'form.submit();'})
