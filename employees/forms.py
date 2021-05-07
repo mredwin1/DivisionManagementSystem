@@ -438,6 +438,20 @@ class PlaceHold(forms.Form):
         hold.save()
 
 
+class EditHold(PlaceHold):
+    def __init__(self, request, hold, *args, **kwargs):
+        super(EditHold, self).__init__(request, *args, **kwargs)
+        self.hold = hold
+
+    def save(self):
+        self.hold.reason = self.cleaned_data['reason']
+        self.hold.incident_date = self.cleaned_data['incident_date']
+        self.hold.release_date = self.cleaned_data['release_date']
+        self.hold.training_datetime = self.cleaned_data['training_datetime']
+
+        self.hold.save()
+
+
 class TimeOffRequestForm(forms.Form):
     requested_dates = forms.CharField(label='Dates Requested Off', widget=forms.TextInput())
     time_off_type = forms.CharField(label='Type of Time Off',
