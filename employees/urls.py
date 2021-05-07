@@ -18,6 +18,7 @@ urlpatterns = [
     path('delete-safety-point/<int:employee_id>/<int:safety_point_id>/', employee_views.delete_safety_point, name='employee-remove-safety-point'),
     path('edit-safety-point/<int:employee_id>/<int:safety_point_id>/', employee_views.edit_safety_point, name='employee-edit-safety-point'),
     path('place-hold/<int:employee_id>/', employee_views.place_hold, name='employee-place-hold'),
+    path('edit-hold/<int:hold_id>/', employee_views.edit_hold, name='employee-edit-hold'),
     path('remove-hold/<int:employee_id>/<int:hold_id>/', employee_views.remove_hold, name='employee-remove-hold'),
     path('termination-settlement/<int:employee_id>/', employee_views.employee_settlement_terminate, name='employee-terminate-settlement'),
     path('terminate-employee/<int:employee_id>/', employee_views.terminate_employee, name='employee-terminate'),

@@ -1,6 +1,8 @@
+import datetime
+
 from django import template
-from django.urls import reverse
-from employees.models import Counseling, DayOff
+from employees.models import DayOff
+from pytz import utc
 
 register = template.Library()
 
@@ -285,3 +287,17 @@ def assignee_return(value):
 @register.filter
 def override_by_return(value):
     return value.get_override_by().get_full_name() if value.get_override_by() else None
+
+
+@register.filter
+def release_date_color_return(value):
+    if value:
+        elapsed_days = (value - datetime.datetime.today().astimezone(utc)).days
+        if elapsed_days == 0:
+            necessary_class = 'text-warning'
+        elif elapsed_days < 0:
+            necessary_class = 'text-danger'
+        else:
+            necessary_class = ''
+
+        return necessary_class

@@ -242,6 +242,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
 
             # Main's Views Permissions
             ('can_view_employee_info', 'Can view employee info'),
+            ('can_export_safety_meeting_attendance', 'Can export safety meeting attendance list'),
             ('can_export_phone_list', 'Can export phone list'),
             ('can_export_seniority_list', 'Can export seniority list'),
             ('can_export_driver_list', 'Can export driver list'),

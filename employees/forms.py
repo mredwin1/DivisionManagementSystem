@@ -367,6 +367,20 @@ class EditSafetyPoint(AssignSafetyPoint):
 
 
 class PlaceHold(forms.Form):
+    REASON_CHOICES = [
+        ('', ''),
+        ('Training', 'Training'),
+        ('Re-Training', 'Re-Training'),
+        ('BTW', 'BTW'),
+        ('FMLA', 'FMLA'),
+        ('Personal', 'Personal'),
+        ('Light Duty', 'Light Duty'),
+        ('Safety', 'Safety'),
+        ('Pending Term', 'Pending Term'),
+        ('Resigned', 'Resigned'),
+        ('Other', 'Other'),
+    ]
+
     incident_date = forms.DateField(label='Incident Date', help_text='If incident, date of the incident',
                                     widget=forms.TextInput(attrs={'type': 'date'}), required=False)
     training_date = forms.DateField(label='Training Date', help_text='If training, date of the training',
@@ -375,25 +389,67 @@ class PlaceHold(forms.Form):
                                     widget=forms.TextInput(attrs={'type': 'time'}), required=False)
     release_date = forms.DateField(label='Release Date', help_text='If date of release known put it above',
                                    widget=forms.TextInput(attrs={'type': 'date'}), required=False)
-    reason = forms.CharField(label='Reason', help_text='Type the reason for being placed on hold')
+    reason = forms.CharField(
+        label='Reason',
+        widget=forms.Select(choices=REASON_CHOICES),
+        help_text='Select a reason for the hold'
+    )
 
-    def save(self, employee, request):
-        if self.cleaned_data['training_date']:
-            training_datetime = datetime.datetime.combine(self.cleaned_data['training_date'], self.cleaned_data['training_time'])
+    other_reason = forms.CharField(
+        label='Reason',
+        widget=forms.TextInput(
+            attrs={'class': 'textinput textInput form-control',
+                   'required': '', 'style': 'display="none"', 'maxlength': '30'}),
+        required=False,
+        help_text='Please Specify the Reason'
+    )
+
+    def __init__(self, request, employee=None, *args, **kwargs):
+        super(PlaceHold, self).__init__(*args, **kwargs)
+        self.employee = employee
+        self.request = request
+
+    def clean(self):
+        super(PlaceHold, self).clean()
+        if self.cleaned_data['reason'] == 'Other':
+            self.cleaned_data['reason'] = self.cleaned_data['other_reason']
+
+        if self.cleaned_data['training_date'] and self.cleaned_data['training_time']:
+            self.cleaned_data['training_datetime'] = datetime.datetime.combine(self.cleaned_data['training_date'], self.cleaned_data['training_time'])
         else:
-            training_datetime = None
+            self.cleaned_data['training_datetime'] = None
+            if self.cleaned_data['training_date'] and not self.cleaned_data['training_time']:
+                self.add_error('training_time', 'You must select a time since a date was selected')
 
+            if not self.cleaned_data['training_date'] and self.cleaned_data['training_time']:
+                self.add_error('training_date', 'You must select a date since a time was selected')
+
+    def save(self):
         hold = Hold(
-            employee=employee,
+            employee=self.employee,
             incident_date=self.cleaned_data['incident_date'],
-            training_datetime=training_datetime,
+            training_datetime=self.cleaned_data['training_datetime'],
             release_date=self.cleaned_data['release_date'],
             reason=self.cleaned_data['reason'],
-            assigned_by=request.user.employee_id,
+            assigned_by=self.request.user.employee_id,
             hold_date=datetime.datetime.today()
         )
 
         hold.save()
+
+
+class EditHold(PlaceHold):
+    def __init__(self, request, hold, *args, **kwargs):
+        super(EditHold, self).__init__(request, *args, **kwargs)
+        self.hold = hold
+
+    def save(self):
+        self.hold.reason = self.cleaned_data['reason']
+        self.hold.incident_date = self.cleaned_data['incident_date']
+        self.hold.release_date = self.cleaned_data['release_date']
+        self.hold.training_datetime = self.cleaned_data['training_datetime']
+
+        self.hold.save()
 
 
 class TimeOffRequestForm(forms.Form):

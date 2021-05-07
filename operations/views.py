@@ -273,7 +273,7 @@ def view_hold_list(request):
         ('reason', 'Reason'),
     ]
 
-    employee_holds = Hold.objects.filter(employee__is_active=True)
+    employee_holds = Hold.objects.filter(employee__is_active=True).order_by('-id')
     if search:
         try:
             search = int(search)

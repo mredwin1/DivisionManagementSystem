@@ -410,10 +410,10 @@ def place_hold(request, employee_id):
     employee = Employee.objects.get(employee_id=employee_id)
 
     if request.method == 'POST':
-        h_form = PlaceHold(request.POST)
+        h_form = PlaceHold(request, employee=employee, data=request.POST)
 
         if h_form.is_valid():
-            h_form.save(employee, request)
+            h_form.save()
 
             data = {'url': reverse('employee-account', args=[employee_id])}
 
@@ -421,7 +421,7 @@ def place_hold(request, employee_id):
         else:
             return JsonResponse(h_form.errors, status=400)
     else:
-        h_form = PlaceHold()
+        h_form = PlaceHold(request, employee=employee)
 
         data = {
             'employee': employee,
@@ -429,6 +429,18 @@ def place_hold(request, employee_id):
         }
 
         return render(request, 'employees/place_hold.html', data)
+
+
+@permission_required('employees.can_place_hold', raise_exception=True)
+def edit_hold(request, hold_id):
+    hold = Hold.objects.get(id=hold_id)
+    h_form = EditHold(request, hold, data=request.POST)
+
+    if h_form.is_valid():
+        h_form.save()
+        return JsonResponse({}, status=200)
+    else:
+        return JsonResponse(h_form.errors, status=400)
 
 
 @login_required
