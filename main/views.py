@@ -1,3 +1,4 @@
+import datetime
 import uuid
 import os
 
@@ -34,7 +35,12 @@ def log_in(request):
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             user = authenticate(request, username=username, password=password)
+
+            user.last_login = datetime.datetime.today()
+            user.save(update_fields=['last_login'])
+
             login(request, user)
+
             if user.has_perm('employees.can_view_employee_info'):
                 return redirect('main-employee-info')
             else:
