@@ -404,6 +404,11 @@ class PlaceHold(forms.Form):
         help_text='Please Specify the Reason'
     )
 
+    def __init__(self, request, employee=None, *args, **kwargs):
+        super(PlaceHold, self).__init__(*args, **kwargs)
+        self.employee = employee
+        self.request = request
+
     def clean(self):
         super(PlaceHold, self).clean()
         if self.cleaned_data['reason'] == 'Other':
