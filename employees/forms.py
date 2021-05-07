@@ -414,19 +414,24 @@ class PlaceHold(forms.Form):
         if self.cleaned_data['reason'] == 'Other':
             self.cleaned_data['reason'] = self.cleaned_data['other_reason']
 
-    def save(self, employee, request):
-        if self.cleaned_data['training_date']:
-            training_datetime = datetime.datetime.combine(self.cleaned_data['training_date'], self.cleaned_data['training_time'])
+        if self.cleaned_data['training_date'] and self.cleaned_data['training_time']:
+            self.cleaned_data['training_datetime'] = datetime.datetime.combine(self.cleaned_data['training_date'], self.cleaned_data['training_time'])
         else:
-            training_datetime = None
+            self.cleaned_data['training_datetime'] = None
+            if self.cleaned_data['training_date'] and not self.cleaned_data['training_time']:
+                self.add_error('training_time', 'You must select a time since a date was selected')
 
+            if not self.cleaned_data['training_date'] and self.cleaned_data['training_time']:
+                self.add_error('training_date', 'You must select a date since a time was selected')
+
+    def save(self):
         hold = Hold(
-            employee=employee,
+            employee=self.employee,
             incident_date=self.cleaned_data['incident_date'],
-            training_datetime=training_datetime,
+            training_datetime=self.cleaned_data['training_datetime'],
             release_date=self.cleaned_data['release_date'],
             reason=self.cleaned_data['reason'],
-            assigned_by=request.user.employee_id,
+            assigned_by=self.request.user.employee_id,
             hold_date=datetime.datetime.today()
         )
 
