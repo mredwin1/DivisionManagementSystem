@@ -1,7 +1,55 @@
 {% extends "main/base.html" %}
 {% load employee_filters %}
+{% load static %}
 {% load crispy_forms_filters %}
+{% block modal-body %}
+    <form action="" method="POST" role="form" id="editEmployeeHoldForm">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_reason" class="col-form-label">Reason*</label>
+            <select name="reason" class="select form-control" id="id_reason" required>
+                <option value="" selected></option>
+                <option value="Training">Training</option>
+                <option value="Re-Training">Re-Training</option>
+                <option value="BTW">BTW</option>
+                <option value="FMLA">FMLA</option>
+                <option value="Personal">Personal</option>
+                <option value="Light Duty">Light Duty</option>
+                <option value="Safety">Safety</option>
+                <option value="Pending Term">Pending Term</option>
+                <option value="Resigned">Resigned</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        <div class="form-group" id="div_id_other_reason">
+            <label for="id_other_reason" class="col-form-label">Reason*</label>
+            <input type="text" class="textinput textInput form-control" id="id_other_reason" name="other_reason">
+        </div>
+        <div class="form-group">
+            <label for="id_incident_date" class="col-form-label">Incident Date</label>
+            <input type="date" class="textinput textInput form-control" id="id_incident_date" name="incident_date">
+        </div>
+        <div class="form-group">
+            <label for="id_release_date" class="col-form-label">Release Date</label>
+            <input type="date" class="textinput textInput form-control" id="id_release_date" name="release_date">
+        </div>
+        <div class="form-group">
+            <label for="id_training_date" class="col-form-label">Training Date</label>
+            <input type="date" class="textinput textInput form-control" id="id_training_date" name="training_date">
+        </div>
+        <div class="form-group">
+            <label for="id_training_time" class="col-form-label">Training Time</label>
+            <input type="time" name="training_time" class="textinput textInput form-control" id="id_training_time">
+        </div>
+    </form>
+{% endblock modal-body %}
+{% block modal-footer %}
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    <a href="" class="btn btn-secondary" id="accountButton">View Account</a>
+    <button type="submit" class="btn btn-primary" id="editEmployeeHold" form="editEmployeeHoldForm">Save</button>
+{% endblock modal-footer %}
 {% block content%}
+    <script src="{% static 'JS/hold_list_utilities.js' %}"></script>
     <div class="row">
         <div class="col-12">
             <h1 class="text-center">Employee Hold List</h1>
@@ -53,31 +101,39 @@
             </div>
             <hr class="my-0">
             {% for record in page_obj %}
-                <a class="employee-row" href="{% url 'employee-account' employee_id=record.employee.employee_id %}">
-                    <div class="row py-2 px-4 justify-content-center attendance-row" >
-                        <div class="col-lg-2 col-md-3 col-sm-4 col-7">
-                            <h4 class="m-0">{{ record.employee|full_name }}</h4>
+                {% if perms.employees.can_place_hold %}
+                    <div class="employee-row edit-hold" data-employee-url="{% url 'employee-account' employee_id=record.employee.employee_id %}" data-submit-url="{% url 'employee-edit-hold' hold_id=record.id %}" data-name="{{ record.employee.get_full_name }}" data-reason="{{ record.reason }}" data-incident-date="{{ record.incident_date|pretty_date }}" data-release-date="{{ record.release_date|pretty_date }}" data-training-datetime="{{ record.training_datetime|pretty_datetime }}">
+                {% else %}
+                    <a class="employee-row" href="{% url 'employee-account' employee_id=record.employee.employee_id %}">
+                {% endif %}
+                        <div class="row py-2 px-4 justify-content-center attendance-row" >
+                            <div class="col-lg-2 col-md-3 col-sm-4 col-7">
+                                <h4 class="m-0">{{ record.employee|full_name }}</h4>
+                            </div>
+                            <div class="col-md-2 col-3 d-sm-block d-none">
+                                <h4 class="text-center m-0">{{ record.hold_date }}</h4>
+                            </div>
+                            <div class="col-2 d-md-block d-none">
+                                <h4 class="text-center m-0">{{ record.incident_date|pretty_date }}</h4>
+                            </div>
+                            <div class="col-2 d-xl-block d-none">
+                                <h4 class="text-center m-0">{{ record.training_datetime|pretty_datetime }}</h4>
+                            </div>
+                            <div class="col-xl-1 col-2 d-lg-block d-none">
+                                <h4 class="text-center m-0 {{ record.release_date|release_date_color_return }}">{{ record.release_date|pretty_date }}</h4>
+                            </div>
+                            <div class="col-xl-1 col-lg-2 col-md-3 col-5">
+                                <h4 class="text-center m-0">{{ record.reason }}</h4>
+                            </div>
+                            <div class="col-2 d-md-block d-none">
+                                <h4 class="m-0 text-right">{{ record|assignee_return }}</h4>
+                            </div>
                         </div>
-                        <div class="col-md-2 col-3 d-sm-block d-none">
-                            <h4 class="text-center m-0">{{ record.hold_date }}</h4>
-                        </div>
-                        <div class="col-2 d-md-block d-none">
-                            <h4 class="text-center m-0">{{ record.incident_date|pretty_date }}</h4>
-                        </div>
-                        <div class="col-2 d-xl-block d-none">
-                            <h4 class="text-center m-0">{{ record.training_datetime|pretty_datetime }}</h4>
-                        </div>
-                        <div class="col-xl-1 col-2 d-lg-block d-none">
-                            <h4 class="text-center m-0 {{ record.release_date|release_date_color_return }}">{{ record.release_date|pretty_date }}</h4>
-                        </div>
-                        <div class="col-xl-1 col-lg-2 col-md-3 col-5">
-                            <h4 class="text-center m-0">{{ record.reason }}</h4>
-                        </div>
-                        <div class="col-2 d-md-block d-none">
-                            <h4 class="m-0 text-right">{{ record|assignee_return }}</h4>
-                        </div>
+                {% if not perms.employees.can_place_hold %}
+                    </a>
+                {% else %}
                     </div>
-                </a>
+                {% endif %}
             {% endfor %}
         </div>
     </div>
