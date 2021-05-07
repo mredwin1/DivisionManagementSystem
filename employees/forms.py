@@ -391,7 +391,7 @@ class PlaceHold(forms.Form):
                                    widget=forms.TextInput(attrs={'type': 'date'}), required=False)
     reason = forms.CharField(
         label='Reason',
-        widget=forms.Select(choices=REASON_CHOICES, attrs={'onchange': 'reason_change()'}),
+        widget=forms.Select(choices=REASON_CHOICES),
         help_text='Select a reason for the hold'
     )
 
