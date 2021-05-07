@@ -14,8 +14,8 @@
                     <div class="form-group col-lg-4 col-md-6 col-12">
                         {{ h_form.reason|as_crispy_field }}
                     </div>
-                    <div class="form-group col-lg-4 col-md-6 col-12" style="display: none">
-                        <div id="div_id_other_reason" class="form-group">
+                    <div class="form-group col-lg-4 col-md-6 col-12">
+                        <div id="div_id_other_reason" class="form-group" style="display: none">
                             <label class="requiredField" for="{{ h_form.other_reason.auto_id }}">{{ h_form.other_reason.label }}</label><span class="asterikField">*</span>
                             <div class>
                                 {{ h_form.other_reason }}
