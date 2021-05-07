@@ -431,6 +431,21 @@ def place_hold(request, employee_id):
         return render(request, 'employees/place_hold.html', data)
 
 
+@permission_required('employees.can_place_hold', raise_exception=True)
+def edit_hold(request, hold_id):
+    hold = Hold.objects.get(id=hold_id)
+    h_form = EditHold(request, hold, data=request.POST)
+
+    import logging
+    logging.info(request.POST)
+    if h_form.is_valid():
+        h_form.save()
+        return JsonResponse({}, status=200)
+    else:
+        logging.info(h_form.errors)
+        return JsonResponse(h_form.errors, status=400)
+
+
 @login_required
 @permission_required('employees.can_remove_hold', raise_exception=True)
 def remove_hold(request, employee_id, hold_id):
