@@ -436,13 +436,10 @@ def edit_hold(request, hold_id):
     hold = Hold.objects.get(id=hold_id)
     h_form = EditHold(request, hold, data=request.POST)
 
-    import logging
-    logging.info(request.POST)
     if h_form.is_valid():
         h_form.save()
         return JsonResponse({}, status=200)
     else:
-        logging.info(h_form.errors)
         return JsonResponse(h_form.errors, status=400)
 
 
