@@ -135,12 +135,14 @@ class EditAttendance(AssignAttendance):
         elif self.attendance.exemption == '2' and self.cleaned_data['exemption'] != '2':
             self.employee.unpaid_sick += 1
 
+        self.attendance.points = self.cleaned_data['points']
         self.attendance.incident_date = self.cleaned_data['incident_date']
         self.attendance.issued_date = self.cleaned_data['issued_date']
         self.attendance.reason = self.cleaned_data['reason']
         self.attendance.exemption = self.cleaned_data['exemption']
         self.attendance.edited_date = datetime.datetime.today()
         self.attendance.edited_by = f'{self.request.user.first_name} {self.request.user.last_name}'
+        self.attendance.signature = self.cleaned_data['other_signature']
 
         try:
             self.attendance.document = self.request.FILES['document']
@@ -151,9 +153,7 @@ class EditAttendance(AssignAttendance):
             pass
 
         self.employee.save()
-        self.attendance.save(update_fields=update_fields)
-
-        return self.attendance.id
+        self.request.user.set_signature(self.cleaned_data['manager_signature'])
 
 
 class AssignCounseling(forms.Form):
