@@ -1051,7 +1051,7 @@ class Attendance(models.Model):
     edited_by = models.CharField(max_length=30, blank=True, default='')
     uploaded = models.BooleanField(default=False)
 
-    def create_attendance_point_document(self):
+    def create_document(self):
         """Will create a PDF for the Attendance and assign it to the Attendance Object"""
         buffer = io.BytesIO()
 
