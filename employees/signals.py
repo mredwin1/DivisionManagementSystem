@@ -98,6 +98,7 @@ def new_notification(sender, instance, created, **kwargs):
     except NoReverseMatch:
         pass
 
+
 @receiver(post_save, sender=Counseling)
 def add_counseling_document(sender, instance, created, update_fields, **kwargs):
     try:
@@ -151,43 +152,40 @@ def add_counseling_document(sender, instance, created, update_fields, **kwargs):
 
 
 @receiver(post_save, sender=Attendance)
-def add_attendance_document(sender, instance, created, update_fields, **kwargs):
-    try:
-        if created or 'document' not in update_fields:
-            instance.create_attendance_point_document()
-            counseling = instance.employee.attendance_counseling_required(instance.reason, instance.exemption, instance.id)
+def post_save_attendance(sender, instance, created, **kwargs):
+    if not instance.document:
+        instance.create_document()
+        counseling = instance.employee.attendance_counseling_required(instance.reason, instance.exemption, instance.id)
 
-            if counseling[0] == 2 and instance.points != 0:
-                latest_attendance = Attendance.objects.filter(employee=instance.employee, points__gt=0, counseling=None).last()
-                instance.employee.attendance_removal(counseling, latest_attendance, instance.assigned_by)
-            elif counseling[0] == 1 and instance.points != 0:
-                latest_attendance = Attendance.objects.filter(employee=instance.employee, points__gt=0, counseling=None).last()
-                instance.employee.attendance_written(counseling, latest_attendance, instance.assigned_by)
+        if counseling[0] == 2 and instance.points != 0:
+            latest_attendance = Attendance.objects.filter(employee=instance.employee, points__gt=0, counseling=None).last()
+            instance.employee.attendance_removal(counseling, latest_attendance, instance.assigned_by)
+        elif counseling[0] == 1 and instance.points != 0:
+            latest_attendance = Attendance.objects.filter(employee=instance.employee, points__gt=0, counseling=None).last()
+            instance.employee.attendance_written(counseling, latest_attendance, instance.assigned_by)
 
-            if instance.exemption == '1':
-                instance.employee.paid_sick -= 1
-            elif instance.exemption == '2':
-                instance.employee.unpaid_sick -= 1
-        else:
-            total_points = instance.employee.get_total_attendance_points()
-            if total_points < 7:
-                attendance_objects = Attendance.objects.filter(employee=instance.employee)
-                for attendance_object in attendance_objects:
-                    try:
-                        if attendance_object.counseling.action_type == '2':
-                            attendance_object.counseling.delete()
-                    except Counseling.DoesNotExist:
-                        pass
-            if total_points < 10:
-                attendance_objects = Attendance.objects.filter(employee=instance.employee)
-                for attendance_object in attendance_objects:
-                    try:
-                        if attendance_object.counseling.action_type == '6':
-                            attendance_object.counseling.delete()
-                    except Counseling.DoesNotExist:
-                        pass
-    except TypeError:
-        pass
+        if instance.exemption == '1':
+            instance.employee.paid_sick -= 1
+        elif instance.exemption == '2':
+            instance.employee.unpaid_sick -= 1
+    else:
+        total_points = instance.employee.get_total_attendance_points()
+        if total_points < 7:
+            attendance_objects = Attendance.objects.filter(employee=instance.employee)
+            for attendance_object in attendance_objects:
+                try:
+                    if attendance_object.counseling.action_type == '2':
+                        attendance_object.counseling.delete()
+                except Counseling.DoesNotExist:
+                    pass
+        if total_points < 10:
+            attendance_objects = Attendance.objects.filter(employee=instance.employee)
+            for attendance_object in attendance_objects:
+                try:
+                    if attendance_object.counseling.action_type == '6':
+                        attendance_object.counseling.delete()
+                except Counseling.DoesNotExist:
+                    pass
 
 
 @receiver(post_save, sender=SafetyPoint)
