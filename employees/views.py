@@ -675,3 +675,11 @@ def upload_profile_picture(request, employee_id):
         }
 
         return render(request, 'employees/upload_profile_picture.html', data)
+
+
+@login_required
+def get_signature(request):
+    data = {
+        'signature': request.user.signature
+    }
+    return JsonResponse(data, status=200)
