@@ -179,6 +179,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
                                         verbose_name='Termination Type')
 
     termination_comments = models.TextField(default='', verbose_name='Comments', blank=True)
+    signature = models.TextField(default='', blank=True)
 
     hire_date = models.DateField(null=True, verbose_name='Hire Date')
     application_date = models.DateField(null=True, verbose_name='Application Date')
@@ -1049,7 +1050,8 @@ class Attendance(models.Model):
     exemption = models.CharField(max_length=30, choices=EXEMPTION_CHOICES, blank=True, null=True)
     edited_date = models.DateField(null=True, blank=True)
     edited_by = models.CharField(max_length=30, blank=True, default='')
-    uploaded = models.BooleanField(default=False)
+    signed = models.BooleanField(default=False)
+    signature = models.TextField(default='', blank=True)
 
     def create_attendance_point_document(self):
         """Will create a PDF for the Attendance and assign it to the Attendance Object"""
