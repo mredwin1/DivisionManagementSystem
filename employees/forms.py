@@ -64,10 +64,24 @@ class EditEmployeeInfo(forms.Form):
 
 
 class AssignAttendance(forms.Form):
+    POINTS = {
+        '0': 1,
+        '1': 0,
+        '2': 1.5,
+        '3': 4,
+        '4': 1,
+        '5': 1,
+        '6': .5,
+        '7': 1,
+        '8': .5,
+    }
+
     incident_date = forms.DateField(label='Incident Date', widget=forms.TextInput(attrs={'type': 'date'}),
                                     required=True)
     reason = forms.CharField(label='Reason', widget=forms.Select(choices=Attendance.REASON_CHOICES), required=True)
     exemption = forms.CharField(label='Exemption', widget=forms.Select(choices=Attendance.EXEMPTION_CHOICES), required=False)
+    other_signature = forms.CharField(required=False)
+    manager_signature = forms.CharField(required=True)
 
     def __init__(self, *args, **kwargs):
         self.employee = kwargs.pop('employee', None)
@@ -89,18 +103,7 @@ class AssignAttendance(forms.Form):
                                                  f'available')
 
     def save(self):
-        points = {
-            '0': 1,
-            '1': 0,
-            '2': 1.5,
-            '3': 4,
-            '4': 1,
-            '5': 1,
-            '6': .5,
-            '7': 1,
-            '8': .5,
-        }
-
+        self.request.user.set_signature(self.cleaned_data['manager_signature'])
         attendance = Attendance(
             employee=self.employee,
             incident_date=self.cleaned_data['incident_date'],
@@ -109,6 +112,7 @@ class AssignAttendance(forms.Form):
             reason=self.cleaned_data['reason'],
             assigned_by=self.request.user.employee_id,
             exemption=self.cleaned_data['exemption'],
+            signature=self.cleaned_data['other_signature']
         )
 
         attendance.save()
