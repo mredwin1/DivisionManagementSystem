@@ -170,28 +170,28 @@ def delete_attendance(request, attendance_id):
 
     messages.add_message(request, messages.SUCCESS, 'Attendance Point Deleted Successfully')
 
-    return redirect('employee-account', employee_id)
+    return redirect('employee-account', attendance.employee.employee_id)
 
 
 @login_required
 @permission_required('employees.can_edit_attendance', raise_exception=True)
-def edit_attendance(request, employee_id, attendance_id):
+def edit_attendance(request, attendance_id):
     attendance = Attendance.objects.get(id=attendance_id)
-    employee = Employee.objects.get(employee_id=employee_id)
+    employee = attendance.employee
 
     if request.method == 'POST':
-        a_form = EditAttendance(data=request.POST, files=request.FILES, employee=employee,
-                                attendance=attendance, request=request)
+        form = EditAttendance(data=request.POST, files=request.FILES, employee=employee,
+                              attendance=attendance, request=request)
 
-        if a_form.is_valid():
-            a_form.save()
+        if form.is_valid():
+            form.save()
 
-            data = {'url': reverse('employee-account', args=[employee_id, 'Attendance', attendance_id])}
+            data = {'url': reverse('employee-account', args=[employee.employee_id])}
 
             return JsonResponse(data, status=200)
         else:
 
-            return JsonResponse(a_form.errors, status=400)
+            return JsonResponse(form.errors, status=400)
     else:
         initial = {
             'incident_date': attendance.incident_date,
@@ -200,14 +200,15 @@ def edit_attendance(request, employee_id, attendance_id):
             'issued_date': attendance.issued_date,
         }
 
-        a_form = EditAttendance(initial=initial, employee=employee)
+        form = EditAttendance(initial=initial, employee=employee)
 
         data = {
             'employee': employee,
-            'a_form': a_form
+            'form': form,
+            'attendance': attendance
         }
 
-        return render(request, 'employees/edit_attendance.html', data)
+        return render(request, 'employees/attendance.html', data)
 
 
 @login_required
