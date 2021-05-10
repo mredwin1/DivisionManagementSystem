@@ -144,14 +144,7 @@ class EditAttendance(AssignAttendance):
         self.attendance.edited_by = f'{self.request.user.first_name} {self.request.user.last_name}'
         self.attendance.signature = self.cleaned_data['other_signature']
 
-        try:
-            self.attendance.document = self.request.FILES['document']
-            self.attendance.uploaded = True
-            update_fields.append('document')
-            update_fields.append('uploaded')
-        except KeyError:
-            pass
-
+        self.attendance.document.delete()
         self.employee.save()
         self.request.user.set_signature(self.cleaned_data['manager_signature'])
 
