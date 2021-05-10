@@ -1,3 +1,4 @@
+import base64
 import datetime
 import io
 import requests
@@ -13,6 +14,7 @@ from imagekit.models import ProcessedImageField
 from imagekit.processors import ResizeToFill
 from notifications.models import Notification
 from phonenumber_field.modelfields import PhoneNumberField
+from PIL import Image
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
 from reportlab.pdfbase.pdfmetrics import stringWidth
@@ -265,6 +267,14 @@ class Employee(AbstractBaseUser, PermissionsMixin):
             ('can_view_termination_reports', 'Can view termination reports'),
         ]
 
+    def get_signature_png(self):
+        image_data = self.signature.split(',')[1]
+        image_buffer = io.BytesIO(base64.b64decode(image_data))
+        image = Image.open(image_buffer, mode='r')
+        cropped_image = image.crop(image.getbbox())
+
+        return cropped_image
+
     def get_last_warnings(self):
         """Returns the dates for the last written warning and removal from service"""
         counseling_history = Counseling.objects.filter(employee=self, is_active=True).exclude(attendance=None)
@@ -386,6 +396,10 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         tenure = (datetime.date.today() - self.hire_date).days
 
         return False if tenure > 89 else True
+
+    def set_signature(self, signature):
+        self.signature = signature
+        self.save()
 
     def has_attendance_in_6_months(self):
         attendance_records = Attendance.objects.filter(employee=self, incident_date__gte=timezone.now() - datetime.timedelta(days=180))
@@ -1297,6 +1311,14 @@ class Attendance(models.Model):
         """Will return the Employee Object of the assignee"""
 
         return Employee.objects.get(employee_id=self.assigned_by)
+
+    def get_signature_png(self):
+        image_data = self.signature.split(',')[1]
+        image_buffer = io.BytesIO(base64.b64decode(image_data))
+        image = Image.open(image_buffer, mode='r')
+        cropped_image = image.crop(image.getbbox())
+
+        return cropped_image
 
     def __str__(self):
         return f"{self.employee.get_full_name()}'s Attendance Point"
