@@ -1067,7 +1067,7 @@ class Attendance(models.Model):
     signed = models.BooleanField(default=False)
     signature = models.TextField(default='', blank=True)
 
-    def create_attendance_point_document(self):
+    def create_document(self):
         """Will create a PDF for the Attendance and assign it to the Attendance Object"""
         buffer = io.BytesIO()
 
