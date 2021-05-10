@@ -121,28 +121,27 @@ def assign_attendance(request, employee_id):
     employee = Employee.objects.get(employee_id=employee_id)
     if request.method == 'GET':
 
-        a_form = AssignAttendance(employee=employee, request=request)
+        form = AssignAttendance(employee=employee, request=request)
 
         data = {
-            'a_form': a_form,
+            'form': form,
             'employee': employee
         }
 
-        return render(request, 'employees/assign_attendance.html', data)
+        return render(request, 'employees/attendance.html', data)
     else:
-        a_form = AssignAttendance(data=request.POST, employee=employee, request=request)
-
-        if a_form.is_valid():
-            attendance_id = a_form.save()
+        form = AssignAttendance(data=request.POST, employee=employee, request=request)
+        if form.is_valid():
+            form.save()
 
             messages.add_message(request, messages.SUCCESS, 'Attendance Point Successfully Assigned')
 
-            data = {'url': reverse('employee-account', args=[employee.employee_id, 'Attendance', attendance_id])}
+            data = {'url': reverse('employee-account', args=[employee.employee_id])}
 
             return JsonResponse(data, status=200)
         else:
 
-            return JsonResponse(a_form.errors, status=400)
+            return JsonResponse(form.errors, status=400)
 
 
 @login_required
