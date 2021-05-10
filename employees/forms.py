@@ -120,8 +120,6 @@ class AssignAttendance(forms.Form):
 
         self.employee.save()
 
-        return attendance.id
-
 
 class EditAttendance(AssignAttendance):
     issued_date = forms.DateField(label='Issued Date', widget=forms.TextInput(attrs={'type': 'date'}),
