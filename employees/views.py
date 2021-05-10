@@ -146,20 +146,20 @@ def assign_attendance(request, employee_id):
 
 @login_required
 @permission_required('employees.can_delete_attendance', raise_exception=True)
-def delete_attendance(request, employee_id, attendance_id):
-    attendance_point = Attendance.objects.get(id=attendance_id)
-    exemption = attendance_point.exemption
-    employee = attendance_point.employee
+def delete_attendance(request, attendance_id):
+    attendance = Attendance.objects.get(id=attendance_id)
+    exemption = attendance.exemption
+    employee = attendance.employee
 
-    attendance_point.is_active = False
+    attendance.is_active = False
 
     try:
-        attendance_point.counseling.is_active = False
-        attendance_point.counseling.save(update_fields=['is_active', 'document'])
+        attendance.counseling.is_active = False
+        attendance.counseling.save(update_fields=['is_active'])
     except Counseling.DoesNotExist:
         pass
 
-    attendance_point.save(update_fields=['is_active', 'document'])
+    attendance.save(update_fields=['is_active'])
 
     if exemption == '1':
         employee.paid_sick += 1
