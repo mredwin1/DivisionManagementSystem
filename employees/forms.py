@@ -104,7 +104,6 @@ class AssignAttendance(forms.Form):
             self.cleaned_data['points'] = self.POINTS[self.cleaned_data['reason']]
 
     def save(self):
-        self.request.user.set_signature(self.cleaned_data['manager_signature'])
         attendance = Attendance(
             employee=self.employee,
             incident_date=self.cleaned_data['incident_date'],
@@ -117,8 +116,8 @@ class AssignAttendance(forms.Form):
         )
 
         attendance.save()
-
         self.employee.save()
+        self.request.user.set_signature(self.cleaned_data['manager_signature'])
 
 
 class EditAttendance(AssignAttendance):
