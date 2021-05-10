@@ -124,7 +124,6 @@ class AssignAttendance(forms.Form):
 class EditAttendance(AssignAttendance):
     issued_date = forms.DateField(label='Issued Date', widget=forms.TextInput(attrs={'type': 'date'}),
                                   required=False)
-    document = forms.FileField(label='Document', required=False)
 
     def save(self):
         update_fields = ['incident_date', 'issued_date', 'reason', 'exemption', 'edited_date', 'edited_by', 'points']
