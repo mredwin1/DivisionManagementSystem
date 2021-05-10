@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.sites.models import Site
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
@@ -125,7 +126,8 @@ def assign_attendance(request, employee_id):
 
         data = {
             'form': form,
-            'employee': employee
+            'employee': employee,
+            'domain': Site.objects.get_current().domain
         }
 
         return render(request, 'employees/attendance.html', data)
@@ -205,7 +207,8 @@ def edit_attendance(request, attendance_id):
         data = {
             'employee': employee,
             'form': form,
-            'attendance': attendance
+            'attendance': attendance,
+            'domain': Site.objects.get_current().domain
         }
 
         return render(request, 'employees/attendance.html', data)
