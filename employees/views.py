@@ -11,7 +11,7 @@ from .models import Employee, SafetyPoint, TimeOffRequest
 
 
 @login_required
-def account(request, employee_id, download=None, download_id=None, notification_id=None):
+def account(request, employee_id, notification_id=None):
     if employee_id == request.user.employee_id or request.user.has_perm('employees.can_view_all_accounts'):
         employee = Employee.objects.get(employee_id=employee_id)
         attendance = Attendance.objects.filter(employee=employee, is_active=True).order_by('-incident_date')
@@ -20,24 +20,6 @@ def account(request, employee_id, download=None, download_id=None, notification_
         time_off = TimeOffRequest.objects.filter(employee=employee, is_active=True).order_by('-request_date')
         settlements = Settlement.objects.filter(employee=employee, is_active=True).order_by('-created_date')
 
-        if download == 'Attendance':
-            download_object = attendance.get(id=download_id)
-        elif download == 'Counseling':
-            download_object = counseling.get(id=download_id)
-        elif download == 'Safety Point':
-            download_object = safety_point.get(id=download_id)
-        else:
-            download_object = None
-
-        if download_object:
-            download_urls = [request.build_absolute_uri(download_object.document.url)]
-            try:
-                download_urls.append(request.build_absolute_uri(download_object.counseling.document.url))
-            except (Counseling.DoesNotExist, AttributeError):
-                pass
-        else:
-            download_urls = []
-
         data = {
             'employee': employee,
             'attendance': attendance,
@@ -45,7 +27,6 @@ def account(request, employee_id, download=None, download_id=None, notification_
             'safety_point': safety_point,
             'time_off': time_off,
             'settlements': settlements,
-            'download_urls': download_urls,
         }
 
         if notification_id:
