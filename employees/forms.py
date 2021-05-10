@@ -125,27 +125,10 @@ class EditAttendance(AssignAttendance):
     document = forms.FileField(label='Document', required=False)
 
     def save(self):
-        update_fields = ['incident_date', 'issued_date', 'reason', 'exemption', 'edited_date', 'edited_by', 'points']
-        points = {
-            '0': 1,
-            '1': 0,
-            '2': 1.5,
-            '3': 4,
-            '4': 1,
-            '5': 1,
-            '6': .5,
-            '7': 1,
-            '8': .5,
-        }
-
-        if self.cleaned_data['exemption']:
-            self.attendance.points = 0
-            if self.cleaned_data['exemption'] == '1' and self.attendance.exemption != '1':
-                self.employee.paid_sick -= 1
-            elif self.cleaned_data['exemption'] == '2' and self.attendance.exemption != '2':
-                self.employee.unpaid_sick -= 1
-        else:
-            self.attendance.points = points[self.cleaned_data['reason']]
+        if self.cleaned_data['exemption'] == '1' and self.attendance.exemption != '1':
+            self.employee.paid_sick -= 1
+        elif self.cleaned_data['exemption'] == '2' and self.attendance.exemption != '2':
+            self.employee.unpaid_sick -= 1
 
         if self.attendance.exemption == '1' and self.cleaned_data['exemption'] != '1':
             self.employee.paid_sick += 1
