@@ -76,17 +76,18 @@ class AssignAttendance(forms.Form):
         super(AssignAttendance, self).__init__(*args, **kwargs)
 
     def clean(self):
-        super().clean()
-
         exception_field_name = 'exemption'
         exemption = self.cleaned_data[exception_field_name]
-
-        if exemption == '1' and self.employee.paid_sick <= 0:
-            self.add_error(exception_field_name, f'{self.employee.get_full_name()} does not have Paid Sick days '
-                                                 f'available')
-        elif exemption == '2' and self.employee.unpaid_sick <= 0:
-            self.add_error(exception_field_name, f'{self.employee.get_full_name()} does not have Unpaid Sick days '
-                                                 f'available')
+        if exemption:
+            self.cleaned_data['points'] = 0
+            if exemption == '1' and self.employee.paid_sick <= 0:
+                self.add_error(exception_field_name, f'{self.employee.get_full_name()} does not have Paid Sick days '
+                                                     f'available')
+            elif exemption == '2' and self.employee.unpaid_sick <= 0:
+                self.add_error(exception_field_name, f'{self.employee.get_full_name()} does not have Unpaid Sick days '
+                                                     f'available')
+        else:
+            self.cleaned_data['points'] = self.POINTS[self.cleaned_data['reason']]
 
     def save(self):
         points = {
@@ -105,7 +106,7 @@ class AssignAttendance(forms.Form):
             employee=self.employee,
             incident_date=self.cleaned_data['incident_date'],
             issued_date=datetime.date.today(),
-            points=0 if self.cleaned_data['exemption'] else points[self.cleaned_data['reason']],
+            points=self.cleaned_data['points'],
             reason=self.cleaned_data['reason'],
             assigned_by=self.request.user.employee_id,
             exemption=self.cleaned_data['exemption'],
