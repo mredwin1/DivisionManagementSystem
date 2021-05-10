@@ -31,4 +31,5 @@ urlpatterns = [
     path('export-profile/<int:employee_id>/', employee_views.export_profile, name='employee-export-profile'),
     path('upload-profile-picture/<int:employee_id>/', employee_views.upload_profile_picture, name='employee-upload-profile-picture'),
     path('get-signature/', employee_views.get_signature, name='employee-get-signature'),
+    path('sign-document/', employee_views.sign_document, name='employee-sign-document'),
 ]
