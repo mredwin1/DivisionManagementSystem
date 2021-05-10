@@ -2,7 +2,7 @@
 {% load crispy_forms_filters %}
 {% load static %}
 {% block modal-body %}
-    <img id="qr" src="#" class="mx-auto d-block">
+    <img id="qr" src="#" alt="" class="mx-auto d-block">
 {% endblock modal-body %}
 {% block modal-footer %}
     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -39,7 +39,7 @@
                             <div class="col-8 text-right">
                                 <button class="btn btn-secondary btn-sm canvas-clear" type="button" data-canvas-type="other">Clear</button>
                                 <button class="btn btn-secondary btn-sm canvas-undo" type="button" data-canvas-type="other">Undo</button>
-                                <button class="btn btn-secondary btn-sm canvas-qr" type="button" data-canvas-type="manager">Get QR</button>
+                                <button class="btn btn-secondary btn-sm canvas-qr" type="button" data-canvas-type="manager" data-qr-url="https://{{ domain }}{% url 'employee-sign-document' %}">Get QR</button>
                             </div>
                         </div>
                         <canvas class="border border-dark" id="other_canvas"></canvas>
@@ -52,7 +52,7 @@
                             <div class="col-8 text-right">
                                 <button class="btn btn-secondary btn-sm canvas-clear" type="button" data-canvas-type="manager">Clear</button>
                                 <button class="btn btn-secondary btn-sm canvas-undo" type="button" data-canvas-type="manager">Undo</button>
-                                <button class="btn btn-secondary btn-sm canvas-qr" type="button" data-canvas-type="manager" data-qr-url="{% url 'employee-sign-document' %}">Get QR</button>
+                                <button class="btn btn-secondary btn-sm canvas-qr" type="button" data-canvas-type="manager" data-qr-url="https://{{ domain }}{% url 'employee-sign-document' %}">Get QR</button>
                                 <button class="btn btn-secondary btn-sm canvas-load" type="button" data-canvas-type="manager" data-signature-url="{% url 'employee-get-signature' %}">Load Last</button>
                             </div>
                         </div>
