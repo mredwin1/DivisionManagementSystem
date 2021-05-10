@@ -1291,15 +1291,24 @@ class Attendance(models.Model):
 
         # Signatures & Date
         p.setFontSize(12)
-        p.drawString(.5 * inch, 1 * inch, 'Employee Signature:')
-        p.drawString(5.75 * inch, 1 * inch, 'Date:')
-        p.drawString(.5 * inch, .5 * inch, 'Supervisor Signature:')
-        p.drawString(5.75 * inch, .5 * inch, 'Date:')
+        p.drawString(0.50 * inch, 1.00 * inch, 'Employee Signature:')
+        p.drawString(5.75 * inch, 1.00 * inch, 'Date:')
+        p.drawString(0.50 * inch, 0.50 * inch, 'Supervisor Signature:')
+        p.drawString(5.75 * inch, 0.50 * inch, 'Date:')
 
         p.line(2.2 * inch, .5 * inch, 5.5 * inch, .5 * inch)
         p.line(2.2 * inch, 1 * inch, 5.5 * inch, 1 * inch)
         p.line(6.2 * inch, .5 * inch, 8 * inch, .5 * inch)
         p.line(6.2 * inch, 1 * inch, 8 * inch, 1 * inch)
+
+        if self.signature:
+            p.drawString(6.25 * inch, 1.02 * inch, datetime.datetime.today().strftime('%m-%d-%Y'))
+            p.drawString(6.25 * inch, 0.52 * inch, datetime.datetime.today().strftime('%m-%d-%Y'))
+
+            other_signature = ImageReader(self.get_signature_png())
+            p.drawImage(other_signature, 2.2 * inch, 1.01 * inch, 3.3 * inch, .45 * inch, mask='auto')
+            manager_signature = ImageReader(self.get_assignee().get_signature_png())
+            p.drawImage(manager_signature, 2.2 * inch, .51 * inch, 3.3 * inch, .45 * inch, mask='auto')
 
         p.showPage()
         p.save()
