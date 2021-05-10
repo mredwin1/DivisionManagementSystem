@@ -686,3 +686,8 @@ def get_signature(request):
         'signature': request.user.signature
     }
     return JsonResponse(data, status=200)
+
+
+def sign_document(request):
+
+    return render(request, 'employees/sign_document.html')
