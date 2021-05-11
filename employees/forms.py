@@ -82,6 +82,7 @@ class AssignAttendance(forms.Form):
     exemption = forms.CharField(label='Exemption', widget=forms.Select(choices=Attendance.EXEMPTION_CHOICES), required=False)
     other_signature = forms.CharField(required=False)
     manager_signature = forms.CharField(required=True)
+    signature_method = forms.CharField(required=False)
 
     def __init__(self, *args, **kwargs):
         self.employee = kwargs.pop('employee', None)
@@ -112,7 +113,8 @@ class AssignAttendance(forms.Form):
             reason=self.cleaned_data['reason'],
             assigned_by=self.request.user.employee_id,
             exemption=self.cleaned_data['exemption'],
-            signature=self.cleaned_data['other_signature']
+            signature=self.cleaned_data['other_signature'],
+            signature_method=self.cleaned_data['signature_method']
         )
 
         attendance.save()

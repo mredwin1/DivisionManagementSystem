@@ -681,13 +681,54 @@ def upload_profile_picture(request, employee_id):
 
 
 @login_required
-def get_signature(request):
+def get_signature(request, employee_id=None):
+    employee = Employee.objects.get(employee_id=employee_id) if employee_id else request.user
+
     data = {
-        'signature': request.user.signature
+        'signature': employee.signature
     }
     return JsonResponse(data, status=200)
 
 
-def sign_document(request):
+def clear_signature(request, employee_id):
+    employee = Employee.objects.get(employee_id=employee_id)
+    employee.set_signature('')
 
-    return render(request, 'employees/sign_document.html')
+    return JsonResponse('Success', status=200)
+
+
+def sign_document(request, signature_method, record_id, document_type=None):
+    if signature_method == 'QR':
+        employee = Employee.objects.get(id=record_id)
+
+        if request.method == 'GET':
+            data = {
+                'signature_method': signature_method,
+                'record': employee,
+            }
+
+            return render(request, 'employees/sign_document.html', data)
+        else:
+            signature = request.POST.get('other_signature')
+            employee.set_signature(signature)
+    else:
+        if document_type == 'Attendance':
+            record = Attendance.objects.get(id=record_id)
+        else:
+            record = Employee.objects.get(id=record_id)
+
+        if request.method == 'GET':
+            data = {
+                'document_type': document_type,
+                'signature_method': signature_method,
+                'record': record
+            }
+
+            return render(request, 'employees/sign_document.html', data)
+        else:
+            signature = request.POST.get('other_signature')
+            record.signature = signature
+            record.signature_method = signature_method
+            record.document.delete()
+
+            return redirect('employee-account', record.employee.employee_id)

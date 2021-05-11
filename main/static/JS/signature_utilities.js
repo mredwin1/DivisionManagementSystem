@@ -85,10 +85,24 @@ $(document).ready(function () {
     })
     $('.canvas-qr').click(function () {
         let qr_url = $(this).data('qr-url')
+        let canvas_type = $(this).data('canvas-type')
         let main_modal = $('#mainModal')
         let title = $('#mainModalTitle');
 
-        title.text('Signature QR')
+        if (canvas_type === 'other') {
+            title.text('Signature QR')
+            $.ajax({
+                url: $(this).data('clear-url'),
+                type: 'GET',
+                cache: false,
+                processData: false,
+                contentType: false,
+            });
+        } else {
+            title.text('Manager Signature QR')
+        }
+
+
         $("#qr").ClassyQR({
             type: 'url',
             url: qr_url
@@ -109,6 +123,44 @@ $(document).ready(function () {
             let other_signature_data = other_signature_pad.toDataURL()
             form.data('other-signature-data', other_signature_data)
             form.data('other-is-empty', other_signature_pad.isEmpty())
+        }
+    })
+    $('#mainModal').on('hidden.bs.modal', function (e) {
+        let title = $('#mainModalTitle');
+        let signaturePad = null
+        let signature_method = $('#signature_method')
+
+        if (title.indexOf('Manager') === -1) {
+            signaturePad = other_signature_pad
+        } else {
+            signaturePad = manager_signature_pad
+        }
+
+        $.ajax({
+            url: $(this).data('signature-url'),
+            type: 'GET',
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                if (data.signature) {
+                    signature_method.data('signature-method', 'QR')
+
+                    signaturePad.clear()
+                    signaturePad.fromDataURL(data.signature)
+                } else {
+                    signature_method.data('signature-method', 'In Person')
+                }
+            },
+        });
+        if (title.indexOf('Manager') === -1) {
+            $.ajax({
+                url: $('#other_qr').data('clear-url'),
+                type: 'GET',
+                cache: false,
+                processData: false,
+                contentType: false,
+            });
         }
     })
 });

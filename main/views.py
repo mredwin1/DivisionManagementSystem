@@ -1,4 +1,3 @@
-import datetime
 import uuid
 import os
 
@@ -12,6 +11,7 @@ from django.db.models.functions import Concat
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.utils import timezone
 
 from employees.helper_functions import create_phone_list, create_seniority_list, create_driver_list, create_custom_list,\
     create_safety_meeting_attendance
@@ -36,7 +36,7 @@ def log_in(request):
             password = form.cleaned_data['password']
             user = authenticate(request, username=username, password=password)
 
-            user.last_login = datetime.datetime.today()
+            user.last_login = timezone.now()
             user.save(update_fields=['last_login'])
 
             login(request, user)
