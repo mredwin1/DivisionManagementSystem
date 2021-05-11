@@ -11,7 +11,7 @@
     $.fn.extend({
         ClassyQR: function (x) {
             var c = {
-                baseUrl: 'http://chart.apis.google.com/chart?cht=qr&chs=',
+                baseUrl: 'https://chart.apis.google.com/chart?cht=qr&chs=',
                 size: 230,
                 create: false,
                 number: null,
