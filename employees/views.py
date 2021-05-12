@@ -694,7 +694,7 @@ def clear_signature(request, employee_id):
     employee = Employee.objects.get(employee_id=employee_id)
     employee.set_signature('')
 
-    return JsonResponse('Success', status=200)
+    return JsonResponse({'message': 'success'}, status=200)
 
 
 def sign_document(request, signature_method, record_id, document_type=None):
