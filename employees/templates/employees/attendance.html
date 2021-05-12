@@ -40,7 +40,7 @@
                             <div class="col-8 text-right">
                                 <button class="btn btn-secondary btn-sm canvas-clear" type="button" data-canvas-type="other">Clear</button>
                                 <button class="btn btn-secondary btn-sm canvas-undo" type="button" data-canvas-type="other">Undo</button>
-                                <button class="btn btn-secondary btn-sm canvas-qr" type="button" data-canvas-type="manager" data-qr-url="https://{{ domain }}{% url 'employee-sign-document' signature_method='QR' record_id=employee.employee_id %}" data-signature-url="{% url 'employee-get-signature' employee.employee_id %}" data-clear-url="{% url 'employee-clear-signature' employee.employee_id %}" id="other_qr">Get QR</button>
+                                <button class="btn btn-secondary btn-sm canvas-qr" type="button" data-canvas-type="other" data-qr-url="https://{{ domain }}{% url 'employee-sign-document' signature_method='QR' record_id=employee.employee_id %}" data-signature-url="{% url 'employee-get-signature' employee.employee_id %}" data-clear-url="{% url 'employee-clear-signature' employee.employee_id %}" id="other_qr">Get QR</button>
                             </div>
                         </div>
                         <canvas class="border border-dark" id="other_canvas"></canvas>
