@@ -32,7 +32,6 @@ $(document).ready(function() {
                 if (!other_is_empty){
                     form_data.append('other_signature', other_signature_data)
                 }
-                console.log(manager_signature_data)
                 form_data.append('manager_signature', manager_signature_data)
                 $.ajax({
                     url: form.attr('action'),
