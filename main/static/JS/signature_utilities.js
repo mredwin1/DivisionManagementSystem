@@ -143,6 +143,7 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function (data) {
+                console.log(data)
                 if (data.signature) {
                     signature_method.data('signature-method', 'QR')
 

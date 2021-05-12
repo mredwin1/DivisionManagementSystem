@@ -711,6 +711,8 @@ def sign_document(request, signature_method, record_id, document_type=None):
             return render(request, 'employees/sign_document.html', data)
         else:
             signature = request.POST.get('other_signature')
+            import logging
+            logging.info(request.POST)
             employee.set_signature(signature)
 
             data = {

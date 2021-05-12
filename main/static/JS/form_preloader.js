@@ -29,6 +29,7 @@ $(document).ready(function() {
                 $('#preloader').hide();
                 $('#main').show();
             } else {
+                console.log(other_is_empty)
                 if (!other_is_empty){
                     form_data.append('other_signature', other_signature_data)
                 }
