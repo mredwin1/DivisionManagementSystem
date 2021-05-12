@@ -1,6 +1,6 @@
 $(document).ready(function() {
     function upload(event) {
-         $('#main').hide();
+        $('#main').hide();
         $('#preloader').show();
         /* stop form from submitting normally */
         event.preventDefault();
@@ -21,17 +21,18 @@ $(document).ready(function() {
                 $('#preloader').hide();
                 $('#main').show();
 
-                $.each(data.responseJSON, function (key, value) {
-                    var id = '#id_' + key;
-                    var parent = $(id).parent();
-                    var p = $("<p>", {id: "error_1_id_" + key, "class": "invalid-feedback"});
-                    var strong = $("<strong>").text(value);
+                        $.each(data.responseJSON, function (key, value) {
+                            let id = '#id_' + key;
+                            let parent = $(id).parent();
+                            let p = $("<p>", {id: "error_1_id_" + key, "class": "invalid-feedback"});
+                            let strong = $("<strong>").text(value);
 
-                    if (key === 'action_type') {
-                        if ($('#pd_check_override').length) {
-                            $('#pd_check_override').show();
-                        }
-                    }
+                            if (key === 'action_type') {
+                                let pd_check_override = $('#pd_check_override')
+                                if (pd_check_override.length) {
+                                    pd_check_override.show();
+                                }
+                            }
 
                     parent.find('p').remove();
                     p.append(strong);
@@ -45,7 +46,6 @@ $(document).ready(function() {
 
     /* attach a submit handler to the form */
     $(function () {
-        console.log($('form'));
         $('form').each(function() {
             $(this).submit(upload);
         });
