@@ -699,7 +699,7 @@ def clear_signature(request, employee_id):
 
 def sign_document(request, signature_method, record_id, document_type=None):
     if signature_method == 'QR':
-        employee = Employee.objects.get(id=record_id)
+        employee = Employee.objects.get(employee_id=record_id)
 
         if request.method == 'GET':
             data = {
@@ -722,7 +722,7 @@ def sign_document(request, signature_method, record_id, document_type=None):
         if document_type == 'Attendance':
             record = Attendance.objects.get(id=record_id)
         else:
-            record = Employee.objects.get(id=record_id)
+            record = Employee.objects.get(employee_id=record_id)
 
         if request.method == 'GET':
             data = {
