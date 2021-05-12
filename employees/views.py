@@ -705,12 +705,19 @@ def sign_document(request, signature_method, record_id, document_type=None):
             data = {
                 'signature_method': signature_method,
                 'record': employee,
+                'document_type': None
             }
 
             return render(request, 'employees/sign_document.html', data)
         else:
             signature = request.POST.get('other_signature')
             employee.set_signature(signature)
+
+            data = {
+                'url': reverse('main-home')
+            }
+
+            return JsonResponse(data, status=200)
     else:
         if document_type == 'Attendance':
             record = Attendance.objects.get(id=record_id)
@@ -731,4 +738,8 @@ def sign_document(request, signature_method, record_id, document_type=None):
             record.signature_method = signature_method
             record.document.delete()
 
-            return redirect('employee-account', record.employee.employee_id)
+            data = {
+                'url': reverse('employee-account', args=[record.employee.employee_id])
+            }
+
+            return JsonResponse(data, status=200)
