@@ -33,8 +33,6 @@ if DEBUG:
 else:
     ALLOWED_HOSTS = ['mvbachman.com', 'www.mvbachman.com']
 
-X_FRAME_OPTIONS = 'ALLOW-FROM dms.localhost'
-
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
