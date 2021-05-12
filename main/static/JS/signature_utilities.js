@@ -126,7 +126,7 @@ $(document).ready(function () {
         }
     })
     $('#mainModal').on('hidden.bs.modal', function (e) {
-        let title = $('#mainModalTitle');
+        let title = $('#mainModalTitle').text()
         let signaturePad = null
         let signature_method = $('#signature_method')
 
