@@ -9,6 +9,9 @@
     <h3>Sign Below</h3>
     <div class="row mt-3">
         <div class="col">
+            {% if document_type %}
+                <embed type="application/pdf" src="{{ record.document.url }}#toolbar=0&navpanes=0&scrollbar=0" width="800px" height="1000px" />
+            {% endif %}
             <form method="POST" role="form" action="{% if document_type %}{% url 'employee-sign-document' signature_method=signature_method record_id=record.id document_type=document_type %}{% else %}{% url 'employee-sign-document' signature_method=signature_method record_id=record.employee_id %}{% endif %}">
                 {% csrf_token %}
                 <div class="form-row">
