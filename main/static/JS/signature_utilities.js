@@ -129,6 +129,7 @@ $(document).ready(function () {
         let title = $('#mainModalTitle').text()
         let signaturePad = null
         let signature_method = $('#signature_method')
+        let qr_button = $('#other_qr')
 
         if (title.indexOf('Manager') === -1) {
             signaturePad = other_signature_pad
@@ -137,7 +138,7 @@ $(document).ready(function () {
         }
 
         $.ajax({
-            url: $(this).data('signature-url'),
+            url: qr_button.data('signature-url'),
             type: 'GET',
             cache: false,
             processData: false,
@@ -156,7 +157,7 @@ $(document).ready(function () {
         });
         if (title.indexOf('Manager') === -1) {
             $.ajax({
-                url: $('#other_qr').data('clear-url'),
+                url: qr_button.data('clear-url'),
                 type: 'GET',
                 cache: false,
                 processData: false,
