@@ -24,8 +24,22 @@
                             </div>
                         </div>
                         <canvas class="border border-dark" id="other_canvas"></canvas>
-                        <input type="hidden" value="{{ signature_method }}" name="signature_method">
                     </div>
+                    {% if signature_method == 'In Person' %}
+                        <div class="form-group col-lg-6 col-12 pl-lg-3" id="manager_container">
+                            <div class="row justify-content-between">
+                                <div class="col-4">
+                                    <p>Manager Signature*</p>
+                                </div>
+                                <div class="col-8 text-right">
+                                    <button class="btn btn-secondary btn-sm canvas-clear" type="button" data-canvas-type="manager">Clear</button>
+                                    <button class="btn btn-secondary btn-sm canvas-undo" type="button" data-canvas-type="manager">Undo</button>
+                                    <button class="btn btn-secondary btn-sm canvas-load" type="button" data-canvas-type="manager" data-signature-url="{% url 'employee-get-signature' %}">Load Last</button>
+                                </div>
+                            </div>
+                            <canvas class="border border-dark" id="manager_canvas"></canvas>
+                        </div>
+                    {% endif %}
                 </div>
                 <div class="form-row mb-3">
                     {% if signature_method == 'In Person' %}
