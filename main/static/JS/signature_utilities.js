@@ -161,6 +161,7 @@ $(document).ready(function () {
                     signaturePad.clear()
                     signaturePad.fromDataURL(data.signature)
                     signature_method.value('QR')
+                    console.log(signature_method)
                 }
             },
         });
