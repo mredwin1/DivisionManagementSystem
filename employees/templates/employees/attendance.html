@@ -16,7 +16,7 @@
     <h3>{% if request.resolver_match.url_name == 'employee-assign-attendance' %}Assign{% else %}Edit{% endif %} Attendance Point</h3>
     <div class="row mt-3">
         <div class="col">
-            <form method="POST" role="form" action="{% if request.resolver_match.url_name == 'employee-assign-attendance' %}{% url 'employee-assign-attendance' employee.employee_id %}{% else %}{% url 'employee-edit-attendance' attendance.id %}{% endif %}">
+            <form method="POST" role="form" action="{% if request.resolver_match.url_name == 'employee-assign-attendance' %}{% url 'employee-assign-attendance' employee.employee_id %}{% else %}{% url 'employee-edit-attendance' attendance.id %}{% endif %}" data-manager-required="{% if request.resolver_match.url_name == 'employee-assign-attendance' %}true{% else %}false{% endif %}" data-other-required="false">
                 {% csrf_token %}
                 <div class="form-row justify-content-start">
                     <div class="form-group col-sm-4 col-12">
