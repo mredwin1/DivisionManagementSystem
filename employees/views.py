@@ -1,3 +1,4 @@
+from django import utils
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.sites.models import Site
@@ -736,6 +737,7 @@ def sign_document(request, signature_method, record_id, document_type=None):
             signature = request.POST.get('other_signature')
             record.signature = signature
             record.signature_method = signature_method
+            record.signed_date = utils.timezone.now()
             record.document.delete()
 
             data = {
