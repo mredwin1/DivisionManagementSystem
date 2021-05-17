@@ -125,6 +125,19 @@ $(document).ready(function () {
             form.data('other-is-empty', other_signature_pad.isEmpty())
         }
     })
+    $('#id_refused_to_sign').click(function () {
+        let other_signature_title = $('#other_signature_title')
+        let form = $('form')
+        let refused_to_sign = $(this)
+
+        if (refused_to_sign.prop('checked')) {
+            other_signature_title.text('Witness Signature*')
+            form.data('other-required', true)
+        } else {
+            other_signature_title.text('Employee Signature')
+            form.data('other-required', false)
+        }
+    })
     $('#mainModal').on('hidden.bs.modal', function (e) {
         let title = $('#mainModalTitle').text()
         let signaturePad = null
@@ -144,14 +157,10 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function (data) {
-                console.log(data)
                 if (data.signature) {
-                    signature_method.data('signature-method', 'QR')
-
                     signaturePad.clear()
                     signaturePad.fromDataURL(data.signature)
-                } else {
-                    signature_method.data('signature-method', 'In Person')
+                    signature_method.value('QR')
                 }
             },
         });
