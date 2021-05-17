@@ -26,10 +26,12 @@ $(document).ready(function() {
             if (manager_required && manager_is_empty) {
                 required_errors.push('#manager_container')
             }
+
             if (required_errors.length > 0) {
                 $.each(required_errors, function (index, value) {
                     let container = $(value);
-                    let p = $("<p>", {id: "error_1_manager_canvas", "class": "invalid-feedback m-0"});
+                    let p_id = 'error_' + index + '_canvas'
+                    let p = $("<p>", {id: p_id, "class": "invalid-feedback m-0"});
                     let strong = $("<strong>").text('This signature cannot be blank');
 
                     container.find('#error_1_manager_canvas').remove();
