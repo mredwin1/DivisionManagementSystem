@@ -160,7 +160,9 @@ $(document).ready(function () {
                 if (data.signature) {
                     signaturePad.clear()
                     signaturePad.fromDataURL(data.signature)
-                    signature_method.val('QR')
+                    if (title.indexOf('Manager') === -1) {
+                        signature_method.val('QR')
+                    }
                 }
             },
         });
