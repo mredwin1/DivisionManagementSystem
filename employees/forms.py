@@ -84,6 +84,7 @@ class AssignAttendance(forms.Form):
     other_signature = forms.CharField(required=False)
     manager_signature = forms.CharField(required=False)
     signature_method = forms.CharField(required=False)
+    refused_to_sign = forms.BooleanField(required=False)
 
     def __init__(self, *args, **kwargs):
         self.employee = kwargs.pop('employee', None)
@@ -148,6 +149,10 @@ class EditAttendance(AssignAttendance):
         self.attendance.exemption = self.cleaned_data['exemption']
         self.attendance.edited_date = datetime.datetime.today()
         self.attendance.edited_by = f'{self.request.user.first_name} {self.request.user.last_name}'
+        self.attendance.signature_method = ''
+        self.attendance.signed_date = None
+        self.attendance.is_signed = False
+        self.attendance.signature = ''
 
         self.attendance.document.delete()
         self.employee.save()
