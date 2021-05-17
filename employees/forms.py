@@ -117,7 +117,8 @@ class AssignAttendance(forms.Form):
             signature=self.cleaned_data['other_signature'],
             signature_method=self.cleaned_data['signature_method'] if self.cleaned_data['other_signature'] else '',
             is_signed=True if self.cleaned_data['other_signature'] else False,
-            signed_date=utils.timezone.now() if self.cleaned_data['other_signature'] else None
+            signed_date=utils.timezone.now() if self.cleaned_data['other_signature'] else None,
+            refused_to_sign=self.cleaned_data['refused_to_sign']
         )
 
         attendance.save()
