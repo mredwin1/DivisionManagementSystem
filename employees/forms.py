@@ -144,11 +144,9 @@ class EditAttendance(AssignAttendance):
         self.attendance.exemption = self.cleaned_data['exemption']
         self.attendance.edited_date = datetime.datetime.today()
         self.attendance.edited_by = f'{self.request.user.first_name} {self.request.user.last_name}'
-        self.attendance.signature = self.cleaned_data['other_signature']
 
         self.attendance.document.delete()
         self.employee.save()
-        self.request.user.set_signature(self.cleaned_data['manager_signature'])
 
 
 class AssignCounseling(forms.Form):
