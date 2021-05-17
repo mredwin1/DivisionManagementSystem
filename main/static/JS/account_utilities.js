@@ -19,10 +19,14 @@ $(document).ready(function(){
         $('#row4col1').attr('href', document_href)
 
         if (signature_href === '') {
-            signature_button.prop('disabled', true)
+            signature_button.removeClass('btn-primary')
+            signature_button.addClass('disabled')
+            signature_button.addClass('btn-secondary')
         } else {
+            signature_button.removeClass('disabled')
+            signature_button.removeClass('btn-secondary')
+            signature_button.addClass('btn-primary')
             signature_button.attr('href', signature_href)
-            signature_button.prop('disabled', false)
         }
 
 
