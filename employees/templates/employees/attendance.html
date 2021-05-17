@@ -29,36 +29,38 @@
                         {{ form.exemption|as_crispy_field }}
                     </div>
                 </div>
-                <div class="form-row">
-                    <input type="hidden" value="In Person" name="signature_method" id="signature_method">
-                    <div class="form-group col-lg-6 col-12 pr-lg-3">
-                        <div class="row justify-content-between">
-                            <div class="col-4">
-                                <p>Employee Signature</p>
+                {% if request.resolver_match.url_name == 'employee-assign-attendance' %}
+                    <div class="form-row">
+                        <input type="hidden" value="{% if signature_method %}{{ signature_method }}{% else %}In Person{% endif %}" name="signature_method" id="signature_method">
+                        <div class="form-group col-lg-6 col-12 pr-lg-3">
+                            <div class="row justify-content-between">
+                                <div class="col-4">
+                                    <p>Employee Signature</p>
+                                </div>
+                                <div class="col-8 text-right">
+                                    <button class="btn btn-secondary btn-sm canvas-clear" type="button" data-canvas-type="other">Clear</button>
+                                    <button class="btn btn-secondary btn-sm canvas-undo" type="button" data-canvas-type="other">Undo</button>
+                                    <button class="btn btn-secondary btn-sm canvas-qr" type="button" data-canvas-type="other" data-qr-url="https://{{ domain }}{% url 'employee-sign-document' signature_method='QR' record_id=employee.employee_id %}" data-signature-url="{% url 'employee-get-signature' employee.employee_id %}" data-clear-url="{% url 'employee-clear-signature' employee.employee_id %}" id="other_qr">Get QR</button>
+                                </div>
                             </div>
-                            <div class="col-8 text-right">
-                                <button class="btn btn-secondary btn-sm canvas-clear" type="button" data-canvas-type="other">Clear</button>
-                                <button class="btn btn-secondary btn-sm canvas-undo" type="button" data-canvas-type="other">Undo</button>
-                                <button class="btn btn-secondary btn-sm canvas-qr" type="button" data-canvas-type="other" data-qr-url="https://{{ domain }}{% url 'employee-sign-document' signature_method='QR' record_id=employee.employee_id %}" data-signature-url="{% url 'employee-get-signature' employee.employee_id %}" data-clear-url="{% url 'employee-clear-signature' employee.employee_id %}" id="other_qr">Get QR</button>
-                            </div>
+                            <canvas class="border border-dark" id="other_canvas"></canvas>
                         </div>
-                        <canvas class="border border-dark" id="other_canvas"></canvas>
-                    </div>
-                    <div class="form-group col-lg-6 col-12 pl-lg-3" id="manager_container">
-                        <div class="row justify-content-between">
-                            <div class="col-4">
-                                <p>Manager Signature*</p>
+                        <div class="form-group col-lg-6 col-12 pl-lg-3" id="manager_container">
+                            <div class="row justify-content-between">
+                                <div class="col-4">
+                                    <p>Manager Signature*</p>
+                                </div>
+                                <div class="col-8 text-right">
+                                    <button class="btn btn-secondary btn-sm canvas-clear" type="button" data-canvas-type="manager">Clear</button>
+                                    <button class="btn btn-secondary btn-sm canvas-undo" type="button" data-canvas-type="manager">Undo</button>
+                                    <button class="btn btn-secondary btn-sm canvas-qr" type="button" data-canvas-type="manager" data-qr-url="https://{{ domain }}{% url 'employee-sign-document' signature_method='QR' record_id=request.user.employee_id %}" data-signature-url="{% url 'employee-get-signature' employee.employee_id %}">Get QR</button>
+                                    <button class="btn btn-secondary btn-sm canvas-load" type="button" data-canvas-type="manager" data-signature-url="{% url 'employee-get-signature' %}">Load Last</button>
+                                </div>
                             </div>
-                            <div class="col-8 text-right">
-                                <button class="btn btn-secondary btn-sm canvas-clear" type="button" data-canvas-type="manager">Clear</button>
-                                <button class="btn btn-secondary btn-sm canvas-undo" type="button" data-canvas-type="manager">Undo</button>
-                                <button class="btn btn-secondary btn-sm canvas-qr" type="button" data-canvas-type="manager" data-qr-url="https://{{ domain }}{% url 'employee-sign-document' signature_method='QR' record_id=request.user.employee_id %}" data-signature-url="{% url 'employee-get-signature' employee.employee_id %}">Get QR</button>
-                                <button class="btn btn-secondary btn-sm canvas-load" type="button" data-canvas-type="manager" data-signature-url="{% url 'employee-get-signature' %}">Load Last</button>
-                            </div>
+                            <canvas class="border border-dark" id="manager_canvas"></canvas>
                         </div>
-                        <canvas class="border border-dark" id="manager_canvas"></canvas>
                     </div>
-                </div>
+                {% endif %}
                 <div class="form-row mb-3">
                     <a href="{% url 'employee-account' employee.employee_id %}" class="account-content mr-2">
                         <div class="btn btn-secondary">
