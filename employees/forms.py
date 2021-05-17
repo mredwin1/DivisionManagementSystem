@@ -81,7 +81,7 @@ class AssignAttendance(forms.Form):
     reason = forms.CharField(label='Reason', widget=forms.Select(choices=Attendance.REASON_CHOICES), required=True)
     exemption = forms.CharField(label='Exemption', widget=forms.Select(choices=Attendance.EXEMPTION_CHOICES), required=False)
     other_signature = forms.CharField(required=False)
-    manager_signature = forms.CharField(required=True)
+    manager_signature = forms.CharField(required=False)
     signature_method = forms.CharField(required=False)
 
     def __init__(self, *args, **kwargs):
