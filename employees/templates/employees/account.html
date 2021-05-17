@@ -51,7 +51,7 @@
                             </div>
                         </div>
                     </div>
-                    {% if user.position != "driver" %}
+                    {% if perms.employees.can_view_account_action_bar %}
                         <div class="row">
                             <div class="col px-3 border-top border-dark">
                                 <div class="d-flex justify-content-between p-3">
