@@ -1,6 +1,7 @@
 import datetime
 
 from django import forms
+from django import utils
 from phonenumber_field.formfields import PhoneNumberField
 from pytz import timezone
 
@@ -114,7 +115,9 @@ class AssignAttendance(forms.Form):
             assigned_by=self.request.user.employee_id,
             exemption=self.cleaned_data['exemption'],
             signature=self.cleaned_data['other_signature'],
-            signature_method=self.cleaned_data['signature_method']
+            signature_method=self.cleaned_data['signature_method'] if self.cleaned_data['other_signature'] else '',
+            is_signed=True if self.cleaned_data['other_signature'] else False,
+            signed_date=utils.timezone.now() if self.cleaned_data['other_signature'] else None
         )
 
         attendance.save()
