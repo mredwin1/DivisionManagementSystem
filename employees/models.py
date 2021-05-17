@@ -1053,20 +1053,26 @@ class Attendance(models.Model):
     ]
 
     is_active = models.BooleanField(default=True)
+    is_signed = models.BooleanField(default=False)
 
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+
     incident_date = models.DateField()
     issued_date = models.DateField(null=True)
+    edited_date = models.DateField(null=True, blank=True)
+    signed_date = models.DateField(null=True, blank=True)
+
     points = models.DecimalField(max_digits=2, decimal_places=1)
+
     document = models.FileField(validators=[pdf_extension], upload_to='attendance_forms')
+
     reason = models.CharField(max_length=30, choices=REASON_CHOICES)
     assigned_by = models.CharField(max_length=50)
-    exemption = models.CharField(max_length=30, choices=EXEMPTION_CHOICES, blank=True, null=True)
-    edited_date = models.DateField(null=True, blank=True)
+    exemption = models.CharField(max_length=30, choices=EXEMPTION_CHOICES, blank=True, default='')
     edited_by = models.CharField(max_length=30, blank=True, default='')
-    signed = models.BooleanField(default=False)
-    signature = models.TextField(default='', blank=True)
     signature_method = models.CharField(max_length=30, default='', blank=True)
+
+    signature = models.TextField(default='', blank=True)
 
     def create_document(self):
         """Will create a PDF for the Attendance and assign it to the Attendance Object"""
