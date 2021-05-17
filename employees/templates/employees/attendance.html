@@ -5,8 +5,7 @@
     <img id="qr" src="#" alt="" class="mx-auto d-block">
 {% endblock modal-body %}
 {% block modal-footer %}
-    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-    <button type="submit" class="btn btn-primary" id="done" form="qrCode">Done</button>
+    <button type="submit" class="btn btn-primary" id="done" form="qrCode" data-dismiss="modal">Done</button>
 {% endblock modal-footer %}
 {% block content %}
     <script src="{% static 'JS/form_preloader.js' %}"></script>
