@@ -32,10 +32,10 @@
                 {% if request.resolver_match.url_name == 'employee-assign-attendance' %}
                     <div class="form-row">
                         <input type="hidden" value="{% if signature_method %}{{ signature_method }}{% else %}In Person{% endif %}" name="signature_method" id="signature_method">
-                        <div class="form-group col-lg-6 col-12 pr-lg-3">
+                        <div class="form-group col-lg-6 col-12 pr-lg-3" id="other_container">
                             <div class="row justify-content-between">
                                 <div class="col-4">
-                                    <p>Employee Signature</p>
+                                    <p id="other_signature_title">Employee Signature</p>
                                 </div>
                                 <div class="col-8 text-right">
                                     <button class="btn btn-secondary btn-sm canvas-clear" type="button" data-canvas-type="other">Clear</button>
@@ -60,6 +60,8 @@
                             <canvas class="border border-dark" id="manager_canvas"></canvas>
                         </div>
                     </div>
+                    {{ form.refused_to_sign|as_crispy_field }}
+
                 {% endif %}
                 <div class="form-row mb-3">
                     <a href="{% url 'employee-account' employee.employee_id %}" class="account-content mr-2">
