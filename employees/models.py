@@ -1286,36 +1286,48 @@ class Attendance(models.Model):
         disclaimer4 = 'Please see the Employee Handbook for more information.'
 
         p.setFontSize(8)
-        p.drawString(.5 * inch, 3 * inch, disclaimer1)
-        p.drawString(.5 * inch, 2.8 * inch, disclaimer2)
-        p.drawString(.5 * inch, 2.6 * inch, disclaimer3)
-        p.drawString(.5 * inch, 2.4 * inch, disclaimer4)
+        p.drawString(.5 * inch, 3.5 * inch, disclaimer1)
+        p.drawString(.5 * inch, 3.3 * inch, disclaimer2)
+        p.drawString(.5 * inch, 3.1 * inch, disclaimer3)
+        p.drawString(.5 * inch, 2.9 * inch, disclaimer4)
 
         # Comments
         p.setFontSize(12)
-        p.drawString(.5 * inch, 2.1 * inch, 'Comments:')
+        p.drawString(.5 * inch, 2.6 * inch, 'Comments:')
 
-        p.line(.5 * inch, 1.8 * inch, 8 * inch, 1.8 * inch)
-        p.line(.5 * inch, 1.5 * inch, 8 * inch, 1.5 * inch)
+        p.line(.5 * inch, 2.3 * inch, 8 * inch, 2.3 * inch)
+        p.line(.5 * inch, 2.0 * inch, 8 * inch, 2.0 * inch)
 
         # Signatures & Date
         p.setFontSize(12)
-        p.drawString(0.50 * inch, 1.00 * inch, 'Employee Signature:')
+        p.drawString(0.50 * inch, 1.50 * inch, 'Employee Signature:')
+        p.drawString(5.75 * inch, 1.50 * inch, 'Date:')
+
+        p.rect(0.62 * inch, 1.28 * inch, .125 * inch, .125 * inch, fill=int(self.refused_to_sign))
+
+        p.setFontSize(8)
+        p.drawString(.75 * inch, 1.30 * inch, 'Employee refused to sign')
+
+        p.setFontSize(12)
+        p.drawString(0.50 * inch, 1.00 * inch, 'Witness Signature:')
         p.drawString(5.75 * inch, 1.00 * inch, 'Date:')
         p.drawString(0.50 * inch, 0.50 * inch, 'Supervisor Signature:')
         p.drawString(5.75 * inch, 0.50 * inch, 'Date:')
 
-        p.line(2.2 * inch, .5 * inch, 5.5 * inch, .5 * inch)
-        p.line(2.2 * inch, 1 * inch, 5.5 * inch, 1 * inch)
-        p.line(6.2 * inch, .5 * inch, 8 * inch, .5 * inch)
-        p.line(6.2 * inch, 1 * inch, 8 * inch, 1 * inch)
+        p.line(2.2 * inch, 1.5 * inch, 5.5 * inch, 1.5 * inch)
+        p.line(6.2 * inch, 1.5 * inch, 8.0 * inch, 1.5 * inch)
+        p.line(2.2 * inch, 1.0 * inch, 5.5 * inch, 1.0 * inch)
+        p.line(6.2 * inch, 1.0 * inch, 8.0 * inch, 1.0 * inch)
+        p.line(2.2 * inch, 0.5 * inch, 5.5 * inch, 0.5 * inch)
+        p.line(6.2 * inch, 0.5 * inch, 8.0 * inch, 0.5 * inch)
 
         if self.signature:
             p.drawString(6.25 * inch, 1.02 * inch, datetime.datetime.today().strftime('%m-%d-%Y'))
             p.drawString(6.25 * inch, 0.52 * inch, datetime.datetime.today().strftime('%m-%d-%Y'))
+            signature_y = 1.01 if self.refused_to_sign else 1.51
 
             other_signature = ImageReader(self.get_signature_png())
-            p.drawImage(other_signature, 2.2 * inch, 1.01 * inch, 3.3 * inch, .45 * inch, mask='auto')
+            p.drawImage(other_signature, 2.2 * inch, signature_y * inch, 3.3 * inch, .45 * inch, mask='auto')
             manager_signature = ImageReader(self.get_assignee().get_signature_png())
             p.drawImage(manager_signature, 2.2 * inch, .51 * inch, 3.3 * inch, .45 * inch, mask='auto')
 
