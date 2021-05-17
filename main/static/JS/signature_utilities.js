@@ -160,8 +160,7 @@ $(document).ready(function () {
                 if (data.signature) {
                     signaturePad.clear()
                     signaturePad.fromDataURL(data.signature)
-                    signature_method.value('QR')
-                    console.log(signature_method)
+                    signature_method.val('QR')
                 }
             },
         });
