@@ -15,25 +15,39 @@ $(document).ready(function() {
             let manager_signature_data = form.data('manager-signature-data')
             let other_is_empty = form.data('other-is-empty')
             let manager_is_empty = form.data('manager-is-empty')
+            let other_required = form.data('other-required')
+            let manager_required = form.data('manager-required')
+            let required_errors = []
 
-            if (manager_is_empty) {
-                let container = $('#manager_container');
-                let p = $("<p>", {id: "error_1_manager_canvas", "class": "invalid-feedback m-0"});
-                let strong = $("<strong>").text('This signature cannot be blank');
+            if (other_required && other_is_empty) {
+                required_errors.push('#other_container')
+            }
 
-                container.find('#error_1_manager_canvas').remove();
-                p.append(strong);
-                container.append(p);
-                p.show()
+            if (manager_required && manager_is_empty) {
+                required_errors.push('#manager_container')
+            }
 
+            if (required_errors.length > 0) {
+                $.each(required_errors, function (index, value) {
+                    let container = $(value);
+                    let p_id = 'error_' + index + '_canvas'
+                    let p = $("<p>", {id: p_id, "class": "invalid-feedback m-0"});
+                    let strong = $("<strong>").text('This signature cannot be blank');
+
+                    container.find('#error_1_manager_canvas').remove();
+                    p.append(strong);
+                    container.append(p);
+                    p.show()
+                })
                 $('#preloader').hide();
                 $('#main').show();
             } else {
-                console.log(other_is_empty)
-                if (!other_is_empty){
+                if (!other_is_empty) {
                     form_data.append('other_signature', other_signature_data)
                 }
-                form_data.append('manager_signature', manager_signature_data)
+                if (!manager_is_empty) {
+                    form_data.append('manager_signature', manager_signature_data)
+                }
                 $.ajax({
                     url: form.attr('action'),
                     type: form.attr('method'),

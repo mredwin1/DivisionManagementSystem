@@ -1,6 +1,7 @@
 import datetime
 
 from django import forms
+from django import utils
 from phonenumber_field.formfields import PhoneNumberField
 from pytz import timezone
 
@@ -81,8 +82,9 @@ class AssignAttendance(forms.Form):
     reason = forms.CharField(label='Reason', widget=forms.Select(choices=Attendance.REASON_CHOICES), required=True)
     exemption = forms.CharField(label='Exemption', widget=forms.Select(choices=Attendance.EXEMPTION_CHOICES), required=False)
     other_signature = forms.CharField(required=False)
-    manager_signature = forms.CharField(required=True)
+    manager_signature = forms.CharField(required=False)
     signature_method = forms.CharField(required=False)
+    refused_to_sign = forms.BooleanField(required=False)
 
     def __init__(self, *args, **kwargs):
         self.employee = kwargs.pop('employee', None)
@@ -114,7 +116,10 @@ class AssignAttendance(forms.Form):
             assigned_by=self.request.user.employee_id,
             exemption=self.cleaned_data['exemption'],
             signature=self.cleaned_data['other_signature'],
-            signature_method=self.cleaned_data['signature_method']
+            signature_method=self.cleaned_data['signature_method'] if self.cleaned_data['other_signature'] else '',
+            is_signed=True if self.cleaned_data['other_signature'] else False,
+            signed_date=utils.timezone.now() if self.cleaned_data['other_signature'] else None,
+            refused_to_sign=self.cleaned_data['refused_to_sign']
         )
 
         attendance.save()
@@ -144,11 +149,13 @@ class EditAttendance(AssignAttendance):
         self.attendance.exemption = self.cleaned_data['exemption']
         self.attendance.edited_date = datetime.datetime.today()
         self.attendance.edited_by = f'{self.request.user.first_name} {self.request.user.last_name}'
-        self.attendance.signature = self.cleaned_data['other_signature']
+        self.attendance.signature_method = ''
+        self.attendance.signed_date = None
+        self.attendance.is_signed = False
+        self.attendance.signature = ''
 
         self.attendance.document.delete()
         self.employee.save()
-        self.request.user.set_signature(self.cleaned_data['manager_signature'])
 
 
 class AssignCounseling(forms.Form):

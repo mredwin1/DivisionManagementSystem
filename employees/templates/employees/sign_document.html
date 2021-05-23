@@ -9,13 +9,14 @@
     <h3>Sign Below</h3>
     <div class="row mt-3">
         <div class="col">
-            <form method="POST" role="form" action="{% if document_type %}{% url 'employee-sign-document' signature_method=signature_method record_id=record.id document_type=document_type %}{% else %}{% url 'employee-sign-document' signature_method=signature_method record_id=record.employee_id %}{% endif %}">
+            <form method="POST" role="form" action="{% if document_type %}{% url 'employee-sign-document' signature_method=signature_method record_id=record.id document_type=document_type %}{% else %}{% url 'employee-sign-document' signature_method=signature_method record_id=record.employee_id %}{% endif %}" data-manager-required="{% if signature_method == 'In Person' %}true{% else %}false{% endif %}" data-other-required="True">
                 {% csrf_token %}
                 <div class="form-row">
+                    <input type="hidden" value="{{ signature_method }}" name="signature_method">
                     <div class="form-group col-lg-6 col-12 pr-lg-3">
                         <div class="row justify-content-between">
                             <div class="col-4">
-                                <p>Signature</p>
+                                <p>Signature*</p>
                             </div>
                             <div class="col-8 text-right">
                                 <button class="btn btn-secondary btn-sm canvas-clear" type="button" data-canvas-type="other">Clear</button>
@@ -23,10 +24,31 @@
                             </div>
                         </div>
                         <canvas class="border border-dark" id="other_canvas"></canvas>
-                        <input type="hidden" value="{{ signature_method }}" name="signature_method">
                     </div>
+                    {% if signature_method == 'In Person' %}
+                        <div class="form-group col-lg-6 col-12 pl-lg-3" id="manager_container">
+                            <div class="row justify-content-between">
+                                <div class="col-4">
+                                    <p>Manager Signature*</p>
+                                </div>
+                                <div class="col-8 text-right">
+                                    <button class="btn btn-secondary btn-sm canvas-clear" type="button" data-canvas-type="manager">Clear</button>
+                                    <button class="btn btn-secondary btn-sm canvas-undo" type="button" data-canvas-type="manager">Undo</button>
+                                    <button class="btn btn-secondary btn-sm canvas-load" type="button" data-canvas-type="manager" data-signature-url="{% url 'employee-get-signature' %}">Load Last</button>
+                                </div>
+                            </div>
+                            <canvas class="border border-dark" id="manager_canvas"></canvas>
+                        </div>
+                    {% endif %}
                 </div>
                 <div class="form-row mb-3">
+                    {% if signature_method == 'In Person' %}
+                        <a href="{% url 'employee-account' record.employee.employee_id %}" class="account-content mr-2">
+                            <div class="btn btn-secondary">
+                                Cancel
+                            </div>
+                        </a>
+                    {% endif %}
                     <button class="btn btn-primary" type="submit" value="Submit" id="submit_button">Submit</button>
                 </div>
             </form>
