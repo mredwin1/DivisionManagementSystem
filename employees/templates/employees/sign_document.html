@@ -13,10 +13,12 @@
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
     <script src="{% static 'JS/signature_utilities.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.min.js"></script>
+    <script src="{% static 'JS/pdf_rendering_utilities.js' %}"></script>
     <div data-src="{% static 'JS/jquery.classyqr.js' %}" id="qr_script"></div>
     <h1 class="mt-3">{% if document_type %}{{ record.employee.get_full_name }}{% else %}{{ record.get_full_name }}{% endif %}</h1>
     <h3>Sign Below</h3>
     {% if document_type %}
+        <div data-document-url="{{ record|document_full_url_return }}" id="document_url"></div>
         <canvas class="border border-dark" id="document_container"></canvas>
     {% endif %}
     <script>
@@ -25,9 +27,13 @@
         let page_rendering = false
         let page_num_pending = null
         let scale = 1.5
+        let page_number = document.getElementById('page_num')
         let page_count = document.getElementById('page_count')
+        let prev_page = document.getElementById('prev_page')
+        let next_page = document.getElementById('next_page')
         let canvas = document.getElementById('document_container')
         let ctx = canvas.getContext('2d')
+        let document_url = document.getElementById('document_url').dataset.documentUrl
 
         function renderPage(num){
             page_rendering = true
@@ -49,9 +55,42 @@
                     }
                 })
             })
+            if (page_num) {
+                page_number.textContent = num
+            }
         }
 
-        pdfjsLib.getDocument('{{ record|document_full_url_return }}').promise.then(doc => {
+        function queueRenderPage(num) {
+            if (page_rendering) {
+                page_num_pending = num
+            } else {
+                renderPage(num)
+            }
+        }
+
+        function onPrevPage() {
+            if (page_num <=1) {
+                return
+            }
+            page_num--;
+            queueRenderPage(page_num)
+        }
+
+        function onNextPage(){
+            if (page_num >= pdf_document.numPages){
+                return
+            }
+            page_num++;
+            queueRenderPage(page_num)
+        }
+
+        if (prev_page) {
+            prev_page.addEventListener('click', onPrevPage)
+        }
+        if (next_page) {
+            next_page.addEventListener('click', onNextPage)
+        }
+        pdfjsLib.getDocument(document_url).promise.then(doc => {
             pdf_document = doc
             renderPage(page_num)
             if (page_count) {
