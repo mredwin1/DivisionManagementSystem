@@ -48,10 +48,6 @@ def log_in(request):
 
             next_url = request.POST.get('next', '')
 
-            import logging
-            logging.info(next_url)
-            logging.info(request.POST)
-
             if next_url:
                 return redirect(next_url)
 
