@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.sites.models import Site
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, Http404
 from django.shortcuts import render, redirect
 from notifications.models import Notification
 from django.urls import reverse
@@ -698,50 +698,60 @@ def clear_signature(request, employee_id):
     return JsonResponse({'message': 'success'}, status=200)
 
 
+@login_required
 def sign_document(request, signature_method, record_id, document_type=None):
     if signature_method == 'QR':
         employee = Employee.objects.get(employee_id=record_id)
+        if request.user == employee:
+            if request.method == 'GET':
+                data = {
+                    'signature_method': signature_method,
+                    'record': employee,
+                    'document_type': None
+                }
 
-        if request.method == 'GET':
-            data = {
-                'signature_method': signature_method,
-                'record': employee,
-                'document_type': None
-            }
+                return render(request, 'employees/sign_document.html', data)
+            else:
+                signature = request.POST.get('other_signature')
+                employee.set_signature(signature)
 
-            return render(request, 'employees/sign_document.html', data)
+                data = {
+                    'url': reverse('main-home')
+                }
+
+                return JsonResponse(data, status=200)
         else:
-            signature = request.POST.get('other_signature')
-            employee.set_signature(signature)
-
-            data = {
-                'url': reverse('main-home')
-            }
-
-            return JsonResponse(data, status=200)
+            raise Http404
     else:
         if document_type == 'Attendance':
             record = Attendance.objects.get(id=record_id)
+        elif document_type == 'Safety':
+            record = SafetyPoint.objects.get(id=record_id)
+        elif document_type == 'Counseling':
+            record = Counseling.objects.get(id=record_id)
         else:
             record = Employee.objects.get(employee_id=record_id)
 
-        if request.method == 'GET':
-            data = {
-                'document_type': document_type,
-                'signature_method': signature_method,
-                'record': record
-            }
+        if request.user == record.employee or request.user.has_perm('employees.can_sign_documents') and not record.is_signed:
+            if request.method == 'GET':
+                data = {
+                    'document_type': document_type,
+                    'signature_method': signature_method,
+                    'record': record
+                }
 
-            return render(request, 'employees/sign_document.html', data)
+                return render(request, 'employees/sign_document.html', data)
+            else:
+                signature = request.POST.get('other_signature')
+                record.signature = signature
+                record.signature_method = signature_method
+                record.signed_date = utils.timezone.now()
+                record.document.delete()
+
+                data = {
+                    'url': reverse('employee-account', args=[record.employee.employee_id])
+                }
+
+                return JsonResponse(data, status=200)
         else:
-            signature = request.POST.get('other_signature')
-            record.signature = signature
-            record.signature_method = signature_method
-            record.signed_date = utils.timezone.now()
-            record.document.delete()
-
-            data = {
-                'url': reverse('employee-account', args=[record.employee.employee_id])
-            }
-
-            return JsonResponse(data, status=200)
+            raise Http404
