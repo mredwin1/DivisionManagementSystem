@@ -127,15 +127,29 @@ $(document).ready(function () {
     })
     $('#id_refused_to_sign').click(function () {
         let other_signature_title = $('#other_signature_title')
+        let other_qr = $('#other_qr')
         let form = $('form')
+        let signature_method = form.data('signature-method')
         let refused_to_sign = $(this)
 
-        if (refused_to_sign.prop('checked')) {
-            other_signature_title.text('Witness Signature*')
-            form.data('other-required', true)
-        } else {
-            other_signature_title.text('Employee Signature')
-            form.data('other-required', false)
+        if (signature_method === 'In Person' || signature_method === 'Self Service' ) {
+            if (refused_to_sign.prop('checked')) {
+                other_signature_title.text('Witness Signature*')
+                other_qr.hide()
+            } else {
+                other_signature_title.text('Employee Signature*')
+                other_qr.show()
+            }
+        } else if (form.data('signature-method') === '') {
+            if (refused_to_sign.prop('checked')) {
+                other_signature_title.text('Witness Signature*')
+                form.data('other-required', true)
+                other_qr.hide()
+            } else {
+                other_signature_title.text('Employee Signature')
+                form.data('other-required', false)
+                other_qr.show()
+            }
         }
     })
     $('#mainModal').on('hidden.bs.modal', function (e) {
