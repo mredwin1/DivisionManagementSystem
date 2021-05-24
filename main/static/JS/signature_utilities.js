@@ -160,10 +160,10 @@ $(document).ready(function () {
 
         if (title.indexOf('Manager') === -1) {
             signaturePad = other_signature_pad
-            qr_button = $('#manager_qr')
+            qr_button = $('#other_qr')
         } else {
             signaturePad = manager_signature_pad
-            qr_button = $('#other_qr')
+            qr_button = $('#manager_qr')
         }
 
         $.ajax({
