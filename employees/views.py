@@ -704,7 +704,9 @@ def sign_document(request, signature_method, record_id, document_type=None):
         employee = Employee.objects.get(employee_id=record_id)
         if request.user == employee:
             if request.method == 'GET':
+                form = SignDocument(request, employee)
                 data = {
+                    'form': form,
                     'signature_method': signature_method,
                     'record': employee,
                     'document_type': None
@@ -712,14 +714,18 @@ def sign_document(request, signature_method, record_id, document_type=None):
 
                 return render(request, 'employees/sign_document.html', data)
             else:
-                signature = request.POST.get('other_signature')
-                employee.set_signature(signature)
+                form = SignDocument(request, employee, data=request.POST)
 
-                data = {
-                    'url': reverse('main-home')
-                }
+                if form.is_valid():
+                    form.save()
 
-                return JsonResponse(data, status=200)
+                    data = {
+                        'url': reverse('employee-account', args=[employee.employee_id])
+                    }
+
+                    return JsonResponse(data, status=200)
+                else:
+                    return JsonResponse(form.errors, status=400)
         else:
             raise Http404
     else:
@@ -734,7 +740,10 @@ def sign_document(request, signature_method, record_id, document_type=None):
 
         if request.user == record.employee or request.user.has_perm('employees.can_sign_documents') and not record.is_signed:
             if request.method == 'GET':
+                form = SignDocument(request, record, document_type)
+
                 data = {
+                    'form': form,
                     'document_type': document_type,
                     'signature_method': signature_method,
                     'record': record
@@ -742,16 +751,18 @@ def sign_document(request, signature_method, record_id, document_type=None):
 
                 return render(request, 'employees/sign_document.html', data)
             else:
-                signature = request.POST.get('other_signature')
-                record.signature = signature
-                record.signature_method = signature_method
-                record.signed_date = utils.timezone.now()
-                record.document.delete()
+                form = SignDocument(request, record, document_type, data=request.POST)
+                if form.is_valid():
+                    form.save()
 
-                data = {
-                    'url': reverse('employee-account', args=[record.employee.employee_id])
-                }
+                    data = {
+                        'url': reverse('employee-account', args=[record.employee.employee_id])
+                    }
 
-                return JsonResponse(data, status=200)
+                    return JsonResponse(data, status=200)
+                else:
+                    import logging
+                    logging.info(form.errors)
+                    return JsonResponse(form.errors, status=400)
         else:
             raise Http404
