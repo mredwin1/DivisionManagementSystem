@@ -37,13 +37,14 @@
                                     <button class="btn btn-secondary btn-sm canvas-load" type="button" data-canvas-type="manager" data-signature-url="{% url 'employee-get-signature' %}">Load Last</button>
                                     <button class="btn btn-secondary btn-sm canvas-clear" type="button" data-canvas-type="manager">Clear</button>
                                     <button class="btn btn-secondary btn-sm canvas-undo" type="button" data-canvas-type="manager">Undo</button>
-                                    <button class="btn btn-secondary btn-sm canvas-load" type="button" data-canvas-type="manager" data-signature-url="{% url 'employee-get-signature' %}">Load Last</button>
                                 </div>
                             </div>
                             <canvas class="border border-dark" id="manager_canvas"></canvas>
                         </div>
                     {% endif %}
                 </div>
+                {{ form.refused_to_sign|as_crispy_field }}
+                <input type="hidden" value="{{ signature_method }}" id="id_signature_method" name="signature_method">
                 <div class="form-row mb-3">
                     {% if signature_method == 'In Person' %}
                         <a href="{% url 'employee-account' record.employee.employee_id %}" class="account-content mr-2">
