@@ -608,3 +608,30 @@ class ViewSettlement(forms.ModelForm):
         widgets = {
             'created_date': forms.TextInput(attrs={'type': 'date'})
         }
+
+
+class SignDocument(forms.Form):
+    other_signature = forms.CharField(required=False)
+    manager_signature = forms.CharField(required=False)
+    refused_to_sign = forms.BooleanField(required=False)
+    signature_method = forms.CharField()
+
+    def __init__(self, request, record=None, document_type=None, *args, **kwargs):
+        super(SignDocument, self).__init__(*args, **kwargs)
+        self.request = request
+        self.record = record
+        self.document_type = document_type
+
+    def save(self):
+        if not self.document_type:
+            self.request.user.set_signature(self.cleaned_data['other_signature'])
+        else:
+            self.record.signature = self.cleaned_data['other_signature']
+            self.record.refused_to_sign = self.cleaned_data['refused_to_sign']
+            self.record.signed_date = utils.timezone.now()
+            self.record.signature_method = self.cleaned_data['signature_method']
+            self.record.is_signed = True
+
+            self.record.document.delete()
+
+            self.request.user.set_signature(self.cleaned_data['manager_signature'])
