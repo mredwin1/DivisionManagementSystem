@@ -106,14 +106,14 @@
                     <input type="hidden" value="{{ signature_method }}" name="signature_method">
                     <div class="form-group col-lg-6 col-12 pr-lg-3">
                         <div class="row justify-content-between">
-                            <div class="col-4">
+                            <div class="col-md-4 col-12 mb-md-3 mb-0">
                                 {% if signature_method == 'In Person' %}
-                                    <p id="other_signature_title">Employee Signature*</p>
+                                    <p class="mb-0" id="other_signature_title">Employee Signature*</p>
                                 {% else %}
-                                    <p>Signature*</p>
+                                    <p class="mb-0">Signature*</p>
                                 {% endif %}
                             </div>
-                            <div class="col-8 text-right">
+                            <div class="col-md-8 col-12 mb-md-3 mb-2 text-md-right">
                                 {% if signature_method == 'In Person' %}
                                     <button class="btn btn-secondary btn-sm canvas-qr" type="button" data-canvas-type="other" data-qr-url="https://{{ domain }}{% url 'employee-sign-document' signature_method='QR' record_id=record.employee.employee_id %}" data-signature-url="{% url 'employee-get-signature' record.employee.employee_id %}" data-clear-url="{% url 'employee-clear-signature' record.employee.employee_id %}" id="other_qr">Get QR</button>
                                 {% endif %}
@@ -126,10 +126,10 @@
                     {% if signature_method == 'In Person' %}
                         <div class="form-group col-lg-6 col-12 pl-lg-3" id="manager_container">
                             <div class="row justify-content-between">
-                                <div class="col-4">
-                                    <p>Manager Signature*</p>
+                                <div class="col-md-4 col-12 mb-md-3 mb-0">
+                                    <p class="mb-0">Manager Signature*</p>
                                 </div>
-                                <div class="col-8 text-right">
+                                <div class="col-md-8 col-12 mb-md-3 mb-2 text-md-right">
                                     <button class="btn btn-secondary btn-sm canvas-qr" type="button" data-canvas-type="manager" data-qr-url="https://{{ domain }}{% url 'employee-sign-document' signature_method='QR' record_id=request.user.employee_id %}" data-signature-url="{% url 'employee-get-signature' request.user.employee_id %}" id="manager_qr">Get QR</button>
                                     <button class="btn btn-secondary btn-sm canvas-load" type="button" data-canvas-type="manager" data-signature-url="{% url 'employee-get-signature' %}">Load Last</button>
                                     <button class="btn btn-secondary btn-sm canvas-clear" type="button" data-canvas-type="manager">Clear</button>
