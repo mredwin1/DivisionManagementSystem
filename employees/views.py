@@ -761,8 +761,6 @@ def sign_document(request, signature_method, record_id, document_type=None):
 
                     return JsonResponse(data, status=200)
                 else:
-                    import logging
-                    logging.info(form.errors)
                     return JsonResponse(form.errors, status=400)
         else:
             raise Http404
