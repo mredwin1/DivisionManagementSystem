@@ -1307,7 +1307,7 @@ class Attendance(models.Model):
         p.rect(0.62 * inch, 1.28 * inch, .125 * inch, .125 * inch, fill=int(self.refused_to_sign))
 
         p.setFontSize(8)
-        p.drawString(.75 * inch, 1.30 * inch, 'Employee refused to sign')
+        p.drawString(.77 * inch, 1.30 * inch, 'Employee refused to sign')
 
         p.setFontSize(12)
         p.drawString(0.50 * inch, 1.00 * inch, 'Witness Signature:')
@@ -1323,9 +1323,10 @@ class Attendance(models.Model):
         p.line(6.2 * inch, 0.5 * inch, 8.0 * inch, 0.5 * inch)
 
         if self.signature:
-            p.drawString(6.25 * inch, 1.02 * inch, datetime.datetime.today().strftime('%m-%d-%Y'))
-            p.drawString(6.25 * inch, 0.52 * inch, datetime.datetime.today().strftime('%m-%d-%Y'))
             signature_y = 1.01 if self.refused_to_sign else 1.51
+
+            p.drawString(6.25 * inch, signature_y * inch, datetime.datetime.today().strftime('%m-%d-%Y'))
+            p.drawString(6.25 * inch, 0.52 * inch, datetime.datetime.today().strftime('%m-%d-%Y'))
 
             other_signature = ImageReader(self.get_signature_png())
             p.drawImage(other_signature, 2.2 * inch, signature_y * inch, 3.3 * inch, .45 * inch, mask='auto')
