@@ -1,6 +1,12 @@
 {% extends "main/base.html" %}
 {% load crispy_forms_filters %}
 {% load static %}
+{% block modal-body %}
+    <img id="qr" src="#" alt="" class="mx-auto d-block">
+{% endblock modal-body %}
+{% block modal-footer %}
+    <button type="submit" class="btn btn-primary" id="done" form="qrCode" data-dismiss="modal">Done</button>
+{% endblock modal-footer %}
 {% block content %}
     <script src="{% static 'JS/form_preloader.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
