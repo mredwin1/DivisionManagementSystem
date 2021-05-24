@@ -131,7 +131,7 @@ $(document).ready(function () {
         let form = $('form')
         let signature_method = form.data('signature-method')
         let refused_to_sign = $(this)
-        
+
         other_signature_pad.clear()
 
         if (signature_method === 'In Person' || signature_method === 'Self Service' ) {

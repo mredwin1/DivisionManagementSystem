@@ -1,6 +1,7 @@
 import datetime
 
 from django import template
+from django.contrib.sites.models import Site
 from employees.models import DayOff
 from pytz import utc
 
@@ -301,3 +302,10 @@ def release_date_color_return(value):
             necessary_class = ''
 
         return necessary_class
+
+
+@register.filter
+def document_full_url_return(value):
+    """Returns a models full document url including domain and protocol"""
+    domain = Site.objects.get_current().domain
+    return f'https://{domain}{value.document.url}'
