@@ -154,14 +154,16 @@ $(document).ready(function () {
     })
     $('#mainModal').on('hidden.bs.modal', function (e) {
         let title = $('#mainModalTitle').text()
-        let signaturePad = null
         let signature_method = $('#signature_method')
-        let qr_button = $('#other_qr')
+        let signaturePad
+        let qr_button
 
         if (title.indexOf('Manager') === -1) {
             signaturePad = other_signature_pad
+            qr_button = $('#manager_qr')
         } else {
             signaturePad = manager_signature_pad
+            qr_button = $('#other_qr')
         }
 
         $.ajax({
