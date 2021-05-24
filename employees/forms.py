@@ -629,6 +629,7 @@ class SignDocument(forms.Form):
             logging.info(self.cleaned_data['other_signature'])
             self.request.user.set_signature(self.cleaned_data['other_signature'])
             logging.info(self.request.user.signature)
+            logging.info(self.request.user)
         else:
             self.record.signature = self.cleaned_data['other_signature']
             self.record.refused_to_sign = self.cleaned_data['refused_to_sign']

@@ -175,6 +175,7 @@ $(document).ready(function () {
             success: function (data) {
                 if (data.signature) {
                     signaturePad.clear()
+                    console.log(data.signature)
                     signaturePad.fromDataURL(data.signature)
                     if (title.indexOf('Manager') === -1) {
                         signature_method.val('QR')
