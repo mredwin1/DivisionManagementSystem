@@ -17,11 +17,46 @@
     <h1 class="mt-3">{% if document_type %}{{ record.employee.get_full_name }}{% else %}{{ record.get_full_name }}{% endif %}</h1>
     <h3>Sign Below</h3>
     {% if document_type %}
-        <canvas id="document_container"></canvas>
+        <canvas class="border border-dark" id="document_container"></canvas>
     {% endif %}
     <script>
-        pdfjsLib.getDocument('{{ record|document_full_url_return }}').then(doc => {
-            console.log('This pdf has ' + doc._pdfInfo.numPages + ' pages')
+        let pdf_document = null
+        let page_num = 1
+        let page_rendering = false
+        let page_num_pending = null
+        let scale = 1.5
+        let page_count = document.getElementById('page_count')
+        let canvas = document.getElementById('document_container')
+        let ctx = canvas.getContext('2d')
+
+        function renderPage(num){
+            page_rendering = true
+            pdf_document.getPage(num).then(page=>{
+                let viewport = page.getViewport({scale:scale})
+                canvas.height = viewport.height
+                canvas.width = viewport.width
+
+                let render_context = {
+                    canvasContext: ctx,
+                    viewport: viewport
+                }
+                let render_task = page.render(render_context)
+                render_task.promise.then(()=>{
+                    page_rendering = false;
+                    if (page_num_pending !== null){
+                        renderPage(page_num_pending)
+                        page_num_pending = null
+                    }
+                })
+            })
+        }
+
+        pdfjsLib.getDocument('{{ record|document_full_url_return }}').promise.then(doc => {
+            pdf_document = doc
+            renderPage(page_num)
+            if (page_count) {
+                page_count.textContent = doc.numPages
+            }
         })
     </script>
     <div class="row mt-3">
