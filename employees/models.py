@@ -1323,7 +1323,7 @@ class Attendance(models.Model):
         p.line(6.2 * inch, 0.5 * inch, 8.0 * inch, 0.5 * inch)
 
         if self.signature:
-            signature_y = 1.01 if self.refused_to_sign else 1.51
+            signature_y = 1.02 if self.refused_to_sign else 1.52
 
             p.drawString(6.25 * inch, signature_y * inch, datetime.datetime.today().strftime('%m-%d-%Y'))
             p.drawString(6.25 * inch, 0.52 * inch, datetime.datetime.today().strftime('%m-%d-%Y'))
@@ -1331,7 +1331,7 @@ class Attendance(models.Model):
             other_signature = ImageReader(self.get_signature_png())
             p.drawImage(other_signature, 2.2 * inch, signature_y * inch, 3.3 * inch, .45 * inch, mask='auto')
             manager_signature = ImageReader(self.get_assignee().get_signature_png())
-            p.drawImage(manager_signature, 2.2 * inch, .51 * inch, 3.3 * inch, .45 * inch, mask='auto')
+            p.drawImage(manager_signature, 2.2 * inch, .52 * inch, 3.3 * inch, .45 * inch, mask='auto')
 
         p.showPage()
         p.save()
