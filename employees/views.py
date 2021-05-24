@@ -709,7 +709,8 @@ def sign_document(request, signature_method, record_id, document_type=None):
                     'form': form,
                     'signature_method': signature_method,
                     'record': employee,
-                    'document_type': None
+                    'document_type': None,
+                    'domain': Site.objects.get_current().domain
                 }
 
                 return render(request, 'employees/sign_document.html', data)
@@ -746,7 +747,8 @@ def sign_document(request, signature_method, record_id, document_type=None):
                     'form': form,
                     'document_type': document_type,
                     'signature_method': signature_method,
-                    'record': record
+                    'record': record,
+                    'domain': Site.objects.get_current().domain
                 }
 
                 return render(request, 'employees/sign_document.html', data)
