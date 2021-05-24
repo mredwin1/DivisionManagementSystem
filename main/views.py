@@ -28,7 +28,12 @@ def log_in(request):
     if request.method == 'GET':
         form = AuthenticationForm()
 
-        return render(request, 'main/login.html', {'form': form})
+        data = {
+            'form': form,
+            'next': request.GET.get('next', '')
+        }
+
+        return render(request, 'main/login.html', data)
     else:
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
@@ -40,6 +45,15 @@ def log_in(request):
             user.save(update_fields=['last_login'])
 
             login(request, user)
+
+            next_url = request.POST.get('next', '')
+
+            import logging
+            logging.info(next_url)
+            logging.info(request.POST)
+
+            if next_url:
+                return redirect(next_url)
 
             if user.has_perm('employees.can_view_employee_info'):
                 return redirect('main-employee-info')
