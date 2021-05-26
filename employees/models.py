@@ -111,22 +111,18 @@ class Employee(AbstractBaseUser, PermissionsMixin):
                                                        'pending')
     email_new_employee = models.BooleanField(default=True, verbose_name='New Employee',
                                              help_text='Receive an email when a new employee is added')
-    email_attendance_doc_day3 = models.BooleanField(default=True, verbose_name='3 Days Past Due Attendance',
-                                                    help_text='Receive an email when it has been 3 days since '
-                                                              'an attendance point was given but a signed document '
-                                                              'has not been uploaded')
     email_attendance_doc_day5 = models.BooleanField(default=True, verbose_name='5 Days Past Due Attendance',
                                                     help_text='Receive an email when it has been 5 days since '
-                                                              'an attendance point was given but a signed document '
-                                                              'has not been uploaded')
+                                                              'an attendance point was given but not signed')
     email_attendance_doc_day7 = models.BooleanField(default=True, verbose_name='7 Days Past Due Attendance',
                                                     help_text='Receive an email when it has been 7 days since '
-                                                              'an attendance point was given but a signed document '
-                                                              'has not been uploaded')
+                                                              'an attendance point was given but not signed')
     email_attendance_doc_day10 = models.BooleanField(default=True, verbose_name='10 Days Past Due Attendance',
-                                                     help_text='Receive an email when it has been 10 or more days since'
-                                                               ' an attendance point was given but a signed document'
-                                                               ' has not been uploaded')
+                                                     help_text='Receive an email when it has been 10 days since'
+                                                               ' an attendance point was given but not signed')
+    email_attendance_doc_day14 = models.BooleanField(default=True, verbose_name='3 Days Past Due Attendance',
+                                                     help_text='Receive an email when it has been 14 or more days since'
+                                                               ' an attendance point was given but not signed')
     email_safety_doc_day3 = models.BooleanField(default=True, verbose_name='3 Days Past Due Safety Point',
                                                 help_text='Receive an email when it has been 3 days since '
                                                           'a safety point was given but a signed document '
