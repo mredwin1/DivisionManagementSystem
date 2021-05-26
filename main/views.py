@@ -307,3 +307,5 @@ def update_msg_status(request, record_id, record_type):
         record.message_status = f'{message_status[0].upper}{message_status[1:]}'
         record.status_update_date = timezone.now()
         record.save()
+
+    return HttpResponse(status=200)
