@@ -7,6 +7,7 @@ from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.template.loader import render_to_string
 from django.urls import reverse, NoReverseMatch
+from django.utils import timezone
 from django.utils.html import strip_tags
 from notifications.models import Notification
 from notifications.signals import notify
@@ -155,10 +156,15 @@ def add_counseling_document(sender, instance, created, update_fields, **kwargs):
 def post_save_attendance(sender, instance, created, **kwargs):
     if not instance.document:
         instance.create_document()
-        body = f'Hello {instance.employee.get_full_name()}, you have received an attendance point. Please see a ' \
-               f'manager to sign the document or go to the link below.\n' \
-               f'{reverse("employee-sign-document", args=["Self Service", instance.id, "Attendance"])}'
-        send_text(instance.employee.primary_phone, body, instance.id, 'Attendance')
+        if instance.employee.primary_phone:
+            body = f'Hello {instance.employee.get_full_name()}, you have received an attendance point. Please see a ' \
+                   f'manager to sign the document or go to the link below.\n' \
+                   f'{reverse("employee-sign-document", args=["Self Service", instance.id, "Attendance"])}'
+            send_text(str(instance.employee.primary_phone), body, instance.id, 'Attendance')
+        else:
+            instance.status_update_date = timezone.now()
+            instance.status = 'Unsent'
+            instance.save()
         counseling = instance.employee.attendance_counseling_required(instance.reason, instance.exemption, instance.id)
 
         if counseling[0] == 2 and instance.points != 0:
