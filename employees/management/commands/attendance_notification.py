@@ -23,16 +23,16 @@ class Command(BaseCommand):
                        f'days ago and no signed document has been uploaded yet.'
                 notification_types = []
 
-                if days_passed >= 10:
-                    notification_types = ['email_attendance_doc_day3', 'email_attendance_doc_day5',
-                                          'email_attendance_doc_day7', 'email_attendance_doc_day10']
+                if days_passed >= 14:
+                    notification_types = ['email_attendance_doc_day5', 'email_attendance_doc_day7',
+                                          'email_attendance_doc_day10', 'email_attendance_doc_day14']
+                elif days_passed == 10:
+                    notification_types = ['email_attendance_doc_day5', 'email_attendance_doc_day7',
+                                          'email_attendance_doc_day10']
                 elif days_passed == 7:
-                    notification_types = ['email_attendance_doc_day3', 'email_attendance_doc_day5',
-                                          'email_attendance_doc_day7']
+                    notification_types = ['email_attendance_doc_day5', 'email_attendance_doc_day7']
                 elif days_passed == 5:
-                    notification_types = ['email_attendance_doc_day3', 'email_attendance_doc_day5']
-                elif days_passed == 3:
-                    notification_types = ['email_attendance_doc_day3']
+                    notification_types = ['email_attendance_doc_day5']
 
                 if notification_types:
                     self.send_notification(attendance_record, notification_types, verb)
