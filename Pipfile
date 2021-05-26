@@ -24,6 +24,7 @@ redis = "~=3.5.3"
 django-storages = "~=1.10.1"
 boto3 = "~=1.16.33"
 requests = "~=2.25.1"
+twilio = "~=6.59.0"
 
 [dev-packages]
 
