@@ -303,7 +303,7 @@ def update_msg_status(request, record_id, record_type):
     message_status = request.POST.get('status')
 
     logging.info(f'\n\nMessage Status: {message_status}')
-
-    record.message_status = f'{message_status[0].upper}{message_status[1:]}'
-    record.status_update_date = timezone.now()
-    record.save()
+    if message_status:
+        record.message_status = f'{message_status[0].upper}{message_status[1:]}'
+        record.status_update_date = timezone.now()
+        record.save()
