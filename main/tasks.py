@@ -7,6 +7,7 @@ from zipfile import ZipFile
 from celery import shared_task
 from django.core.mail import send_mail
 from django.core.management import call_command
+from django.contrib.sites.models import Site
 from django.urls import reverse
 from django.utils import timezone
 from openpyxl import load_workbook
@@ -23,12 +24,13 @@ def send_email(subject, plain_message, to, html_message):
 @shared_task
 def send_text(to, body, sender_id, sender_type):
     client = Client(os.environ['TWILIO_ACCOUNT_SID'], os.environ['TWILIO_AUTH_TOKEN'])
+    domain = Site.objects.get_current().domain
 
     message = client.messages.create(
         to=to,
         from_=os.environ['TWILIO_PHONE_NUMBER'],
         body=body,
-        status_callback=reverse('main-update-msg-status', args=[sender_id, sender_type])
+        status_callback=f'https://{domain}{reverse("main-update-msg-status", args=[sender_id, sender_type])}'
     )
 
     message_status = message.status
