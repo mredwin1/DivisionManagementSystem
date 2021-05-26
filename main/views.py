@@ -300,7 +300,7 @@ def update_msg_status(request, record_id, record_type):
     }
 
     record = record_types[record_type].objects.get(id=record_id)
-    message_status = request.POST.get('status')
+    message_status = request.POST.get('SmsStatus')
 
     logging.info(f'\n\nMessage Status: {message_status}')
     if message_status:
