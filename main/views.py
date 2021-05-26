@@ -12,6 +12,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 
 from employees.helper_functions import create_phone_list, create_seniority_list, create_driver_list, create_custom_list,\
     create_safety_meeting_attendance
@@ -284,6 +285,7 @@ def import_safety_point_data(request):
         return JsonResponse(s_form.errors, status=400)
 
 
+@csrf_exempt
 def update_msg_status(request, record_id, record_type):
     import logging
     logging.info(request.method)
