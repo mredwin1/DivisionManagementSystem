@@ -15,7 +15,7 @@ from django.utils import timezone
 
 from employees.helper_functions import create_phone_list, create_seniority_list, create_driver_list, create_custom_list,\
     create_safety_meeting_attendance
-from employees.models import Employee
+from employees.models import Employee, Attendance, SafetyPoint, Counseling
 from .forms import DriverFilterForm, DriverImportForm, AttendanceImportForm, SafetyPointImportForm
 from .tasks import import_drivers, import_attendance, import_safety_points
 
@@ -282,3 +282,22 @@ def import_safety_point_data(request):
         return JsonResponse(data, status=200)
     else:
         return JsonResponse(s_form.errors, status=400)
+
+
+def update_msg_status(request, record_id, record_type):
+    import logging
+    logging.info(request.method)
+    logging.info(request)
+
+    record_types = {
+        'Attendance': Attendance,
+        'Safety Point': SafetyPoint,
+        'Counseling': Counseling
+    }
+
+    record = record_types[record_type].objects.get(id=record_id)
+    message_status = request.POST.get('SmsStatus')
+
+    record.message_status = f'{message_status[0].upper}{message_status[1:]}'
+    record.status_update_date = timezone.now()
+    record.save()
