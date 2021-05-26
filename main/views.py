@@ -288,7 +288,7 @@ def import_safety_point_data(request):
 @csrf_exempt
 def update_msg_status(request, record_id, record_type):
     import logging
-    logging.info(request.method)
+    logging.info(f'Request Method: {request.method}\n\n')
     logging.info(request)
 
     record_types = {
@@ -298,7 +298,9 @@ def update_msg_status(request, record_id, record_type):
     }
 
     record = record_types[record_type].objects.get(id=record_id)
-    message_status = request.POST.get('SmsStatus')
+    message_status = request.POST.get('status')
+
+    logging.info(f'\n\nMessage Status: {message_status}')
 
     record.message_status = f'{message_status[0].upper}{message_status[1:]}'
     record.status_update_date = timezone.now()
