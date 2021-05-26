@@ -13,7 +13,7 @@ from notifications.signals import notify
 from urllib.parse import urljoin
 
 from employees.models import Attendance, Counseling, SafetyPoint, Hold, Employee, Settlement, TimeOffRequest
-from main.tasks import send_email
+from main.tasks import send_email, send_text
 
 
 @receiver(post_delete, sender=Attendance)
@@ -155,6 +155,10 @@ def add_counseling_document(sender, instance, created, update_fields, **kwargs):
 def post_save_attendance(sender, instance, created, **kwargs):
     if not instance.document:
         instance.create_document()
+        body = f'Hello {instance.employee.get_full_name()}, you have received an attendance point. Please see a ' \
+               f'manager to sign the document or go to the link below.\n' \
+               f'{reverse("employee-sign-document", args=["Self Service", instance.id, "Attendance"])}'
+        send_text(instance.employee.primary_phone, body, instance.id, 'Attendance')
         counseling = instance.employee.attendance_counseling_required(instance.reason, instance.exemption, instance.id)
 
         if counseling[0] == 2 and instance.points != 0:
