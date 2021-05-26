@@ -156,7 +156,7 @@ def add_counseling_document(sender, instance, created, update_fields, **kwargs):
 def post_save_attendance(sender, instance, created, **kwargs):
     if not instance.document:
         instance.create_document()
-        if instance.employee.primary_phone:
+        if instance.employee.primary_phone and not instance.is_signed:
             domain = Site.objects.get_current().domain
             body = f'Hello {instance.employee.get_full_name()}, you have received an attendance point. Please see a ' \
                    f'manager to sign the document or go to the link below.\n' \
