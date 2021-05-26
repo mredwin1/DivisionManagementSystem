@@ -42,11 +42,10 @@ def send_text(to, body, sender_id, sender_type):
     }
 
     record = record_types[sender_type].objects.get(id=sender_id)
-    import logging
-    logging.info(message_status)
-    # record.message_status = f'{message_status[0].upper}{message_status[1:]}'
-    # record.status_update_date = timezone.now()
-    # record.save()
+
+    record.message_status = f'{message_status[0].upper()}{message_status[1:]}'
+    record.status_update_date = timezone.now()
+    record.save()
 
 
 @shared_task
