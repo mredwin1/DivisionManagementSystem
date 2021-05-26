@@ -1064,6 +1064,7 @@ class Attendance(models.Model):
     issued_date = models.DateField(null=True)
     edited_date = models.DateField(null=True, blank=True)
     signed_date = models.DateField(null=True, blank=True)
+    status_update_date = models.DateField(null=True, blank=True)
 
     points = models.DecimalField(max_digits=2, decimal_places=1)
 
@@ -1074,6 +1075,7 @@ class Attendance(models.Model):
     exemption = models.CharField(max_length=30, choices=EXEMPTION_CHOICES, blank=True, default='')
     edited_by = models.CharField(max_length=30, blank=True, default='')
     signature_method = models.CharField(max_length=30, default='', blank=True)
+    message_status = models.CharField(max_length=20, default='', blank=True)
 
     signature = models.TextField(default='', blank=True)
 
