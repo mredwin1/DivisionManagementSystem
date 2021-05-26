@@ -290,7 +290,7 @@ def update_msg_status(request, record_id, record_type):
     import logging
     logging.info(f'Request Method: {request.method}\n\n')
     logging.info('======================================================================================')
-    logging.info(request.post)
+    logging.info(request.POST)
     logging.info('======================================================================================')
 
     record_types = {
