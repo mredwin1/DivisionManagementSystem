@@ -20,7 +20,7 @@ class Command(BaseCommand):
             if not attendance_record.is_signed:
                 days_passed = (today - attendance_record.issued_date).days
                 verb = f'An attendance point was given to {attendance_record.employee.get_full_name()} {days_passed} ' \
-                       f'days ago and no signed document has been uploaded yet.'
+                       f'days ago and has not been signed yet.'
                 notification_types = []
 
                 if days_passed >= 10:
