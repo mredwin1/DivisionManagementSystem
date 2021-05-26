@@ -157,9 +157,10 @@ def post_save_attendance(sender, instance, created, **kwargs):
     if not instance.document:
         instance.create_document()
         if instance.employee.primary_phone:
+            domain = Site.objects.get_current().domain
             body = f'Hello {instance.employee.get_full_name()}, you have received an attendance point. Please see a ' \
                    f'manager to sign the document or go to the link below.\n' \
-                   f'{reverse("employee-sign-document", args=["Self Service", instance.id, "Attendance"])}'
+                   f'https://{domain}{reverse("employee-sign-document", args=["Self Service", instance.id, "Attendance"])}'
             send_text(str(instance.employee.primary_phone), body, instance.id, 'Attendance')
         else:
             instance.status_update_date = timezone.now()
