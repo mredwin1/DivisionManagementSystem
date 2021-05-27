@@ -1659,6 +1659,24 @@ class SafetyPoint(models.Model):
     def get_pretty_unsafe_act(self):
         return titlecase(self.unsafe_act)
 
+    def get_signature_png(self, signature_type):
+        signature = self.employee_signature if signature_type == 'Employee' else self.witness_signature
+        image_data = signature.split(',')[1]
+        image_buffer = io.BytesIO(base64.b64decode(image_data))
+        image = Image.open(image_buffer, mode='r')
+        cropped_image = image.crop(image.getbbox())
+
+        return cropped_image
+
+    def get_initials_png(self):
+        signature = self.initials
+        image_data = signature.split(',')[1]
+        image_buffer = io.BytesIO(base64.b64decode(image_data))
+        image = Image.open(image_buffer, mode='r')
+        cropped_image = image.crop(image.getbbox())
+
+        return cropped_image
+
     def __str__(self):
         return f"{self.employee.get_full_name()}'s Safety Point"
 
