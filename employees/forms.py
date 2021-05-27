@@ -312,8 +312,21 @@ class AssignSafetyPoint(forms.Form):
     issued_date = forms.DateField(label='Issued Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
     reason = forms.CharField(label='Reason', required=True, widget=forms.Select(
         choices=SafetyPoint.REASON_CHOICES, attrs={'onchange': 'unsafe_act_change()'}))
-    unsafe_act = forms.CharField(label='Type of Unsafe Act', widget=forms.TextInput(attrs={'class':'textinput textInput form-control', 'required':''}),required=False, help_text='Write the type of unsafe act')
-    details = forms.CharField(label='Details', widget=forms.Textarea(attrs={'class': 'textarea form-control', 'required':''}), required=False)
+    unsafe_act = forms.CharField(label='Type of Unsafe Act',
+                                 widget=forms.TextInput(
+                                     attrs={'class': 'textinput textInput form-control', 'required': ''}
+                                 ),
+                                 required=False,
+                                 help_text='Write the type of unsafe act'
+                                 )
+    details = forms.CharField(label='Details',
+                              widget=forms.Textarea(attrs={'class': 'textarea form-control', 'required': ''}),
+                              required=False
+                              )
+    other_signature = forms.CharField(required=False)
+    manager_signature = forms.CharField(required=False)
+    signature_method = forms.CharField(required=False)
+    refused_to_sign = forms.BooleanField(required=False)
 
     def __init__(self, *args, **kwargs):
         self.employee = kwargs.pop('employee', None)
@@ -331,10 +344,19 @@ class AssignSafetyPoint(forms.Form):
             unsafe_act=self.cleaned_data['unsafe_act'],
             details=self.cleaned_data['details'],
             assigned_by=self.request.user.employee_id,
+            signature_method=self.cleaned_data['signature_method'] if self.cleaned_data['other_signature'] else '',
+            is_signed=True if self.cleaned_data['other_signature'] else False,
+            signed_date=utils.timezone.now() if self.cleaned_data['other_signature'] else None,
+            refused_to_sign=self.cleaned_data['refused_to_sign']
         )
 
+        if self.cleaned_data['refused_to_sign']:
+            safety_point.witness_signature = self.cleaned_data['other_signature']
+        else:
+            safety_point.employee_signature = self.cleaned_data['other_signature']
+
         safety_point.save()
-        return safety_point.id
+        self.request.user.set_signature(self.cleaned_data['manager_signature'])
 
 
 class EditSafetyPoint(AssignSafetyPoint):
