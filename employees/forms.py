@@ -123,6 +123,12 @@ class AssignAttendance(forms.Form):
         )
 
         attendance.save()
+
+        if self.cleaned_data['exemption'] == '1':
+            self.employee.paid_sick -= 1
+        elif self.cleaned_data['exemption'] == '2':
+            self.employee.unpaid_sick -= 1
+
         self.employee.save()
         self.request.user.set_signature(self.cleaned_data['manager_signature'])
 
