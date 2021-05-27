@@ -78,7 +78,7 @@ class AssignAttendance(forms.Form):
     def clean(self):
         exception_field_name = 'exemption'
         exemption = self.cleaned_data[exception_field_name]
-        if exemption:
+        if exception_field_name in self.changed_data:
             self.cleaned_data['points'] = 0
             if exemption == '1' and self.employee.paid_sick <= 0:
                 self.add_error(exception_field_name, f'{self.employee.get_full_name()} does not have Paid Sick days '
