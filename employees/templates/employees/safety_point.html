@@ -1,0 +1,91 @@
+{% extends "main/base.html" %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block content %}
+    <script src="{% static 'JS/form_preloader.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
+    <script src="{% static 'JS/signature_utilities.js' %}"></script>
+    <div data-src="{% static 'JS/jquery.classyqr.js' %}" id="qr_script"></div>
+    <h1 class="mt-3">{{ employee.get_full_name }}</h1>
+    <h3>{% if request.resolver_match.url_name == 'employee-assign-safety-point' %}Assign{% else %}Edit{% endif %} Safety Point</h3>
+    <div class="row mt-3">
+        <div class="col">
+            <form method="POST" role="form" action="{% url 'employee-assign-safety-point' employee.employee_id %}" id="assignSafetyPointForm">
+                {% csrf_token %}
+                <div class="form-row justify-content-start">
+                    <div class="form-group col-md-4 col-sm-6 col-12">
+                        {{ form.incident_date|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-md-4 col-sm-6 col-12">
+                        {{ form.issued_date|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="form-row justify-content-start">
+                    <div class="form-group col-md-6 col-12">
+                        {{ form.reason|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-md-6 col-12">
+                        <div id="div_id_unsafe_act" class="form-group">
+                            <label class="requiredField" for="{{ form.unsafe_act.auto_id }}">{{ form.unsafe_act.label }}</label><span class="asterikField">*</span>
+                            <div class>
+                                {{ form.unsafe_act }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row justify-content-start">
+                    <div class="form-group col-12">
+                        <div id="div_id_details" class="form-group">
+                            <label class="requiredField" for="{{ form.details.auto_id }}">{{ form.details.label }}</label><span class="asterikField" id="span_id_details">*</span>
+                            <div class>
+                                {{ form.details }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% if request.resolver_match.url_name == 'employee-assign-safety-point' %}
+                    <div class="form-row">
+                        <input type="hidden" value="{% if signature_method %}{{ signature_method }}{% else %}In Person{% endif %}" name="signature_method" id="signature_method">
+                        <div class="form-group col-lg-6 col-12 pr-lg-3" id="other_container">
+                            <div class="row justify-content-between">
+                                <div class="col-4">
+                                    <p id="other_signature_title">Employee Signature</p>
+                                </div>
+                                <div class="col-8 text-right">
+                                    <button class="btn btn-secondary btn-sm canvas-qr" type="button" data-canvas-type="other" data-qr-url="https://{{ domain }}{% url 'employee-sign-document' signature_method='QR' record_id=employee.employee_id %}" data-signature-url="{% url 'employee-get-signature' employee.employee_id %}" data-clear-url="{% url 'employee-clear-signature' employee.employee_id %}" id="other_qr">Get QR</button>
+                                    <button class="btn btn-secondary btn-sm canvas-clear" type="button" data-canvas-type="other">Clear</button>
+                                    <button class="btn btn-secondary btn-sm canvas-undo" type="button" data-canvas-type="other">Undo</button>
+                                </div>
+                            </div>
+                            <canvas class="border border-dark" id="other_canvas"></canvas>
+                        </div>
+                        <div class="form-group col-lg-6 col-12 pl-lg-3" id="manager_container">
+                            <div class="row justify-content-between">
+                                <div class="col-4">
+                                    <p>Manager Signature*</p>
+                                </div>
+                                <div class="col-8 text-right">
+                                    <button class="btn btn-secondary btn-sm canvas-qr" type="button" data-canvas-type="manager" data-qr-url="https://{{ domain }}{% url 'employee-sign-document' signature_method='QR' record_id=request.user.employee_id %}" data-signature-url="{% url 'employee-get-signature' %}" id="manager_qr">Get QR</button>
+                                    <button class="btn btn-secondary btn-sm canvas-load" type="button" data-canvas-type="manager" data-signature-url="{% url 'employee-get-signature' request.user.employee_id %}">Load Last</button>
+                                    <button class="btn btn-secondary btn-sm canvas-clear" type="button" data-canvas-type="manager">Clear</button>
+                                    <button class="btn btn-secondary btn-sm canvas-undo" type="button" data-canvas-type="manager">Undo</button>
+                                </div>
+                            </div>
+                            <canvas class="border border-dark" id="manager_canvas"></canvas>
+                        </div>
+                    </div>
+                    {{ form.refused_to_sign|as_crispy_field }}
+                {% endif %}
+                <div class="form-row mb-3">
+                    <a href="{% url 'employee-account' employee.employee_id %}" class="account-content mr-2">
+                        <div class="btn btn-secondary">
+                            Cancel
+                        </div>
+                    </a>
+                    <button class="btn btn-primary" type="submit" value="Submit">{% if request.resolver_match.url_name == 'employee-assign-safety-point' %}Assign{% else %}Save{% endif %}</button>
+                </div>
+            </form>
+             <script src="{% static 'JS/unsafe_act_required.js' %}"></script>
+        </div>
+    </div>
+{% endblock %}
