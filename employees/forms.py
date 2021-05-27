@@ -64,6 +64,18 @@ class EditEmployeeInfo(forms.Form):
 
 
 class AssignAttendance(forms.Form):
+    POINTS = {
+        '0': 1,
+        '1': 0,
+        '2': 1.5,
+        '3': 4,
+        '4': 1,
+        '5': 1,
+        '6': .5,
+        '7': 1,
+        '8': .5,
+    }
+
     incident_date = forms.DateField(label='Incident Date', widget=forms.TextInput(attrs={'type': 'date'}),
                                     required=True)
     reason = forms.CharField(label='Reason', widget=forms.Select(choices=Attendance.REASON_CHOICES), required=True)
@@ -90,18 +102,6 @@ class AssignAttendance(forms.Form):
             self.cleaned_data['points'] = self.POINTS[self.cleaned_data['reason']]
 
     def save(self):
-        points = {
-            '0': 1,
-            '1': 0,
-            '2': 1.5,
-            '3': 4,
-            '4': 1,
-            '5': 1,
-            '6': .5,
-            '7': 1,
-            '8': .5,
-        }
-
         attendance = Attendance(
             employee=self.employee,
             incident_date=self.cleaned_data['incident_date'],
@@ -113,7 +113,6 @@ class AssignAttendance(forms.Form):
         )
 
         attendance.save()
-
         self.employee.save()
 
         return attendance.id
@@ -135,6 +134,7 @@ class EditAttendance(AssignAttendance):
         elif self.attendance.exemption == '2' and self.cleaned_data['exemption'] != '2':
             self.employee.unpaid_sick += 1
 
+        self.attendance.points = self.cleaned_data['points']
         self.attendance.incident_date = self.cleaned_data['incident_date']
         self.attendance.issued_date = self.cleaned_data['issued_date']
         self.attendance.reason = self.cleaned_data['reason']
