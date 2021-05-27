@@ -113,6 +113,8 @@ $(document).ready(function () {
     })
     $('#submit_button').click(function () {
         let form = $('form')
+        let second_modal = $('#secondaryModal')
+
         if (manager_canvas) {
             let manager_signature_data = manager_signature_pad.toDataURL()
             form.data('manager-signature-data', manager_signature_data)
@@ -124,6 +126,10 @@ $(document).ready(function () {
             form.data('other-signature-data', other_signature_data)
             form.data('other-is-empty', other_signature_pad.isEmpty())
         }
+
+        second_modal.modal('show')
+
+        form.submit()
     })
     $('#id_refused_to_sign').click(function () {
         let other_signature_title = $('#other_signature_title')
