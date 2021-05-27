@@ -1331,6 +1331,10 @@ class Attendance(models.Model):
             manager_signature = ImageReader(self.get_assignee().get_signature_png())
             p.drawImage(manager_signature, 2.2 * inch, .52 * inch, 3.3 * inch, .45 * inch, mask='auto')
 
+            if self.refused_to_sign:
+                p.drawString(6.25 * inch, 1.52 * inch, datetime.datetime.today().strftime('%m-%d-%Y'))
+                p.drawString(2.20 * inch, 1.52 * inch, 'Employee Refused to Sign')
+
         p.showPage()
         p.save()
 
