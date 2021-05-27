@@ -181,10 +181,16 @@ def delete_attendance(request, attendance_id):
 def edit_attendance(request, attendance_id):
     attendance = Attendance.objects.get(id=attendance_id)
     employee = attendance.employee
+    initial = {
+        'incident_date': attendance.incident_date,
+        'reason': attendance.reason,
+        'exemption': attendance.exemption,
+        'issued_date': attendance.issued_date,
+    }
 
     if request.method == 'POST':
-        form = EditAttendance(data=request.POST, files=request.FILES, employee=employee,
-                              attendance=attendance, request=request)
+        form = EditAttendance(data=request.POST, employee=employee, attendance=attendance, request=request,
+                              initial=initial)
 
         if form.is_valid():
             form.save()
@@ -196,13 +202,6 @@ def edit_attendance(request, attendance_id):
 
             return JsonResponse(form.errors, status=400)
     else:
-        initial = {
-            'incident_date': attendance.incident_date,
-            'reason': attendance.reason,
-            'exemption': attendance.exemption,
-            'issued_date': attendance.issued_date,
-        }
-
         form = EditAttendance(initial=initial, employee=employee)
 
         data = {
@@ -305,29 +304,29 @@ def assign_safety_point(request, employee_id):
     employee = Employee.objects.get(employee_id=employee_id)
 
     if request.method == 'POST':
-        s_form = AssignSafetyPoint(request.POST, employee=employee, request=request)
+        form = AssignSafetyPoint(request.POST, employee=employee, request=request)
 
-        if s_form.is_valid():
-            safety_point_id = s_form.save()
+        if form.is_valid():
+            form.save()
 
             messages.add_message(request, messages.SUCCESS, 'Safety Point Successfully Assigned')
 
-            data = {'url': reverse('employee-account', args=[employee_id, 'Safety Point', safety_point_id])}
+            data = {'url': reverse('employee-account', args=[employee_id])}
 
             return JsonResponse(data, status=200)
         else:
 
-            return JsonResponse(s_form.errors, status=400)
+            return JsonResponse(form.errors, status=400)
 
     else:
-        s_form = AssignSafetyPoint(initial={'issued_date': datetime.date.today()})
+        form = AssignSafetyPoint(initial={'issued_date': datetime.date.today()})
 
         data = {
             'employee': employee,
-            's_form': s_form
+            'form': form
         }
 
-        return render(request, 'employees/assign_safety_point.html', data)
+        return render(request, 'employees/safety_point.html', data)
 
 
 @login_required
@@ -357,10 +356,10 @@ def edit_safety_point(request, employee_id, safety_point_id):
     employee = Employee.objects.get(employee_id=employee_id)
 
     if request.method == 'POST':
-        s_form = EditSafetyPoint(data=request.POST, files=request.FILES)
+        form = EditSafetyPoint(data=request.POST, files=request.FILES)
 
-        if s_form.is_valid():
-            s_form.save(safety_point, request)
+        if form.is_valid():
+            form.save(safety_point, request)
 
             messages.add_message(request, messages.SUCCESS, 'Safety Point Edited Successfully')
 
@@ -369,7 +368,7 @@ def edit_safety_point(request, employee_id, safety_point_id):
             return JsonResponse(data, status=200)
 
         else:
-            return JsonResponse(s_form.errors, status=400)
+            return JsonResponse(form.errors, status=400)
     else:
         initial = {
             'incident_date': safety_point.incident_date,
@@ -379,14 +378,14 @@ def edit_safety_point(request, employee_id, safety_point_id):
             'details': safety_point.details
         }
 
-        s_form = EditSafetyPoint(initial=initial)
+        form = EditSafetyPoint(initial=initial)
 
         data = {
             'employee': employee,
-            's_form': s_form,
+            'form': form,
         }
 
-        return render(request, 'employees/edit_safety_point.html', data)
+        return render(request, 'employees/safety_point.html', data)
 
 
 @login_required
