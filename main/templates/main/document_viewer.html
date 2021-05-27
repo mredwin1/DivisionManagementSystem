@@ -9,7 +9,7 @@
     <div data-document-url="{{ record|document_full_url_return }}" id="document_url"></div>
     <div class="row">
         <div class="col">
-            <button type="button" onclick="printJS('{{ record|document_full_url_return }}')"></button>
+            <button type="button" onclick="printJS('{{ record.document.url }}')"></button>
             <i class="fas fa-print" title="Print Document" id="print"></i>
         </div>
     </div>
