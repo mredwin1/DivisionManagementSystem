@@ -1064,7 +1064,7 @@ class Attendance(models.Model):
 
     points = models.DecimalField(max_digits=2, decimal_places=1)
 
-    document = models.FileField(validators=[pdf_extension], upload_to='attendance_forms')
+    document = models.FileField(validators=[pdf_extension], upload_to='attendance_forms', null=True)
 
     reason = models.CharField(max_length=30, choices=REASON_CHOICES)
     assigned_by = models.CharField(max_length=50)
@@ -1378,17 +1378,31 @@ class SafetyPoint(models.Model):
     ]
 
     is_active = models.BooleanField(default=True)
+    is_signed = models.BooleanField(default=False)
+    refused_to_sign = models.BooleanField(default=False)
 
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+
     incident_date = models.DateField()
     issued_date = models.DateField(null=True)
+    edited_date = models.DateField(null=True, blank=True)
+    signed_date = models.DateField(null=True, blank=True)
+    status_update_date = models.DateField(null=True, blank=True)
+
     points = models.IntegerField()
-    document = models.FileField(validators=[pdf_extension], upload_to='safety_point_forms')
-    reason = models.CharField(max_length=30, choices=REASON_CHOICES)
-    unsafe_act = models.CharField(max_length=100, blank=True)
-    details = models.TextField(default='')
     assigned_by = models.IntegerField()
-    uploaded = models.BooleanField(default=False)
+
+    document = models.FileField(validators=[pdf_extension], upload_to='safety_point_forms', null=True)
+
+    reason = models.CharField(max_length=30, choices=REASON_CHOICES)
+    unsafe_act = models.CharField(max_length=100, blank=True, default='')
+    edited_by = models.CharField(max_length=30, blank=True, default='')
+    signature_method = models.CharField(max_length=30, default='', blank=True)
+    message_status = models.CharField(max_length=20, default='', blank=True)
+
+    details = models.TextField(default='')
+    employee_signature = models.TextField(default='', blank=True)
+    witness_signature = models.TextField(default='', blank=True)
 
     def create_safety_point_document(self):
         """Will create a PDF for the Counseling and assign it to the Counseling Object"""
