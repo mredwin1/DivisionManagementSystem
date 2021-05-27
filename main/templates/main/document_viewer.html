@@ -7,10 +7,15 @@
     <script src="https://printjs-4de6.kxcdn.com/print.min.js"></script>
     <link href="https://printjs-4de6.kxcdn.com/print.min.css" rel="stylesheet"/>
     <div data-document-url="{{ record|document_full_url_return }}" id="document_url"></div>
-    <div class="row">
-        <div class="col">
-            <button type="button" onclick="printJS('{{ record.document.url }}')"></button>
-            <i class="fas fa-print" title="Print Document" id="print"></i>
+    <div class="row mt-3">
+        <div class="col text-center">
+            <i class="fas fa-arrow-left fa-lg" data-toggle="tooltip" title="Previous Page"></i>
+        </div>
+        <div class="col text-center">
+            <i class="fas fa-print fa-lg" data-toggle="tooltip" title="Print Document" id="print" onclick="printJS('{{ record.document.url }}')"></i>
+        </div>
+        <div class="col text-center">
+            <i class="fas fa-arrow-right fa-lg" data-toggle="tooltip" title="Next Page"></i>
         </div>
     </div>
     <canvas class="border border-dark" id="document_container"></canvas>
