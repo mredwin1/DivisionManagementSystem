@@ -196,21 +196,18 @@ def post_save_attendance(sender, instance, created, **kwargs):
 
 
 @receiver(post_save, sender=SafetyPoint)
-def add_safety_document(sender, instance, created, update_fields, **kwargs):
-    try:
-        if created or 'document' not in update_fields:
-            instance.create_safety_point_document()
+def post_save_safety_point(sender, instance, created, **kwargs):
+    if not instance.document:
+        instance.create_safety_point_document()
 
-            removal = instance.employee.safety_point_removal_required(instance)
+        removal = instance.employee.safety_point_removal_required(instance)
 
-            if created:
-                verb = f'{instance.employee.get_full_name()} has received a Safety Point' if not removal else f'{instance.employee.get_full_name()} has received a Safety Point and been removed from service'
-                group = Employee.objects.filter(groups__name='email_safety_point').exclude(employee_id=instance.assigned_by)
-                notify.send(sender=instance, recipient=group,
-                            verb=verb,
-                            type='email_safety_point', employee_id=instance.employee.employee_id)
-    except TypeError:
-        pass
+        if created:
+            verb = f'{instance.employee.get_full_name()} has received a Safety Point' if not removal else f'{instance.employee.get_full_name()} has received a Safety Point and been removed from service'
+            group = Employee.objects.filter(groups__name='email_safety_point').exclude(employee_id=instance.assigned_by)
+            notify.send(sender=instance, recipient=group,
+                        verb=verb,
+                        type='email_safety_point', employee_id=instance.employee.employee_id)
 
 
 @receiver(post_save, sender=Settlement)
