@@ -15,4 +15,5 @@ urlpatterns = [
     path('import-attendance-data/', main_views.import_attendance_data, name='main-import-attendance-data'),
     path('import-safety-point-data/', main_views.import_safety_point_data, name='main-import-safety-point-data'),
     path('update-msg-status/<int:record_id>/<str:record_type>/', main_views.update_msg_status, name='main-update-msg-status'),
+    path('view-document/<int:record_id>/<str:record_type>/', main_views.view_document, name='main-view-document'),
 ]

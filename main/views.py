@@ -302,3 +302,20 @@ def update_msg_status(request, record_id, record_type):
         record.save()
 
     return HttpResponse(status=200)
+
+
+@login_required
+def view_document(request, record_id, record_type):
+    record_types = {
+        'Attendance': Attendance,
+        'Safety Point': SafetyPoint,
+        'Counseling': Counseling
+    }
+
+    record = record_types[record_type].objects.get(id=record_id)
+
+    data = {
+        'record': record
+    }
+
+    return render(request, 'main/document_viewer.html', data)
