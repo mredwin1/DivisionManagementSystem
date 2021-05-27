@@ -159,6 +159,7 @@ class EditAttendance(AssignAttendance):
         self.attendance.signed_date = None
         self.attendance.is_signed = False
         self.attendance.signature = ''
+        self.attendance.refused_to_sign = False
 
         self.attendance.document.delete()
         self.employee.save()
