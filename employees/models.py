@@ -1403,6 +1403,7 @@ class SafetyPoint(models.Model):
     details = models.TextField(default='')
     employee_signature = models.TextField(default='', blank=True)
     witness_signature = models.TextField(default='', blank=True)
+    initials = models.TextField(default='', blank=True)
 
     def create_safety_point_document(self):
         """Will create a PDF for the Counseling and assign it to the Counseling Object"""
