@@ -13,6 +13,7 @@ $(document).ready(function() {
         if (manager_signature || other_signature) {
             let other_signature_data = form.data('other-signature-data')
             let manager_signature_data = form.data('manager-signature-data')
+            let initials_data = form.data('initials-data')
             let other_is_empty = form.data('other-is-empty')
             let manager_is_empty = form.data('manager-is-empty')
             let other_required = form.data('other-required')
@@ -47,6 +48,9 @@ $(document).ready(function() {
                 }
                 if (!manager_is_empty) {
                     form_data.append('manager_signature', manager_signature_data)
+                }
+                if (initials_data) {
+                    form_data.append('initials', initials_data)
                 }
                 $.ajax({
                     url: form.attr('action'),

@@ -338,11 +338,11 @@ def delete_safety_point(request, employee_id, safety_point_id):
 
     try:
         safety_point.counseling.is_active = False
-        safety_point.counseling.save(update_fields=['document', 'is_active'])
+        safety_point.counseling.save(update_fields=['is_active'])
     except Counseling.DoesNotExist:
         pass
 
-    safety_point.save(update_fields=['is_active', 'document'])
+    safety_point.save(update_fields=['is_active'])
 
     messages.add_message(request, messages.SUCCESS, 'Safety Point Successfully Deleted')
 

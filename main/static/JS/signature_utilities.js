@@ -3,8 +3,10 @@ $(document).ready(function () {
 
     let other_canvas = document.getElementById('other_canvas')
     let manager_canvas = document.getElementById('manager_canvas')
+    let initials_canvas = document.getElementById('initials_canvas')
     let other_signature_pad = null
     let manager_signature_pad = null
+    let initials_pad = null
 
     if (other_canvas){
         other_signature_pad = new SignaturePad(other_canvas);
@@ -14,27 +16,9 @@ $(document).ready(function () {
         manager_signature_pad = new SignaturePad(manager_canvas);
     }
 
-    function resizeCanvas() {
-        var ratio =  Math.max(window.devicePixelRatio || 1, 1);
-        if (other_canvas) {
-            other_canvas.width = other_canvas.offsetWidth * ratio;
-            other_canvas.height = other_canvas.offsetHeight * ratio;
-            other_canvas.getContext("2d").scale(ratio, ratio);
-
-            other_signature_pad.clear();
-        }
-
-        if (manager_canvas) {
-            manager_canvas.width = manager_canvas.offsetWidth * ratio;
-            manager_canvas.height = manager_canvas.offsetHeight * ratio;
-            manager_canvas.getContext("2d").scale(ratio, ratio);
-
-            manager_signature_pad.clear();
-        }
+    if (initials_canvas) {
+        initials_pad = new SignaturePad(initials_canvas);
     }
-
-    window.onresize = resizeCanvas;
-    resizeCanvas();
 
     $('.canvas-undo').click(function () {
         let canvas_type = $(this).data('canvas-type')
@@ -127,9 +111,12 @@ $(document).ready(function () {
             form.data('other-is-empty', other_signature_pad.isEmpty())
         }
 
-        second_modal.modal('show')
-
-        form.submit()
+        if (!second_modal) {
+            form.submit()
+        } else {
+            second_modal.modal('show')
+            resizeCanvas();
+        }
     })
     $('#id_refused_to_sign').click(function () {
         let other_signature_title = $('#other_signature_title')
@@ -200,4 +187,59 @@ $(document).ready(function () {
             });
         }
     })
+    $('#union_yes').click(function () {
+        if (initials_pad.isEmpty()) {
+            let container = $('#union_modal_body');
+            let p_id = 'error_initials_canvas'
+            let p = $("<p>", {id: p_id, "class": "invalid-feedback m-0"});
+            let strong = $("<strong>").text('The initials cannot be blank');
+
+            container.find('#error_initials_canvas').remove();
+            p.append(strong);
+            container.append(p);
+            p.show()
+        } else {
+            let initials_data = initials_pad.toDataURL()
+            let form = $('form')
+
+            form.data('initials-data', initials_data)
+            form.submit()
+        }
+    })
+    $('#secondaryModal'.on('shown.bs.modal', function () {
+        resizeCanvas()
+    }))
+    function resizeCanvas() {
+        let ratio =  Math.max(window.devicePixelRatio || 1, 1);
+        if (other_canvas) {
+            other_canvas.width = other_canvas.offsetWidth * ratio;
+            other_canvas.height = other_canvas.offsetHeight * ratio;
+            other_canvas.getContext("2d").scale(ratio, ratio);
+
+            other_signature_pad.clear();
+        }
+
+        if (manager_canvas) {
+            manager_canvas.width = manager_canvas.offsetWidth * ratio;
+            manager_canvas.height = manager_canvas.offsetHeight * ratio;
+            manager_canvas.getContext("2d").scale(ratio, ratio);
+
+            manager_signature_pad.clear();
+        }
+
+        if (initials_canvas) {
+            console.log(initials_canvas.width)
+            console.log(initials_canvas.height)
+            console.log(initials_canvas.offsetWidth)
+            console.log(initials_canvas.offsetHeight)
+            initials_canvas.width = initials_canvas.offsetWidth * ratio;
+            initials_canvas.height = initials_canvas.offsetHeight * ratio;
+            initials_canvas.getContext("2d").scale(ratio, ratio);
+
+            initials_pad.clear();
+        }
+    }
+
+    window.onresize = resizeCanvas;
+    resizeCanvas();
 });

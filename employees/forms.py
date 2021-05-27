@@ -325,6 +325,7 @@ class AssignSafetyPoint(forms.Form):
                               )
     other_signature = forms.CharField(required=False)
     manager_signature = forms.CharField(required=False)
+    initials = forms.CharField(required=False)
     signature_method = forms.CharField(required=False)
     refused_to_sign = forms.BooleanField(required=False)
 
@@ -347,7 +348,8 @@ class AssignSafetyPoint(forms.Form):
             signature_method=self.cleaned_data['signature_method'] if self.cleaned_data['other_signature'] else '',
             is_signed=True if self.cleaned_data['other_signature'] else False,
             signed_date=utils.timezone.now() if self.cleaned_data['other_signature'] else None,
-            refused_to_sign=self.cleaned_data['refused_to_sign']
+            refused_to_sign=self.cleaned_data['refused_to_sign'],
+            initials=self.cleaned_data['initials']
         )
 
         if self.cleaned_data['refused_to_sign']:

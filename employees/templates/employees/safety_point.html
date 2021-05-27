@@ -1,6 +1,36 @@
 {% extends "main/base.html" %}
 {% load crispy_forms_filters %}
 {% load static %}
+{% if request.resolver_match.url_name == 'employee-assign-safety-point' %}
+    {% block secondary-modal %}
+        <div class="modal fade" id="secondaryModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title font-weight-bold">Union Representation</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="union_modal_body">
+                        <p>Would you like Union representation?</p>
+                        <p>
+                            If so, you have 10 business days to have the Union contact the Safety Manager about
+                            this point notice Failure to do so will result in the point(s) and related discipline
+                            being issued without representation from the Union
+                        </p>
+                        <h4>Please Initial Below</h4>
+                        <canvas id="initials_canvas"></canvas>
+                    </div>
+                    <div class="modal-footer text-center">
+                        <button type="button" class="form-control btn btn-secondary" id="union_yes">Yes</button>
+                        <button type="button" class="form-control btn btn-primary" id="union_no">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+{% endif %}
 {% block content %}
     <script src="{% static 'JS/form_preloader.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
@@ -82,7 +112,7 @@
                             Cancel
                         </div>
                     </a>
-                    <button class="btn btn-primary" type="submit" value="Submit">{% if request.resolver_match.url_name == 'employee-assign-safety-point' %}Assign{% else %}Save{% endif %}</button>
+                    <button class="btn btn-primary" type="button" value="Submit" id="submit_button">{% if request.resolver_match.url_name == 'employee-assign-safety-point' %}Assign{% else %}Save{% endif %}</button>
                 </div>
             </form>
              <script src="{% static 'JS/unsafe_act_required.js' %}"></script>
