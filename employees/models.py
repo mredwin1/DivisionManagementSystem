@@ -1585,20 +1585,36 @@ class SafetyPoint(models.Model):
 
         y -= .35
 
-        p.line(1 * inch, y * inch, 3.75 * inch, y * inch)
-        p.line(4.125 * inch, y * inch, 6.50 * inch, y * inch)
+        p.line(1.00 * inch, y * inch, 3.75 * inch, y * inch)
+        p.line(4.25 * inch, y * inch, 7.00 * inch, y * inch)
+
+        if self.employee_signature:
+            employee_signature = ImageReader(self.get_signature_png('Employee'))
+            p.drawImage(employee_signature, 4.25 * inch, y + 0.02 * inch, 2.75 * inch, .45 * inch, mask='auto')
+        elif self.refused_to_sign:
+            p.drawString(4.25 * inch, y + 0.02 * inch, 'Employee Refused to Sign')
+
+        if self.employee_signature or self.witness_signature:
+            manager_signature = ImageReader(self.get_assignee().get_signature_png())
+            p.drawImage(manager_signature, 1 * inch, y + 0.02 * inch, 2.75 * inch, .45 * inch, mask='auto')
 
         y -= .2
 
         p.drawString(1 * inch, y * inch, 'Safety Manager')
-        p.drawString(4.125 * inch, y * inch, 'Employee')
+        p.drawString(4.25 * inch, y * inch, 'Employee')
 
         y -= .4
 
         p.drawString(1 * inch, y * inch, 'Date:')
         p.line(1.5 * inch, y * inch, 3 * inch, y * inch)
-        p.drawString(4.125 * inch, y * inch, 'Date:')
-        p.line(4.625 * inch, y * inch, 6.125 * inch, y * inch)
+        p.drawString(4.25 * inch, y * inch, 'Date:')
+        p.line(4.75 * inch, y * inch, 6.125 * inch, y * inch)
+
+        if self.employee_signature or self.refused_to_sign:
+            p.drawString(1.55 * inch, y + 0.02 * inch, datetime.datetime.today().strftime('%m-%d-%Y'))
+
+        if self.witness_signature:
+            p.drawString(4.77 * inch, y + 0.02 * inch, datetime.datetime.today().strftime('%m-%d-%Y'))
 
         y -= .4
 
@@ -1610,7 +1626,7 @@ class SafetyPoint(models.Model):
         # Union Things
         p.setLineWidth(1)
         p.setFont('Helvetica', 10)
-        p.rect(1.625 * inch, y * inch, .1875 * inch, .1875 * inch)
+        p.rect(1.625 * inch, y * inch, .1875 * inch, .1875 * inch, fill=int(not self.refused_to_sign))
         p.drawString(1.875 * inch, y * inch, 'By checking this box, you acknowledge that you do not want Union representation.')
 
         y -= .4
@@ -1620,7 +1636,7 @@ class SafetyPoint(models.Model):
                      'Failure to do so will result in the point(s) and related discipline being issued without ' \
                      'representation from the Union. '
 
-        p.rect(1.625 * inch, y * inch, .1875 * inch, .1875 * inch)
+        p.rect(1.625 * inch, y * inch, .1875 * inch, .1875 * inch, fill=int(self.refused_to_sign))
         wrapped_text = wrap_text(paragraph3, 'Helvetica', 10, 450)
         line_num = 1
         x = 1.875
@@ -1635,7 +1651,11 @@ class SafetyPoint(models.Model):
 
         p.setFont('Helvetica-Bold', 12)
         p.drawString(3.125 * inch, y * inch, 'Your Initials:')
-        p.line(4.1875 * inch, y * inch, 5.1875 * inch,y * inch)
+        p.line(4.1875 * inch, y * inch, 5.1875 * inch, y * inch)
+
+        initials = ImageReader(self.get_initials_png())
+        p.drawImage(initials, 4.1875 * inch, y + 0.02 * inch, 1 * inch, .45 * inch, mask='auto')
+
         p.drawString(5.25 * inch, y * inch, 'Date:')
         p.line(5.6875 * inch, y * inch, 7 * inch, y * inch)
 
