@@ -175,10 +175,6 @@ def post_save_attendance(sender, instance, created, **kwargs):
             latest_attendance = Attendance.objects.filter(employee=instance.employee, points__gt=0, counseling=None).last()
             instance.employee.attendance_written(counseling, latest_attendance, instance.assigned_by)
 
-        if instance.exemption == '1':
-            instance.employee.paid_sick -= 1
-        elif instance.exemption == '2':
-            instance.employee.unpaid_sick -= 1
     else:
         total_points = instance.employee.get_total_attendance_points()
         if total_points < 7:
