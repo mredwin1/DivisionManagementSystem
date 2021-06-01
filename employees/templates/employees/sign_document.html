@@ -8,6 +8,36 @@
 {% block modal-footer %}
     <button type="submit" class="btn btn-primary" id="done" form="qrCode" data-dismiss="modal">Done</button>
 {% endblock modal-footer %}
+{% block secondary-modal %}
+    {% if document_type != 'Attendance' %}
+        <div class="modal fade" id="secondaryModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title font-weight-bold">Union Representation</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body union-container" id="union_modal_body">
+                        <p>Would you like Union representation?</p>
+                        <p>
+                            If so, you have 10 business days to have the Union contact the Safety Manager about
+                            this point notice Failure to do so will result in the point(s) and related discipline
+                            being issued without representation from the Union
+                        </p>
+                        <h4>Please Initial Below</h4>
+                        <canvas class="border border-dark" id="initials_canvas"></canvas>
+                    </div>
+                    <div class="modal-footer text-center">
+                        <button type="button" class="form-control btn btn-secondary union-modal-button">Yes</button>
+                        <button type="button" class="form-control btn btn-primary union-modal-button">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
 {% block content %}
     <script src="{% static 'JS/form_preloader.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
@@ -138,6 +168,9 @@
                             <canvas class="border border-dark" id="manager_canvas"></canvas>
                         </div>
                     {% endif %}
+                    {% if document_type != 'Attendance' %}
+                        <input type="hidden" value="" name="union_representation" id="id_union_representation">
+                    {% endif %}
                 </div>
                 {% if signature_method == 'In Person' %}
                     {{ form.refused_to_sign|as_crispy_field }}
@@ -151,7 +184,7 @@
                             </div>
                         </a>
                     {% endif %}
-                    <button class="btn btn-primary" type="submit" value="Submit" id="submit_button">Submit</button>
+                    <button class="btn btn-primary" type="{% if request.resolver_match.url_name != 'Attendance' %}button{% else %}submit{% endif %}" value="Submit" id="submit_button">Submit</button>
                 </div>
             </form>
         </div>
