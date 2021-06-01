@@ -328,6 +328,7 @@ class AssignSafetyPoint(forms.Form):
     initials = forms.CharField(required=False)
     signature_method = forms.CharField(required=False)
     refused_to_sign = forms.BooleanField(required=False)
+    union_representation = forms.BooleanField(required=False)
 
     def __init__(self, *args, **kwargs):
         self.employee = kwargs.pop('employee', None)
@@ -349,7 +350,8 @@ class AssignSafetyPoint(forms.Form):
             is_signed=True if self.cleaned_data['other_signature'] else False,
             signed_date=utils.timezone.now() if self.cleaned_data['other_signature'] else None,
             refused_to_sign=self.cleaned_data['refused_to_sign'],
-            initials=self.cleaned_data['initials']
+            initials=self.cleaned_data['initials'],
+            union_representation=self.cleaned_data['union_representation']
         )
 
         if self.cleaned_data['refused_to_sign']:
