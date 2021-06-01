@@ -46,7 +46,7 @@
     <h3>{% if request.resolver_match.url_name == 'employee-assign-safety-point' %}Assign{% else %}Edit{% endif %} Safety Point</h3>
     <div class="row mt-3">
         <div class="col">
-            <form method="POST" role="form" action="{% url 'employee-assign-safety-point' employee.employee_id %}" id="assignSafetyPointForm" data-manager-required="{% if request.resolver_match.url_name == 'employee-assign-safety-point' %}true{% else %}false{% endif %}" data-other-required="false" data-signature-method="In Person">
+            <form method="POST" role="form" action="{% if request.resolver_match.url_name == 'employee-edit-safety-point' %}{% url 'employee-edit-safety-point' safety_point.id %}{% else %}{% url 'employee-assign-safety-point' employee.employee_id %}{% endif %}" id="assignSafetyPointForm" data-manager-required="{% if request.resolver_match.url_name == 'employee-assign-safety-point' %}true{% else %}false{% endif %}" data-other-required="false" data-signature-method="In Person">
                 {% csrf_token %}
                 <div class="form-row justify-content-start">
                     <div class="form-group col-md-4 col-sm-6 col-12">
@@ -111,15 +111,15 @@
                         </div>
                     </div>
                     {{ form.refused_to_sign|as_crispy_field }}
-                    <input type="hidden" value="false" name="union_representation" id="id_union_representation">
+                    <input type="hidden" value="" name="union_representation" id="id_union_representation">
                 {% endif %}
                 <div class="form-row mb-3">
-                    <a href="{% url 'employee-account' employee.employee_id %}" class="account-content mr-2">
+                    <a href="{% if request.resolver_match.url_name == 'employee-edit-safety-point' %}{% url 'employee-account' safety_point.employee.employee_id %}{% else %}{% url 'employee-account' employee.employee_id %}{% endif %}" class="account-content mr-2">
                         <div class="btn btn-secondary">
                             Cancel
                         </div>
                     </a>
-                    <button class="btn btn-primary" type="button" value="Submit" id="submit_button">{% if request.resolver_match.url_name == 'employee-assign-safety-point' %}Assign{% else %}Save{% endif %}</button>
+                    <button class="btn btn-primary" type="{% if request.resolver_match.url_name == 'employee-assign-safety-point' %}button{% else %}submit{% endif %}" value="Submit" {% if request.resolver_match.url_name == 'employee-assign-safety-point' %}id="submit_button"{% endif %}>{% if request.resolver_match.url_name == 'employee-assign-safety-point' %}Assign{% else %}Save{% endif %}</button>
                 </div>
             </form>
              <script src="{% static 'JS/unsafe_act_required.js' %}"></script>
