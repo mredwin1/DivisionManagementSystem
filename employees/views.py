@@ -346,7 +346,7 @@ def delete_safety_point(request, safety_point_id):
 
     messages.add_message(request, messages.SUCCESS, 'Safety Point Successfully Deleted')
 
-    return redirect('employee-account', employee_id)
+    return redirect('employee-account', safety_point.employee.employee_id)
 
 
 @login_required
@@ -728,14 +728,13 @@ def sign_document(request, signature_method, record_id, document_type=None):
         else:
             raise Http404
     else:
-        if document_type == 'Attendance':
-            record = Attendance.objects.get(id=record_id)
-        elif document_type == 'Safety':
-            record = SafetyPoint.objects.get(id=record_id)
-        elif document_type == 'Counseling':
-            record = Counseling.objects.get(id=record_id)
-        else:
-            record = Employee.objects.get(employee_id=record_id)
+        record_types = {
+            'Attendance': Attendance,
+            'SafetyPoint': SafetyPoint,
+            'Counseling': Counseling
+        }
+
+        record = record_types[document_type].objects.get(id=record_id)
 
         if request.user == record.employee or request.user.has_perm('employees.can_sign_documents') and not record.is_signed:
             if request.method == 'GET':
