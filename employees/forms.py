@@ -645,8 +645,10 @@ class ViewSettlement(forms.ModelForm):
 class SignDocument(forms.Form):
     other_signature = forms.CharField(required=False)
     manager_signature = forms.CharField(required=False)
+    initials = forms.CharField(required=False)
     refused_to_sign = forms.BooleanField(required=False)
     signature_method = forms.CharField()
+    union_representation = forms.BooleanField(required=False)
 
     def __init__(self, request, record=None, document_type=None, *args, **kwargs):
         super(SignDocument, self).__init__(*args, **kwargs)
