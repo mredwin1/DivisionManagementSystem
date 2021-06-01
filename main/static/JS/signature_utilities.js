@@ -17,6 +17,11 @@ $(document).ready(function () {
     }
 
     if (initials_canvas) {
+        initials_canvas.style.width = '466px';
+        initials_canvas.style.height = '150px';
+
+        initials_canvas.width = initials_canvas.offsetWidth;
+        initials_canvas.height = initials_canvas.offsetHeight;
         initials_pad = new SignaturePad(initials_canvas);
     }
 
@@ -60,8 +65,8 @@ $(document).ready(function () {
             success: function (data) {
                 if (data.signature) {
                     if (manager_canvas) {
-                        manager_signature_pad.clear()
-                        manager_signature_pad.fromDataURL(data.signature)
+                        manager_signature_pad.clear();
+                        manager_signature_pad.fromDataURL(data.signature);
                     }
                 }
             },
@@ -85,7 +90,6 @@ $(document).ready(function () {
         } else {
             title.text('Manager Signature QR')
         }
-
 
         $("#qr").ClassyQR({
             type: 'url',
@@ -114,8 +118,19 @@ $(document).ready(function () {
         if (!second_modal) {
             form.submit()
         } else {
-            second_modal.modal('show')
-            resizeCanvas();
+            let fields = $('input,textarea,select').filter('[required]:visible')
+            let valid = true
+
+            $.each(fields, function (index, value) {
+                if (!value.reportValidity()) {
+                    valid = false
+                    return valid
+                }
+            })
+            if (valid) {
+                second_modal.modal('show')
+                resizeCanvas();
+            }
         }
     })
     $('#id_refused_to_sign').click(function () {
@@ -187,7 +202,7 @@ $(document).ready(function () {
             });
         }
     })
-    $('#union_yes').click(function () {
+    $('.union-modal-button').click(function () {
         if (initials_pad.isEmpty()) {
             let container = $('#union_modal_body');
             let p_id = 'error_initials_canvas'
@@ -201,14 +216,23 @@ $(document).ready(function () {
         } else {
             let initials_data = initials_pad.toDataURL()
             let form = $('form')
+            let union_modal = $('#secondaryModal')
+            let union_field = $('#id_union_representation')
 
+            if ($(this).text() === 'Yes') {
+                union_field.val(true)
+            } else {
+                union_field.val(false)
+            }
+
+            union_modal.modal('hide')
             form.data('initials-data', initials_data)
             form.submit()
         }
     })
-    $('#secondaryModal'.on('shown.bs.modal', function () {
+    $('#secondaryModal').on('shown.bs.modal', function () {
         resizeCanvas()
-    }))
+    })
     function resizeCanvas() {
         let ratio =  Math.max(window.devicePixelRatio || 1, 1);
         if (other_canvas) {
@@ -228,10 +252,6 @@ $(document).ready(function () {
         }
 
         if (initials_canvas) {
-            console.log(initials_canvas.width)
-            console.log(initials_canvas.height)
-            console.log(initials_canvas.offsetWidth)
-            console.log(initials_canvas.offsetHeight)
             initials_canvas.width = initials_canvas.offsetWidth * ratio;
             initials_canvas.height = initials_canvas.offsetHeight * ratio;
             initials_canvas.getContext("2d").scale(ratio, ratio);
