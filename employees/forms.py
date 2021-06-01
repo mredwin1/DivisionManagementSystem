@@ -364,25 +364,24 @@ class AssignSafetyPoint(forms.Form):
 
 
 class EditSafetyPoint(AssignSafetyPoint):
-    document = forms.FileField(label='Document', required=False)
+    def save(self):
+        self.safety_point.incident_date = self.cleaned_data['incident_date']
+        self.safety_point.issued_date = self.cleaned_data['issued_date']
+        self.safety_point.points = self.POINTS[self.cleaned_data['reason']]
+        self.safety_point.reason = self.cleaned_data['reason']
+        self.safety_point.unsafe_act = self.cleaned_data['unsafe_act']
+        self.safety_point.details = self.cleaned_data['details']
+        self.safety_point.edited_date = datetime.datetime.today()
+        self.safety_point.edited_by = f'{self.request.user.first_name} {self.request.user.last_name}'
+        self.safety_point.signature_method = ''
+        self.safety_point.signed_date = None
+        self.safety_point.is_signed = False
+        self.safety_point.employee_signature = ''
+        self.safety_point.witness_signature = ''
+        self.safety_point.initials = ''
+        self.safety_point.refused_to_sign = False
 
-    def save(self, safety_point, request):
-        update_fields = ['incident_date', 'issued_date', 'points', 'reason', 'unsafe_act', 'details']
-        try:
-            safety_point.document = self.files['document']
-            safety_point.uploaded = True
-            update_fields.append('document')
-            update_fields.append('uploaded')
-        except KeyError:
-            pass
-        safety_point.incident_date = self.cleaned_data['incident_date']
-        safety_point.issued_date = self.cleaned_data['issued_date']
-        safety_point.points = self.POINTS[self.cleaned_data['reason']]
-        safety_point.reason = self.cleaned_data['reason']
-        safety_point.unsafe_act = self.cleaned_data['unsafe_act']
-        safety_point.details = self.cleaned_data['details']
-
-        safety_point.save(update_fields=update_fields)
+        self.safety_point.document.delete()
 
 
 class PlaceHold(forms.Form):
