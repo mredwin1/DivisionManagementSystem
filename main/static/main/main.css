@@ -371,6 +371,10 @@ a.account-content {
     color: #414142;
 }
 
+.union-container {
+    min-height: 380px;
+}
+
 .notification {
     background-color: #ADD8E6;
     cursor: pointer;
