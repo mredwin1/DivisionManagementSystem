@@ -1584,20 +1584,20 @@ class SafetyPoint(models.Model):
         # Signatures
         p.drawString(1 * inch, y * inch, 'Authorization')
 
-        y -= .35
+        y -= .5
 
         p.line(1.00 * inch, y * inch, 3.75 * inch, y * inch)
         p.line(4.25 * inch, y * inch, 7.00 * inch, y * inch)
 
         if self.employee_signature:
             employee_signature = ImageReader(self.get_signature_png('Employee'))
-            p.drawImage(employee_signature, 4.25 * inch, y + 0.02 * inch, 2.75 * inch, .45 * inch, mask='auto')
+            p.drawImage(employee_signature, 4.25 * inch, (y + 0.02) * inch, 2.75 * inch, .45 * inch, mask='auto')
         elif self.refused_to_sign:
-            p.drawString(4.25 * inch, y + 0.02 * inch, 'Employee Refused to Sign')
+            p.drawString(4.25 * inch, (y + 0.02) * inch, 'Employee Refused to Sign')
 
         if self.employee_signature or self.witness_signature:
             manager_signature = ImageReader(self.get_assignee().get_signature_png())
-            p.drawImage(manager_signature, 1 * inch, y + 0.02 * inch, 2.75 * inch, .45 * inch, mask='auto')
+            p.drawImage(manager_signature, 1 * inch, (y + 0.02) * inch, 2.75 * inch, .45 * inch, mask='auto')
 
         y -= .2
 
@@ -1612,15 +1612,21 @@ class SafetyPoint(models.Model):
         p.line(4.75 * inch, y * inch, 6.125 * inch, y * inch)
 
         if self.employee_signature or self.refused_to_sign:
-            p.drawString(1.55 * inch, y + 0.02 * inch, datetime.datetime.today().strftime('%m-%d-%Y'))
+            p.drawString(1.55 * inch, (y + 0.02) * inch, datetime.datetime.today().strftime('%m-%d-%Y'))
 
+        if self.employee:
+            p.drawString(4.77 * inch, (y + 0.02) * inch, datetime.datetime.today().strftime('%m-%d-%Y'))
+
+        y -= .5
+
+        p.line(1 * inch, y * inch, 3.75 * inch, y * inch)
         if self.witness_signature:
-            p.drawString(4.77 * inch, y + 0.02 * inch, datetime.datetime.today().strftime('%m-%d-%Y'))
+            witness_signature = ImageReader(self.get_signature_png())
+            p.drawImage(witness_signature, 1 * inch, (y + 0.02) * inch, 2.75 * inch, .45 * inch, mask='auto')
 
-        y -= .4
+        y -= .2
 
-        p.drawString(1 * inch, y * inch, 'Witness:')
-        p.line(1.75 * inch, y * inch, 3.75 * inch, y * inch)
+        p.drawString(1 * inch, y * inch, 'Witness')
 
         y -= .5
 
@@ -1655,9 +1661,11 @@ class SafetyPoint(models.Model):
         p.line(4.1875 * inch, y * inch, 5.1875 * inch, y * inch)
 
         initials = ImageReader(self.get_initials_png())
-        p.drawImage(initials, 4.1875 * inch, y + 0.02 * inch, 1 * inch, .45 * inch, mask='auto')
+        p.drawImage(initials, 4.1875 * inch, (y + 0.02) * inch, 1 * inch, .45 * inch, mask='auto')
 
         p.drawString(5.25 * inch, y * inch, 'Date:')
+        p.setFont('Helvetica', 12)
+        p.drawString(5.75 * inch, (y + .02) * inch, timezone.now().strftime('%m-%d-%Y'))
         p.line(5.6875 * inch, y * inch, 7 * inch, y * inch)
 
         p.setFillColor('gray')
@@ -1680,7 +1688,7 @@ class SafetyPoint(models.Model):
     def get_pretty_unsafe_act(self):
         return titlecase(self.unsafe_act)
 
-    def get_signature_png(self, signature_type):
+    def get_signature_png(self, signature_type=None):
         signature = self.employee_signature if signature_type == 'Employee' else self.witness_signature
         image_data = signature.split(',')[1]
         image_buffer = io.BytesIO(base64.b64decode(image_data))
