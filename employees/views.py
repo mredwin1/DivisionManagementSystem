@@ -353,17 +353,16 @@ def delete_safety_point(request, safety_point_id):
 @permission_required('employees.can_edit_safety_point', raise_exception=True)
 def edit_safety_point(request, safety_point_id):
     safety_point = SafetyPoint.objects.get(id=safety_point_id)
-    employee = Employee.objects.get(employee_id=employee_id)
 
     if request.method == 'POST':
-        form = EditSafetyPoint(data=request.POST, files=request.FILES)
+        form = EditSafetyPoint(data=request.POST, safety_point=safety_point, request=request)
 
         if form.is_valid():
-            form.save(safety_point, request)
+            form.save()
 
             messages.add_message(request, messages.SUCCESS, 'Safety Point Edited Successfully')
 
-            data = {'url': reverse('employee-account', args=[employee_id, 'Safety Point', safety_point_id])}
+            data = {'url': reverse('employee-account', args=[safety_point.employee.employee_id])}
 
             return JsonResponse(data, status=200)
 
@@ -378,10 +377,10 @@ def edit_safety_point(request, safety_point_id):
             'details': safety_point.details
         }
 
-        form = EditSafetyPoint(initial=initial)
+        form = EditSafetyPoint(initial=initial, safety_point=safety_point)
 
         data = {
-            'employee': employee,
+            'safety_point': safety_point,
             'form': form,
         }
 
