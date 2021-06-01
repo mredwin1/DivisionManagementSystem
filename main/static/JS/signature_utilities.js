@@ -118,18 +118,22 @@ $(document).ready(function () {
         if (!second_modal) {
             form.submit()
         } else {
-            let fields = $('input,textarea,select').filter('[required]:visible')
-            let valid = true
+            if (!other_signature_pad.isEmpty()) {
+                let fields = $('input,textarea,select').filter('[required]:visible')
+                let valid = true
 
-            $.each(fields, function (index, value) {
-                if (!value.reportValidity()) {
-                    valid = false
-                    return valid
+                $.each(fields, function (index, value) {
+                    if (!value.reportValidity()) {
+                        valid = false
+                        return valid
+                    }
+                })
+                if (valid) {
+                    second_modal.modal('show')
+                    resizeCanvas();
                 }
-            })
-            if (valid) {
-                second_modal.modal('show')
-                resizeCanvas();
+            } else {
+                form.submit()
             }
         }
     })
