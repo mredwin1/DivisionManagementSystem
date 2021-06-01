@@ -37,7 +37,7 @@ def send_text(to, body, sender_id, sender_type):
 
     record_types = {
         'Attendance': Attendance,
-        'Safety Point': SafetyPoint,
+        'SafetyPoint': SafetyPoint,
         'Counseling': Counseling
     }
 
