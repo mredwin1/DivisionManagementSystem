@@ -289,7 +289,7 @@ def import_safety_point_data(request):
 def update_msg_status(request, record_id, record_type):
     record_types = {
         'Attendance': Attendance,
-        'Safety Point': SafetyPoint,
+        'SafetyPoint': SafetyPoint,
         'Counseling': Counseling
     }
 
@@ -308,7 +308,7 @@ def update_msg_status(request, record_id, record_type):
 def view_document(request, record_id, record_type):
     record_types = {
         'Attendance': Attendance,
-        'Safety Point': SafetyPoint,
+        'SafetyPoint': SafetyPoint,
         'Counseling': Counseling
     }
 
