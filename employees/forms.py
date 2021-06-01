@@ -333,7 +333,7 @@ class AssignSafetyPoint(forms.Form):
     def __init__(self, *args, **kwargs):
         self.employee = kwargs.pop('employee', None)
         self.request = kwargs.pop('request', None)
-        self.counseling = kwargs.pop('counseling', None)
+        self.safety_point = kwargs.pop('safety_point', None)
         super(AssignSafetyPoint, self).__init__(*args, **kwargs)
 
     def save(self):
