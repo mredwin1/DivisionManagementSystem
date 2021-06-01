@@ -331,7 +331,7 @@ def assign_safety_point(request, employee_id):
 
 @login_required
 @permission_required('employees.can_delete_attendance', raise_exception=True)
-def delete_safety_point(request, employee_id, safety_point_id):
+def delete_safety_point(request, safety_point_id):
     safety_point = SafetyPoint.objects.get(id=safety_point_id)
 
     safety_point.is_active = False
@@ -351,7 +351,7 @@ def delete_safety_point(request, employee_id, safety_point_id):
 
 @login_required
 @permission_required('employees.can_edit_safety_point', raise_exception=True)
-def edit_safety_point(request, employee_id, safety_point_id):
+def edit_safety_point(request, safety_point_id):
     safety_point = SafetyPoint.objects.get(id=safety_point_id)
     employee = Employee.objects.get(employee_id=employee_id)
 
