@@ -659,7 +659,7 @@ class SignDocument(forms.Form):
     def save(self):
         if not self.document_type:
             self.request.user.set_signature(self.cleaned_data['other_signature'])
-        else:
+        elif self.document_type == 'Attendance':
             self.record.signature = self.cleaned_data['other_signature']
             self.record.refused_to_sign = self.cleaned_data['refused_to_sign']
             self.record.signed_date = utils.timezone.now()
@@ -668,4 +668,16 @@ class SignDocument(forms.Form):
 
             self.record.document.delete()
 
+            self.request.user.set_signature(self.cleaned_data['manager_signature'])
+        else:
+            self.record.union_representation = self.cleaned_data['union_representation']
+            self.record.refused_to_sign = self.cleaned_data['refused_to_sign']
+            self.record.signed_date = utils.timezone.now()
+            self.record.signature_method = self.cleaned_data['signature_method']
+            self.record.employee_signature = self.cleaned_data['other_signature'] if not self.cleaned_data['refused_to_sign'] else ''
+            self.record.witness_signature = self.cleaned_data['other_signature'] if self.cleaned_data['refused_to_sign'] else ''
+            self.record.initials = self.cleaned_data['initials']
+            self.record.is_signed = True
+
+            self.record.document.delete()
             self.request.user.set_signature(self.cleaned_data['manager_signature'])
