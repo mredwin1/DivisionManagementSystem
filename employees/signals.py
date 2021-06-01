@@ -199,7 +199,13 @@ def post_save_attendance(sender, instance, created, **kwargs):
 def post_save_safety_point(sender, instance, created, **kwargs):
     if not instance.document and instance.is_active:
         instance.create_safety_point_document()
-
+        if instance.employee.primary_phone and not instance.is_signed:
+            body = f'Hello {instance.employee.get_full_name()}, please see safety next time you are at base.'
+            send_text(str(instance.employee.primary_phone), body, instance.id, 'SafetyPoint')
+        else:
+            instance.status_update_date = timezone.now()
+            instance.status = 'Unsent'
+            instance.save()
         removal = instance.employee.safety_point_removal_required(instance)
 
         if created:
