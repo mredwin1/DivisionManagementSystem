@@ -1380,6 +1380,7 @@ class SafetyPoint(models.Model):
     is_active = models.BooleanField(default=True)
     is_signed = models.BooleanField(default=False)
     refused_to_sign = models.BooleanField(default=False)
+    union_representation = models.BooleanField(default=False)
 
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
 
