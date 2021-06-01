@@ -154,7 +154,7 @@ def add_counseling_document(sender, instance, created, update_fields, **kwargs):
 
 @receiver(post_save, sender=Attendance)
 def post_save_attendance(sender, instance, created, **kwargs):
-    if not instance.document:
+    if not instance.document and instance.is_active:
         instance.create_document()
         if instance.employee.primary_phone and not instance.is_signed:
             domain = Site.objects.get_current().domain
@@ -197,7 +197,7 @@ def post_save_attendance(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=SafetyPoint)
 def post_save_safety_point(sender, instance, created, **kwargs):
-    if not instance.document:
+    if not instance.document and instance.is_active:
         instance.create_safety_point_document()
 
         removal = instance.employee.safety_point_removal_required(instance)
