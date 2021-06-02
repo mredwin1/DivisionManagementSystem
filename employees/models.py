@@ -1796,7 +1796,7 @@ class Counseling(models.Model):
 
         # Type of Action
         p.setFontSize(9)
-        p.drawString(.5 * inch, 8.500 * inch, 'TYPE OF ACTION:')
+        p.drawString(.5 * inch, 8.75 * inch, 'TYPE OF ACTION:')
 
         fill = {
             '0': 0,
@@ -1810,48 +1810,48 @@ class Counseling(models.Model):
 
         fill[self.action_type] += 1
 
-        p.rect(.875 * inch, 8.2425 * inch, .125 * inch, .125 * inch, fill=fill['0'])
-        p.drawString(1.125 * inch, 8.2525 * inch, 'Verbal Counseling')
+        p.rect(.875 * inch, 8.4925 * inch, .125 * inch, .125 * inch, fill=fill['0'])
+        p.drawString(1.125 * inch, 8.5025 * inch, 'Verbal Counseling')
 
-        p.rect(.875 * inch, 8.0425 * inch, .125 * inch, .125 * inch, fill=fill['1'])
-        p.drawString(1.125 * inch, 8.0525 * inch, 'Verbal Warning')
+        p.rect(.875 * inch, 8.2925 * inch, .125 * inch, .125 * inch, fill=fill['1'])
+        p.drawString(1.125 * inch, 8.3025 * inch, 'Verbal Warning')
 
-        p.rect(.875 * inch, 7.8425 * inch, .125 * inch, .125 * inch, fill=fill['2'])
-        p.drawString(1.125 * inch, 7.8525 * inch, 'First Written Warning Notice')
+        p.rect(.875 * inch, 8.0925 * inch, .125 * inch, .125 * inch, fill=fill['2'])
+        p.drawString(1.125 * inch, 8.1025 * inch, 'First Written Warning Notice')
 
-        p.rect(.875 * inch, 7.6425 * inch, .125 * inch, .125 * inch, fill=fill['3'])
-        p.drawString(1.125 * inch, 7.6525 * inch, 'First Written Warning Notice & 3 Day Suspension')
+        p.rect(.875 * inch, 7.8925 * inch, .125 * inch, .125 * inch, fill=fill['3'])
+        p.drawString(1.125 * inch, 7.9025 * inch, 'First Written Warning Notice & 3 Day Suspension')
 
-        p.rect(.875 * inch, 7.4425 * inch, .125 * inch, .125 * inch, fill=fill['4'])
-        p.drawString(1.125 * inch, 7.4525 * inch, 'Last & Final Warning')
+        p.rect(.875 * inch, 7.6925 * inch, .125 * inch, .125 * inch, fill=fill['4'])
+        p.drawString(1.125 * inch, 7.7025 * inch, 'Last & Final Warning')
 
-        p.rect(.875 * inch, 7.2425 * inch, .125 * inch, .125 * inch, fill=fill['5'])
-        p.drawString(1.125 * inch, 7.2525 * inch, 'Discharge for \"Just Cause\"')
+        p.rect(.875 * inch, 7.4925 * inch, .125 * inch, .125 * inch, fill=fill['5'])
+        p.drawString(1.125 * inch, 7.5025 * inch, 'Discharge for \"Just Cause\"')
 
-        p.rect(.875 * inch, 6.9525 * inch, .125 * inch, .125 * inch, fill=fill['6'])
-        p.drawString(1.125 * inch, 6.9625 * inch,
+        p.rect(.875 * inch, 7.2025 * inch, .125 * inch, .125 * inch, fill=fill['6'])
+        p.drawString(1.125 * inch, 7.2125 * inch,
                      'Administrative Removal from Service Pending Investigation. A hearing is scheduled')
-        p.drawString(1.125 * inch, 6.7625 * inch,
+        p.drawString(1.125 * inch, 7.0125 * inch,
                      f'for {self.get_hearing_datetime()} at which time you may make any statement or produce')
-        p.drawString(1.125 * inch, 6.5625 * inch, 'any evidence in regard to the facts of the matter.')
+        p.drawString(1.125 * inch, 6.8125 * inch, 'any evidence in regard to the facts of the matter.')
 
         p.setFont('Helvetica-Bold', 9)
-        p.drawString(1.125 * inch, 6.3125 * inch,
+        p.drawString(1.125 * inch, 6.5625 * inch,
                      'If you fail to appear at the scheduled hearing, the company will assume that you have')
-        p.drawString(1.125 * inch, 6.125 * inch, 'resigned your employment.')
+        p.drawString(1.125 * inch, 6.375 * inch, 'resigned your employment.')
 
         p.setFont('Helvetica-Bold', 11)
-        p.drawString(.5 * inch, 5.75 * inch, 'Explanation of Employee Conduct:')
+        p.drawString(.5 * inch, 6 * inch, 'Explanation of Employee Conduct:')
 
         p.setFont('Helvetica', 9)
 
         # Conduct Paragraph Lines
+        p.line(.5 * inch, 5.75 * inch, 8 * inch, 5.75 * inch)
         p.line(.5 * inch, 5.50 * inch, 8 * inch, 5.50 * inch)
         p.line(.5 * inch, 5.25 * inch, 8 * inch, 5.25 * inch)
         p.line(.5 * inch, 5.00 * inch, 8 * inch, 5.00 * inch)
-        p.line(.5 * inch, 4.75 * inch, 8 * inch, 4.75 * inch)
 
-        y = 5.50
+        y = 5.75
         if p.stringWidth(self.conduct, 'Helvetica', 10) > 595:
             wrapped_text = wrap_text(self.conduct, 'Helvetica', 10, 595)
             for line in wrapped_text:
@@ -1861,17 +1861,17 @@ class Counseling(models.Model):
             p.drawString(.5625 * inch, (y + .02) * inch, self.conduct)
 
         p.setFont('Helvetica-Bold', 11)
-        p.drawString(.5 * inch, 4.50 * inch, 'Record of Conversation:')
+        p.drawString(.5 * inch, 4.75 * inch, 'Record of Conversation:')
 
         p.setFont('Helvetica', 9)
 
         # Conversation Paragraph Lines
+        p.line(.5 * inch, 4.50 * inch, 8 * inch, 4.50 * inch)
         p.line(.5 * inch, 4.25 * inch, 8 * inch, 4.25 * inch)
         p.line(.5 * inch, 4.00 * inch, 8 * inch, 4.00 * inch)
         p.line(.5 * inch, 3.75 * inch, 8 * inch, 3.75 * inch)
-        p.line(.5 * inch, 3.50 * inch, 8 * inch, 3.50 * inch)
 
-        y = 4.25
+        y = 4.50
         if p.stringWidth(self.conversation, 'Helvetica', 10) > 595:
             wrapped_text = wrap_text(self.conversation, 'Helvetica', 10, 595)
             for line in wrapped_text:
@@ -1881,12 +1881,13 @@ class Counseling(models.Model):
             p.drawString(.5625 * inch, (y + .02) * inch, self.conversation)
 
         p.setFontSize(7)
-        p.rect(.875 * inch, 3.245 * inch, .120 * inch, .120 * inch)
+        p.rect(.875 * inch, 3.245 * inch, .120 * inch, .120 * inch, fill=int(not self.union_representation))
         p.drawString(1.0625 * inch, 3.270 * inch, 'Employee Waives the right to Union Representation:')
-        p.line(3.70 * inch, 3.270 * inch, 4.0625 * inch, 3.270 * inch)
+        p.line(3.50 * inch, 3.27 * inch, 4.50 * inch, 3.27 * inch)
 
-        p.drawString(4.25 * inch, 3.270 * inch, 'Witness:')
-        p.line(4.75 * inch, 3.270 * inch, 7.00 * inch, 3.270 * inch)
+        if self.initials:
+            initials = ImageReader(self.get_initials_png())
+            p.drawImage(initials, 4.1875 * inch, 3.29 * inch, 1 * inch, .45 * inch, mask='auto')
 
         p.setFont('Helvetica-Bold', 7)
         p.drawString(.5 * inch, 3.000 * inch,
@@ -1905,21 +1906,45 @@ class Counseling(models.Model):
         p.drawString(5.5 * inch, 1.750 * inch, 'Date:')
         p.line(6 * inch, 1.750 * inch, 8 * inch, 1.750 * inch)
 
+        if self.employee_signature:
+            witness_signature = ImageReader(self.get_signature_png('Employee'))
+            p.drawImage(witness_signature, 2.125 * inch, 1.752 * inch, 2.375 * inch, .45 * inch, mask='auto')
+            p.drawString(6 * inch, 1.752 * inch, timezone.now().strftime('%m-%d-%Y'))
+
         p.setFontSize(7)
 
         p.drawString(.5 * inch, 1.625 * inch,
                      'Employee\'s signature does not indicate agreement or consent to discipline.')
 
-        p.rect(.64 * inch, 1.4325 * inch, .1 * inch, .1 * inch)
-        p.drawString(.8125 * inch, 1.44 * inch, 'Employee refused to sign')
+        p.rect(.64 * inch, 1.4325 * inch, .125 * inch, .125 * inch, fill=int(self.refused_to_sign))
+
+        p.setFontSize(8)
+
+        p.drawString(.77 * inch, 1.4525 * inch, 'Employee refused to sign')
 
         p.setFontSize(11)
 
-        p.drawString(.5 * inch, 1 * inch, 'Supervisor Signature:')
+        p.drawString(.5 * inch, 1 * inch, 'Witness Signature:')
         p.line(2.125 * inch, 1 * inch, 4.5 * inch, 1 * inch)
 
         p.drawString(5.5 * inch, 1 * inch, 'Date:')
         p.line(6 * inch, 1 * inch, 8 * inch, 1 * inch)
+
+        if self.witness_signature:
+            witness_signature = ImageReader(self.get_signature_png())
+            p.drawImage(witness_signature, 2.125 * inch, 1.02 * inch, 2.375 * inch, .45 * inch, mask='auto')
+            p.drawString(6 * inch, 1.02 * inch, timezone.now().strftime('%m-%d-%Y'))
+
+        p.drawString(.5 * inch, .5 * inch, 'Supervisor Signature:')
+        p.line(2.125 * inch, .5 * inch, 4.5 * inch, 1 * inch)
+
+        p.drawString(5.5 * inch, .5 * inch, 'Date:')
+        p.line(6 * inch, .5 * inch, 8 * inch, .5 * inch)
+
+        if self.employee_signature or self.witness_signature:
+            witness_signature = ImageReader(self.get_assignee().get_signature_png())
+            p.drawImage(witness_signature, 2.125 * inch, .52 * inch, 2.375 * inch, .45 * inch, mask='auto')
+            p.drawString(6 * inch, .52 * inch, timezone.now().strftime('%m-%d-%Y'))
 
         p.showPage()
         p.save()
