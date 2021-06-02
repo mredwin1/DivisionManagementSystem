@@ -176,6 +176,12 @@ class AssignCounseling(forms.Form):
     conduct = forms.CharField(label='Explanation of Employee Conduct', widget=forms.Textarea(), required=True)
     conversation = forms.CharField(label='Record of Conversation', widget=forms.Textarea(), required=True)
     pd_check_override = forms.BooleanField(label='Override Progressive Discipline Check', required=False)
+    other_signature = forms.CharField(required=False)
+    manager_signature = forms.CharField(required=False)
+    initials = forms.CharField(required=False)
+    signature_method = forms.CharField(required=False)
+    refused_to_sign = forms.BooleanField(required=False)
+    union_representation = forms.BooleanField(required=False)
 
     def __init__(self, *args, **kwargs):
         self.employee = kwargs.pop('employee', None)
@@ -240,54 +246,53 @@ class AssignCounseling(forms.Form):
                 if action_type != next_step:
                     self.add_error(action_type_field, f'The next step in progressive discipline would be {actions[next_step]}.')
 
-    def save(self):
         if self.cleaned_data['hearing_date']:
-            hearing_date = datetime.datetime.combine(self.cleaned_data['hearing_date'],
+            self.cleaned_data['hearing_date'] = datetime.datetime.combine(self.cleaned_data['hearing_date'],
                                                      self.cleaned_data['hearing_time'])
         else:
-            hearing_date = None
+            self.cleaned_data['hearing_date'] = None
 
+    def save(self):
         counseling = Counseling(
             employee=self.employee,
             assigned_by=self.request.user.employee_id,
             issued_date=datetime.datetime.today(),
             action_type=self.cleaned_data['action_type'],
-            hearing_datetime=hearing_date,
+            hearing_datetime=self.cleaned_data['hearing_date'],
             conduct=self.cleaned_data['conduct'],
             conversation=self.cleaned_data['conversation'],
-            override_by=self.request.user.employee_id if self.cleaned_data['pd_check_override'] else None
+            override_by=self.request.user.employee_id if self.cleaned_data['pd_check_override'] else None,
+            signature_method=self.cleaned_data['signature_method'] if self.cleaned_data['other_signature'] else '',
+            is_signed=True if self.cleaned_data['other_signature'] else False,
+            signed_date=utils.timezone.now() if self.cleaned_data['other_signature'] else None,
+            refused_to_sign=self.cleaned_data['refused_to_sign'],
+            initials=self.cleaned_data['initials'],
+            union_representation=self.cleaned_data['union_representation']
         )
 
         counseling.save()
 
-        return counseling.id
+        self.request.user.set_signature(self.cleaned_data['manager_signature'])
 
 
 class EditCounseling(AssignCounseling):
-    document = forms.FileField(label='Document', required=False)
-
     def save(self):
-        update_fields = ['issued_date', 'action_type', 'conduct', 'hearing_datetime', 'conversation']
-        try:
-            self.counseling.document = self.request.FILES['document']
-            self.counseling.uploaded = True
-            update_fields.append('document')
-            update_fields.append('uploaded')
-        except KeyError:
-            pass
-
-        if self.cleaned_data['hearing_date']:
-            hearing_datetime = datetime.datetime.combine(self.cleaned_data['hearing_date'], self.cleaned_data['hearing_time'], timezone('UTC'))
-        else:
-            hearing_datetime = None
-
         self.counseling.issued_date = self.cleaned_data['issued_date']
         self.counseling.action_type = self.cleaned_data['action_type']
-        self.counseling.hearing_datetime = hearing_datetime
+        self.counseling.hearing_datetime = self.cleaned_data['hearing_date']
         self.counseling.conduct = self.cleaned_data['conduct']
         self.counseling.conversation = self.cleaned_data['conversation']
+        self.safety_point.edited_date = datetime.datetime.today()
+        self.safety_point.edited_by = f'{self.request.user.first_name} {self.request.user.last_name}'
+        self.safety_point.signature_method = ''
+        self.safety_point.signed_date = None
+        self.safety_point.is_signed = False
+        self.safety_point.employee_signature = ''
+        self.safety_point.witness_signature = ''
+        self.safety_point.initials = ''
+        self.safety_point.refused_to_sign = False
 
-        self.counseling.save(update_fields=update_fields)
+        self.safety_point.document.delete()
 
 
 class AssignSafetyPoint(forms.Form):
