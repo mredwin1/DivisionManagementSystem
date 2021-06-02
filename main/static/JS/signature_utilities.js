@@ -114,10 +114,7 @@ $(document).ready(function () {
             form.data('other-signature-data', other_signature_data)
             form.data('other-is-empty', other_signature_pad.isEmpty())
         }
-
-        if (!second_modal) {
-            form.submit()
-        } else {
+        if (second_modal.length) {
             if (!other_signature_pad.isEmpty()) {
                 let fields = $('input,textarea,select').filter('[required]:visible')
                 let valid = true
@@ -135,6 +132,8 @@ $(document).ready(function () {
             } else {
                 form.submit()
             }
+        } else {
+            form.submit()
         }
     })
     $('#id_refused_to_sign').click(function () {
