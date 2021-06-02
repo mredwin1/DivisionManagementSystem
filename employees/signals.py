@@ -101,55 +101,60 @@ def new_notification(sender, instance, created, **kwargs):
 
 
 @receiver(post_save, sender=Counseling)
-def add_counseling_document(sender, instance, created, update_fields, **kwargs):
-    try:
-        if created or 'document' not in update_fields:
-            instance.create_counseling_document()
+def post_save_counseling(sender, instance, created, update_fields, **kwargs):
+    if not instance.document and instance.is_active:
+        instance.create_counseling_document()
 
-            if created:
-                if instance.action_type == '2':
-                    verb = f'{instance.employee.get_full_name()} has received a written warning' if instance.attendance is None else f'{instance.employee.get_full_name()} has received a written warning for reaching 7 Attendance Points'
-                    notification_type = 'email_written' if instance.attendance is None else 'email_7attendance'
+        if created:
+            if instance.employee.primary_phone and not instance.is_signed:
+                body = f'Hello {instance.employee.get_full_name()}, please see operations next time you are at base.'
+                send_text(str(instance.employee.primary_phone), body, instance.id, 'Counseling')
+            else:
+                instance.status_update_date = timezone.now()
+                instance.status = 'Unsent'
+                instance.save()
 
-                    group = Employee.objects.filter(groups__name=notification_type).exclude(employee_id=instance.assigned_by)
-                    notify.send(sender=instance, recipient=group,
-                                verb=verb,
-                                type=notification_type, employee_id=instance.employee.employee_id)
-                elif instance.action_type == '4':
-                    verb = f'{instance.employee.get_full_name()} has received a last and final'
-                    notification_type = 'email_last_final'
+            if instance.action_type == '2':
+                verb = f'{instance.employee.get_full_name()} has received a written warning' if instance.attendance is None else f'{instance.employee.get_full_name()} has received a written warning for reaching 7 Attendance Points'
+                notification_type = 'email_written' if instance.attendance is None else 'email_7attendance'
 
-                    group = Employee.objects.filter(groups__name=notification_type).exclude(employee_id=instance.assigned_by)
-                    notify.send(sender=instance, recipient=group,
-                                verb=verb,
-                                type=notification_type, employee_id=instance.employee.employee_id)
+                group = Employee.objects.filter(groups__name=notification_type).exclude(employee_id=instance.assigned_by)
+                notify.send(sender=instance, recipient=group,
+                            verb=verb,
+                            type=notification_type, employee_id=instance.employee.employee_id)
+            elif instance.action_type == '4':
+                verb = f'{instance.employee.get_full_name()} has received a last and final'
+                notification_type = 'email_last_final'
 
-                elif instance.action_type == '6' or instance.action_type == '5':
-                    verb = f'{instance.employee.get_full_name()} has been Removed from Service'if instance.attendance is None else f'{instance.employee.get_full_name()} has been Removed from Service for reaching 10 Attendance Points'
-                    notification_type = 'email_removal' if instance.attendance is None else 'email_10attendance'
+                group = Employee.objects.filter(groups__name=notification_type).exclude(employee_id=instance.assigned_by)
+                notify.send(sender=instance, recipient=group,
+                            verb=verb,
+                            type=notification_type, employee_id=instance.employee.employee_id)
 
-                    group = Employee.objects.filter(groups__name=notification_type).exclude(employee_id=instance.assigned_by)
-                    notify.send(sender=instance, recipient=group,
-                                verb=verb,
-                                type=notification_type, employee_id=instance.employee.employee_id)
+            elif instance.action_type == '6' or instance.action_type == '5':
+                verb = f'{instance.employee.get_full_name()} has been Removed from Service'if instance.attendance is None else f'{instance.employee.get_full_name()} has been Removed from Service for reaching 10 Attendance Points'
+                notification_type = 'email_removal' if instance.attendance is None else 'email_10attendance'
 
-                    if not instance.attendance:
-                        try:
-                            instance.employee.hold.delete()
-                        except Hold.DoesNotExist:
-                            pass
+                group = Employee.objects.filter(groups__name=notification_type).exclude(employee_id=instance.assigned_by)
+                notify.send(sender=instance, recipient=group,
+                            verb=verb,
+                            type=notification_type, employee_id=instance.employee.employee_id)
 
-                        hold = Hold(
-                            reason='Pending Termination',
-                            hold_date=datetime.date.today(),
-                            assigned_by=instance.assigned_by,
-                            employee=instance.employee,
-                        )
-                        hold.save()
+                if not instance.attendance:
+                    try:
+                        instance.employee.hold.delete()
+                    except Hold.DoesNotExist:
+                        pass
 
-                    instance.employee.save()
-    except TypeError:
-        pass
+                    hold = Hold(
+                        reason='Pending Termination',
+                        hold_date=datetime.date.today(),
+                        assigned_by=instance.assigned_by,
+                        employee=instance.employee,
+                    )
+                    hold.save()
+
+                instance.employee.save()
 
 
 @receiver(post_save, sender=Attendance)
