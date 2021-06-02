@@ -253,7 +253,7 @@ def delete_counseling(request, counseling_id):
 
     counseling.is_active = False
 
-    counseling.save(update_fields=['is_active', 'document'])
+    counseling.save(update_fields=['is_active'])
 
     messages.add_message(request, messages.SUCCESS, 'Counseling Successfully Deleted')
 
