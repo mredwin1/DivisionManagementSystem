@@ -248,7 +248,7 @@ def assign_counseling(request, employee_id):
 
 @login_required
 @permission_required('employees.can_delete_attendance', raise_exception=True)
-def delete_counseling(request, employee_id, counseling_id):
+def delete_counseling(request, counseling_id):
     counseling = Counseling.objects.get(id=counseling_id)
 
     counseling.is_active = False
@@ -262,7 +262,7 @@ def delete_counseling(request, employee_id, counseling_id):
 
 @login_required
 @permission_required('employees.can_edit_counseling', raise_exception=True)
-def edit_counseling(request, employee_id, counseling_id):
+def edit_counseling(request, counseling_id):
     counseling = Counseling.objects.get(id=counseling_id)
 
     if request.method == 'POST':
@@ -382,6 +382,7 @@ def edit_safety_point(request, safety_point_id):
 
         data = {
             'safety_point': safety_point,
+            'employee': safety_point.employee,
             'form': form,
         }
 
