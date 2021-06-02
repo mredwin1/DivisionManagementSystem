@@ -228,13 +228,13 @@ def assign_counseling(request, employee_id):
             messages.add_message(request, messages.SUCCESS, 'Counseling Successfully Added')
 
             data = {
-                'url': reverse('employee-account', args=[employee_id, 'Counseling', counseling_id])
+                'url': reverse('employee-account', args=[employee_id])
             }
 
             return JsonResponse(data, status=200)
         else:
 
-            return JsonResponse(c_form.errors, status=400)
+            return JsonResponse(form.errors, status=400)
     else:
         form = AssignCounseling(employee=employee)
 
@@ -257,7 +257,7 @@ def delete_counseling(request, employee_id, counseling_id):
 
     messages.add_message(request, messages.SUCCESS, 'Counseling Successfully Deleted')
 
-    return redirect('employee-account', employee_id)
+    return redirect('employee-account', counseling.employee.employee_id)
 
 
 @login_required
@@ -273,7 +273,7 @@ def edit_counseling(request, employee_id, counseling_id):
 
             messages.add_message(request, messages.SUCCESS, 'Counseling Edited Successfully')
 
-            data = {'url': reverse('employee-account', args=[employee_id, 'Counseling', counseling_id])}
+            data = {'url': reverse('employee-account', args=[counseling.employee.employee_id])}
 
             return JsonResponse(data, status=200)
         else:
