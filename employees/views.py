@@ -220,10 +220,10 @@ def assign_counseling(request, employee_id):
     employee = Employee.objects.get(employee_id=employee_id)
 
     if request.method == 'POST':
-        c_form = AssignCounseling(data=request.POST, employee=employee, request=request)
+        form = AssignCounseling(data=request.POST, employee=employee, request=request)
 
-        if c_form.is_valid():
-            counseling_id = c_form.save()
+        if form.is_valid():
+            form.save()
 
             messages.add_message(request, messages.SUCCESS, 'Counseling Successfully Added')
 
@@ -236,11 +236,11 @@ def assign_counseling(request, employee_id):
 
             return JsonResponse(c_form.errors, status=400)
     else:
-        c_form = AssignCounseling(employee=employee)
+        form = AssignCounseling(employee=employee)
 
         data = {
             'employee': employee,
-            'c_form': c_form
+            'form': form
         }
 
         return render(request, 'employees/assign_counseling.html', data)
@@ -266,10 +266,10 @@ def edit_counseling(request, employee_id, counseling_id):
     counseling = Counseling.objects.get(id=counseling_id)
 
     if request.method == 'POST':
-        c_form = EditCounseling(data=request.POST, files=request.FILES, request=request, counseling=counseling)
+        form = EditCounseling(data=request.POST, files=request.FILES, request=request, counseling=counseling)
 
-        if c_form.is_valid():
-            c_form.save()
+        if form.is_valid():
+            form.save()
 
             messages.add_message(request, messages.SUCCESS, 'Counseling Edited Successfully')
 
@@ -277,7 +277,7 @@ def edit_counseling(request, employee_id, counseling_id):
 
             return JsonResponse(data, status=200)
         else:
-            return JsonResponse(c_form.errors, status=400)
+            return JsonResponse(form.errors, status=400)
     else:
         initial = {
             'issued_date': counseling.issued_date,
@@ -288,11 +288,12 @@ def edit_counseling(request, employee_id, counseling_id):
             'conversation': counseling.conversation
         }
 
-        c_form = EditCounseling(initial=initial, counseling=counseling)
+        form = EditCounseling(initial=initial, counseling=counseling)
 
         data = {
             'counseling': counseling,
-            'c_form': c_form,
+            'form': form,
+            'employee': counseling.employee,
         }
 
         return render(request, 'employees/edit_counseling.html', data)
