@@ -617,7 +617,7 @@ def export_counseling_history(request, employee_id):
 
 
 @login_required
-@permission_required('employees.can_export_safety_point_history', raise_exception=True)
+@permission_required('employees.can_export_safety_history', raise_exception=True)
 def export_safety_point_history(request, employee_id):
     employee = Employee.objects.get(employee_id=employee_id)
 
