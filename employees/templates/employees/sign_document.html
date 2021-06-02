@@ -9,7 +9,7 @@
     <button type="submit" class="btn btn-primary" id="done" form="qrCode" data-dismiss="modal">Done</button>
 {% endblock modal-footer %}
 {% block secondary-modal %}
-    {% if document_type != 'Attendance' %}
+    {% if document_type != 'Attendance' and signature_method != 'QR' %}
         <div class="modal fade" id="secondaryModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
