@@ -1725,19 +1725,36 @@ class Counseling(models.Model):
     ]
 
     is_active = models.BooleanField(default=True)
+    is_signed = models.BooleanField(default=False)
+    refused_to_sign = models.BooleanField(default=False)
+    union_representation = models.BooleanField(default=False)
 
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
-    assigned_by = models.IntegerField()
-    issued_date = models.DateField()
-    action_type = models.CharField(max_length=40, choices=ACTION_CHOICES)
-    document = models.FileField(validators=[pdf_extension], upload_to='counseling_forms')
-    hearing_datetime = models.DateTimeField(null=True)
-    conduct = models.TextField()
-    conversation = models.TextField()
     attendance = models.OneToOneField(Attendance, on_delete=models.CASCADE, null=True, blank=True)
     safety_point = models.OneToOneField(SafetyPoint, on_delete=models.CASCADE, null=True, blank=True)
-    uploaded = models.BooleanField(default=False)
+
+    issued_date = models.DateField()
+    edited_date = models.DateField(null=True, blank=True)
+    signed_date = models.DateField(null=True, blank=True)
+    status_update_date = models.DateField(null=True, blank=True)
+
+    hearing_datetime = models.DateTimeField(null=True)
+
+    assigned_by = models.IntegerField()
     override_by = models.IntegerField(null=True)
+
+    document = models.FileField(validators=[pdf_extension], upload_to='counseling_forms')
+
+    action_type = models.CharField(max_length=40, choices=ACTION_CHOICES)
+    edited_by = models.CharField(max_length=30, blank=True, default='')
+    signature_method = models.CharField(max_length=30, default='', blank=True)
+    message_status = models.CharField(max_length=20, default='', blank=True)
+
+    conduct = models.TextField()
+    conversation = models.TextField()
+    employee_signature = models.TextField(default='', blank=True)
+    witness_signature = models.TextField(default='', blank=True)
+    initials = models.TextField(default='', blank=True)
 
     def get_hearing_datetime(self):
         """If there is a hearing datetime it will return the properly formatted string for it otherwise returns a
