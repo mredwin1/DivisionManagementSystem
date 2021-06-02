@@ -243,7 +243,7 @@ def assign_counseling(request, employee_id):
             'form': form
         }
 
-        return render(request, 'employees/assign_counseling.html', data)
+        return render(request, 'employees/counseling.html', data)
 
 
 @login_required
@@ -296,7 +296,7 @@ def edit_counseling(request, employee_id, counseling_id):
             'employee': counseling.employee,
         }
 
-        return render(request, 'employees/edit_counseling.html', data)
+        return render(request, 'employees/counseling.html', data)
 
 
 @login_required

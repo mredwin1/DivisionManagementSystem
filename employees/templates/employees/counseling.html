@@ -1,0 +1,125 @@
+{% extends "main/base.html" %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block modal-body %}
+    <img id="qr" src="#" alt="" class="mx-auto d-block">
+{% endblock modal-body %}
+{% block modal-footer %}
+    <button type="submit" class="btn btn-primary" id="done" form="qrCode" data-dismiss="modal">Done</button>
+{% endblock modal-footer %}
+{% if request.resolver_match.url_name == 'employee-assign-counseling' %}
+    {% block secondary-modal %}
+        <div class="modal fade" id="secondaryModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title font-weight-bold">Union Representation</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body union-container" id="union_modal_body">
+                        <p>Would you like Union representation?</p>
+                        <p>
+                            If so, you have 10 business days to have the Union contact the Manager about
+                            this discipline notice. Failure to do so will result in the related discipline
+                            being issued without representation from the Union
+                        </p>
+                        <h4>Please Initial Below</h4>
+                        <canvas class="border border-dark" id="initials_canvas"></canvas>
+                    </div>
+                    <div class="modal-footer text-center">
+                        <button type="button" class="form-control btn btn-secondary union-modal-button">Yes</button>
+                        <button type="button" class="form-control btn btn-primary union-modal-button">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+{% endif %}
+{% block content %}
+    <script src="{% static 'JS/form_preloader.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
+    <script src="{% static 'JS/signature_utilities.js' %}"></script>
+    <div data-src="{% static 'JS/jquery.classyqr.js' %}" id="qr_script"></div>
+    <h1 class="mt-3">{{ employee.get_full_name }}</h1>
+    <h3>{% if request.resolver_match.url_name == 'employee-assign-counseling' %}Assign{% else %}Edit{% endif %} Counseling</h3>
+    <div class="row mt-3">
+        <div class="col">
+            <form method="POST" role="form" action="{% if request.resolver_match.url_name == 'employee-edit-counseling' %}{% url 'employee-edit-counseling' counseling.id %}{% else %}{% url 'employee-assign-counseling' employee.employee_id %}{% endif %}" data-manager-required="{% if request.resolver_match.url_name == 'employee-assign-counseling' %}true{% else %}false{% endif %}" data-other-required="false" data-signature-method="In Person" id="assignCounselingForm">
+                {% csrf_token %}
+                <div class="form-row justify-content-start">
+                    <div class="form-group col-md-4 col-12">
+                        {{ form.issued_date|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-md-4 col-12">
+                        {{ form.action_type|as_crispy_field }}
+                    </div>
+                    {% if perms.employees.can_override_progressive_discipline_lock %}
+                        <div class="form-group col-md-4 col-12 pt-md-4" style="display: none" id="pd_check_override">
+                            {{ form.pd_check_override|as_crispy_field }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="form-row justify-content-start">
+                    <div class="form-group col-sm-6 col-12">
+                        {{ form.hearing_date|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-sm-6 col-12">
+                        {{ form.hearing_time|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="form-row justify-content-start">
+                    <div class="form-group col-sm-6 col-12">
+                        {{ form.conduct|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-sm-6 col-12">
+                        {{ form.conversation|as_crispy_field }}
+                    </div>
+                </div>
+                {% if request.resolver_match.url_name == 'employee-assign-counseling' %}
+                    <div class="form-row">
+                        <input type="hidden" value="{% if signature_method %}{{ signature_method }}{% else %}In Person{% endif %}" name="signature_method" id="signature_method">
+                        <div class="form-group col-lg-6 col-12 pr-lg-3" id="other_container">
+                            <div class="row justify-content-between">
+                                <div class="col-4">
+                                    <p id="other_signature_title">Employee Signature</p>
+                                </div>
+                                <div class="col-8 text-right">
+                                    <button class="btn btn-secondary btn-sm canvas-qr" type="button" data-canvas-type="other" data-qr-url="https://{{ domain }}{% url 'employee-sign-document' signature_method='QR' record_id=employee.employee_id %}" data-signature-url="{% url 'employee-get-signature' employee.employee_id %}" data-clear-url="{% url 'employee-clear-signature' employee.employee_id %}" id="other_qr">Get QR</button>
+                                    <button class="btn btn-secondary btn-sm canvas-clear" type="button" data-canvas-type="other">Clear</button>
+                                    <button class="btn btn-secondary btn-sm canvas-undo" type="button" data-canvas-type="other">Undo</button>
+                                </div>
+                            </div>
+                            <canvas class="border border-dark" id="other_canvas"></canvas>
+                        </div>
+                        <div class="form-group col-lg-6 col-12 pl-lg-3" id="manager_container">
+                            <div class="row justify-content-between">
+                                <div class="col-4">
+                                    <p>Manager Signature*</p>
+                                </div>
+                                <div class="col-8 text-right">
+                                    <button class="btn btn-secondary btn-sm canvas-qr" type="button" data-canvas-type="manager" data-qr-url="https://{{ domain }}{% url 'employee-sign-document' signature_method='QR' record_id=request.user.employee_id %}" data-signature-url="{% url 'employee-get-signature' %}" id="manager_qr">Get QR</button>
+                                    <button class="btn btn-secondary btn-sm canvas-load" type="button" data-canvas-type="manager" data-signature-url="{% url 'employee-get-signature' request.user.employee_id %}">Load Last</button>
+                                    <button class="btn btn-secondary btn-sm canvas-clear" type="button" data-canvas-type="manager">Clear</button>
+                                    <button class="btn btn-secondary btn-sm canvas-undo" type="button" data-canvas-type="manager">Undo</button>
+                                </div>
+                            </div>
+                            <canvas class="border border-dark" id="manager_canvas"></canvas>
+                        </div>
+                    </div>
+                    {{ form.refused_to_sign|as_crispy_field }}
+                    <input type="hidden" value="" name="union_representation" id="id_union_representation">
+                {% endif %}
+                <div class="form-row mb-3">
+                    <a href="{% url 'employee-account' employee.employee_id %}" class="account-content mr-2">
+                        <div class="btn btn-secondary">
+                            Cancel
+                        </div>
+                    </a>
+                    <button class="btn btn-primary" type="button" id="submit_button">{% if request.resolver_match.url_name == 'employee-assign-counseling' %}Assign{% else %}Save{% endif %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
