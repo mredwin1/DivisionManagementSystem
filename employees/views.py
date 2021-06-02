@@ -240,7 +240,8 @@ def assign_counseling(request, employee_id):
 
         data = {
             'employee': employee,
-            'form': form
+            'form': form,
+            'domain': Site.objects.get_current().domain
         }
 
         return render(request, 'employees/counseling.html', data)
@@ -324,7 +325,8 @@ def assign_safety_point(request, employee_id):
 
         data = {
             'employee': employee,
-            'form': form
+            'form': form,
+            'domain': Site.objects.get_current().domain
         }
 
         return render(request, 'employees/safety_point.html', data)
