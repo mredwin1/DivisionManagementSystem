@@ -282,15 +282,19 @@ class EditCounseling(AssignCounseling):
         self.counseling.hearing_datetime = self.cleaned_data['hearing_date']
         self.counseling.conduct = self.cleaned_data['conduct']
         self.counseling.conversation = self.cleaned_data['conversation']
-        self.safety_point.edited_date = datetime.datetime.today()
-        self.safety_point.edited_by = f'{self.request.user.first_name} {self.request.user.last_name}'
-        self.safety_point.signature_method = ''
-        self.safety_point.signed_date = None
-        self.safety_point.is_signed = False
-        self.safety_point.employee_signature = ''
-        self.safety_point.witness_signature = ''
-        self.safety_point.initials = ''
-        self.safety_point.refused_to_sign = False
+        self.counseling.edited_date = datetime.datetime.today()
+        self.counseling.edited_by = f'{self.request.user.first_name} {self.request.user.last_name}'
+        self.counseling.signature_method = ''
+        self.counseling.signed_date = None
+        self.counseling.is_signed = False
+        self.counseling.employee_signature = ''
+        self.counseling.witness_signature = ''
+        self.counseling.initials = ''
+        self.counseling.refused_to_sign = False
+
+        if 'pd_check_override' in self.changed_data:
+            self.counseling.override_by = self.request.user.employee_id if self.cleaned_data[
+                'pd_check_override'] else None
 
         self.safety_point.document.delete()
 
