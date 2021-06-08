@@ -111,7 +111,7 @@ def post_save_counseling(sender, instance, created, update_fields, **kwargs):
                 send_text(str(instance.employee.primary_phone), body, instance.id, 'Counseling')
             else:
                 instance.status_update_date = timezone.now()
-                instance.status = 'Unsent'
+                instance.message_status = 'Unsent'
                 instance.save()
 
             if instance.action_type == '2':
@@ -179,7 +179,7 @@ def post_save_attendance(sender, instance, created, **kwargs):
                 send_text(str(instance.employee.primary_phone), body, instance.id, 'Attendance')
             else:
                 instance.status_update_date = timezone.now()
-                instance.status = 'Unsent'
+                instance.message_status = 'Unsent'
                 instance.save()
     else:
         total_points = instance.employee.get_total_attendance_points()
@@ -212,7 +212,7 @@ def post_save_safety_point(sender, instance, created, **kwargs):
                 send_text(str(instance.employee.primary_phone), body, instance.id, 'SafetyPoint')
             else:
                 instance.status_update_date = timezone.now()
-                instance.status = 'Unsent'
+                instance.message_status = 'Unsent'
                 instance.save()
             removal = instance.employee.safety_point_removal_required(instance)
 
