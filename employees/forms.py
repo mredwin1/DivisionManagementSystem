@@ -270,6 +270,11 @@ class AssignCounseling(forms.Form):
             union_representation=self.cleaned_data['union_representation']
         )
 
+        if self.cleaned_data['refused_to_sign']:
+            counseling.witness_signature = self.cleaned_data['other_signature']
+        else:
+            counseling.employee_signature = self.cleaned_data['other_signature']
+
         counseling.save()
 
         self.request.user.set_signature(self.cleaned_data['manager_signature'])
