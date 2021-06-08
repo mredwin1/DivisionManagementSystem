@@ -1887,7 +1887,7 @@ class Counseling(models.Model):
 
         if self.initials:
             initials = ImageReader(self.get_initials_png())
-            p.drawImage(initials, 4.1875 * inch, 3.29 * inch, 1 * inch, .45 * inch, mask='auto')
+            p.drawImage(initials, 3.50 * inch, 3.29 * inch, 1 * inch, .45 * inch, mask='auto')
 
         p.setFont('Helvetica-Bold', 7)
         p.drawString(.5 * inch, 3.000 * inch,
@@ -1936,7 +1936,7 @@ class Counseling(models.Model):
             p.drawString(6 * inch, 1.02 * inch, timezone.now().strftime('%m-%d-%Y'))
 
         p.drawString(.5 * inch, .5 * inch, 'Supervisor Signature:')
-        p.line(2.125 * inch, .5 * inch, 4.5 * inch, 1 * inch)
+        p.line(2.125 * inch, .5 * inch, 4.5 * inch, .5 * inch)
 
         p.drawString(5.5 * inch, .5 * inch, 'Date:')
         p.line(6 * inch, .5 * inch, 8 * inch, .5 * inch)
