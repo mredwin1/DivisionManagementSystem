@@ -63,7 +63,6 @@
         let canvas = document.getElementById('document_container')
         let ctx = canvas.getContext('2d')
         let document_url = document.getElementById('document_url').dataset.documentUrl
-        document_url = document_url + '?origin='+ window.location.host;
 
         function renderPage(num){
             page_rendering = true
