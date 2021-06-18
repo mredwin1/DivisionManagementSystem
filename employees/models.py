@@ -1074,6 +1074,7 @@ class Attendance(models.Model):
     message_status = models.CharField(max_length=20, default='', blank=True)
 
     signature = models.TextField(default='', blank=True)
+    comments = models.TextField(default='', blank=True)
 
     def create_document(self):
         """Will create a PDF for the Attendance and assign it to the Attendance Object"""
@@ -1755,6 +1756,7 @@ class Counseling(models.Model):
     employee_signature = models.TextField(default='', blank=True)
     witness_signature = models.TextField(default='', blank=True)
     initials = models.TextField(default='', blank=True)
+    comments = models.TextField(default='', blank=True)
 
     def get_hearing_datetime(self):
         """If there is a hearing datetime it will return the properly formatted string for it otherwise returns a
