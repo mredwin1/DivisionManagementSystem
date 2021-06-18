@@ -77,6 +77,11 @@
                         {{ form.conversation|as_crispy_field }}
                     </div>
                 </div>
+                <div class="form-row" style="display: none" id="comments_container">
+                    <div class="form-group col-12">
+                        {{ form.comments|as_crispy_field }}
+                    </div>
+                </div>
                 {% if request.resolver_match.url_name == 'employee-assign-counseling' %}
                     <div class="form-row">
                         <input type="hidden" value="{% if signature_method %}{{ signature_method }}{% else %}In Person{% endif %}" name="signature_method" id="signature_method">
@@ -117,6 +122,7 @@
                             Cancel
                         </div>
                     </a>
+                    <button class="btn btn-secondary mr-2" type="button" id="comments_btn">Employee Comments</button>
                     <button class="btn btn-primary" type="button" id="submit_button">{% if request.resolver_match.url_name == 'employee-assign-counseling' %}Assign{% else %}Save{% endif %}</button>
                 </div>
             </form>

@@ -51,86 +51,102 @@
         <canvas class="border border-dark" id="document_container"></canvas>
     {% endif %}
     <script>
-        let pdf_document = null
-        let page_num = 1
-        let page_rendering = false
-        let page_num_pending = null
-        let scale = 3
-        let page_number = document.getElementById('page_num')
-        let page_count = document.getElementById('page_count')
-        let prev_page = document.getElementById('prev_page')
-        let next_page = document.getElementById('next_page')
-        let canvas = document.getElementById('document_container')
-        let ctx = canvas.getContext('2d')
-        let document_url = document.getElementById('document_url').dataset.documentUrl
+        $(document).ready(function(){
+            let pdf_document = null
+            let page_num = 1
+            let page_rendering = false
+            let page_num_pending = null
+            let scale = 3
+            let page_number = document.getElementById('page_num')
+            let page_count = document.getElementById('page_count')
+            let prev_page = document.getElementById('prev_page')
+            let next_page = document.getElementById('next_page')
+            let canvas = document.getElementById('document_container')
+            let ctx = canvas.getContext('2d')
+            let document_url = document.getElementById('document_url').dataset.documentUrl
 
-        function renderPage(num){
-            page_rendering = true
-            pdf_document.getPage(num).then(page=>{
-                let viewport = page.getViewport({scale:scale})
-                canvas.height = viewport.height
-                canvas.width = viewport.width
+            function renderPage(num){
+                page_rendering = true
+                pdf_document.getPage(num).then(page=>{
+                    let viewport = page.getViewport({scale:scale})
+                    canvas.height = viewport.height
+                    canvas.width = viewport.width
 
-                let render_context = {
-                    canvasContext: ctx,
-                    viewport: viewport
-                }
-                let render_task = page.render(render_context)
-                render_task.promise.then(()=>{
-                    page_rendering = false;
-                    if (page_num_pending !== null){
-                        renderPage(page_num_pending)
-                        page_num_pending = null
+                    let render_context = {
+                        canvasContext: ctx,
+                        viewport: viewport
                     }
+                    let render_task = page.render(render_context)
+                    render_task.promise.then(()=>{
+                        page_rendering = false;
+                        if (page_num_pending !== null){
+                            renderPage(page_num_pending)
+                            page_num_pending = null
+                        }
+                    })
                 })
+                if (page_num) {
+                    page_number.textContent = num
+                }
+            }
+
+            function queueRenderPage(num) {
+                if (page_rendering) {
+                    page_num_pending = num
+                } else {
+                    renderPage(num)
+                }
+            }
+
+            function onPrevPage() {
+                if (page_num <=1) {
+                    return
+                }
+                page_num--;
+                queueRenderPage(page_num)
+            }
+
+            function onNextPage(){
+                if (page_num >= pdf_document.numPages){
+                    return
+                }
+                page_num++;
+                queueRenderPage(page_num)
+            }
+
+            if (prev_page) {
+                prev_page.addEventListener('click', onPrevPage)
+            }
+            if (next_page) {
+                next_page.addEventListener('click', onNextPage)
+            }
+            pdfjsLib.getDocument(document_url).promise.then(doc => {
+                pdf_document = doc
+                renderPage(page_num)
+                if (page_count) {
+                    page_count.textContent = doc.numPages
+                }
             })
-            if (page_num) {
-                page_number.textContent = num
-            }
-        }
+            $('#comments_btn').click(function () {
+                let comments_container = $('#comments_container')
 
-        function queueRenderPage(num) {
-            if (page_rendering) {
-                page_num_pending = num
-            } else {
-                renderPage(num)
-            }
-        }
-
-        function onPrevPage() {
-            if (page_num <=1) {
-                return
-            }
-            page_num--;
-            queueRenderPage(page_num)
-        }
-
-        function onNextPage(){
-            if (page_num >= pdf_document.numPages){
-                return
-            }
-            page_num++;
-            queueRenderPage(page_num)
-        }
-
-        if (prev_page) {
-            prev_page.addEventListener('click', onPrevPage)
-        }
-        if (next_page) {
-            next_page.addEventListener('click', onNextPage)
-        }
-        pdfjsLib.getDocument(document_url).promise.then(doc => {
-            pdf_document = doc
-            renderPage(page_num)
-            if (page_count) {
-                page_count.textContent = doc.numPages
-            }
-        })
+                if (comments_container.is(':visible')) {
+                    comments_container.hide()
+                } else {
+                    comments_container.show()
+                }
+            })
+        });
     </script>
     <div class="row mt-3">
         <div class="col">
             <form method="POST" role="form" action="{% if document_type %}{% url 'employee-sign-document' signature_method=signature_method record_id=record.id document_type=document_type %}{% else %}{% url 'employee-sign-document' signature_method=signature_method record_id=record.employee_id %}{% endif %}" data-manager-required="{% if signature_method == 'In Person' %}true{% else %}false{% endif %}" data-other-required="True" data-signature-method="{{ signature_method }}" data-resolver="sign-document">
                 {% csrf_token %}
+                <div class="form-row" style="display: none" id="comments_container">
+                    <div class="form-group col-12">
+                        {{ form.comments|as_crispy_field }}
+                    </div>
+                </div>
                 <div class="form-row">
                     <input type="hidden" value="{{ signature_method }}" name="signature_method">
                     <div class="form-group col-lg-6 col-12 pr-lg-3">
@@ -183,6 +199,9 @@
                                 Cancel
                             </div>
                         </a>
+                    {% endif %}
+                    {% if document_type != 'SafetyPoint' %}
+                        <button class="btn btn-secondary mr-2" type="button" id="comments_btn">Employee Comments</button>
                     {% endif %}
                     <button class="btn btn-primary" type="{% if request.resolver_match.url_name != 'Attendance' %}button{% else %}submit{% endif %}" value="Submit" id="submit_button">Submit</button>
                 </div>
