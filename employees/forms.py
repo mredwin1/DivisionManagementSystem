@@ -85,6 +85,7 @@ class AssignAttendance(forms.Form):
     manager_signature = forms.CharField(required=False)
     signature_method = forms.CharField(required=False)
     refused_to_sign = forms.BooleanField(required=False)
+    comments = forms.CharField(label='Employee Comments', widget=forms.Textarea(attrs={'maxlength': '190'}), required=False)
 
     def __init__(self, *args, **kwargs):
         self.employee = kwargs.pop('employee', None)
@@ -119,7 +120,8 @@ class AssignAttendance(forms.Form):
             signature_method=self.cleaned_data['signature_method'] if self.cleaned_data['other_signature'] else '',
             is_signed=True if self.cleaned_data['other_signature'] else False,
             signed_date=utils.timezone.now() if self.cleaned_data['other_signature'] else None,
-            refused_to_sign=self.cleaned_data['refused_to_sign']
+            refused_to_sign=self.cleaned_data['refused_to_sign'],
+            comments=self.cleaned_data['comments']
         )
 
         attendance.save()
@@ -182,6 +184,7 @@ class AssignCounseling(forms.Form):
     signature_method = forms.CharField(required=False)
     refused_to_sign = forms.BooleanField(required=False)
     union_representation = forms.BooleanField(required=False)
+    comments = forms.CharField(label='Employee Comments', widget=forms.Textarea(attrs={'maxlength': '190'}), required=False)
 
     def __init__(self, *args, **kwargs):
         self.employee = kwargs.pop('employee', None)
@@ -267,7 +270,8 @@ class AssignCounseling(forms.Form):
             signed_date=utils.timezone.now() if self.cleaned_data['other_signature'] else None,
             refused_to_sign=self.cleaned_data['refused_to_sign'],
             initials=self.cleaned_data['initials'],
-            union_representation=self.cleaned_data['union_representation']
+            union_representation=self.cleaned_data['union_representation'],
+            comments=self.cleaned_data['comments']
         )
 
         if self.cleaned_data['refused_to_sign']:
@@ -663,6 +667,7 @@ class SignDocument(forms.Form):
     refused_to_sign = forms.BooleanField(required=False)
     signature_method = forms.CharField()
     union_representation = forms.BooleanField(required=False)
+    comments = forms.CharField(label='Employee Comments', widget=forms.Textarea(attrs={'maxlength': '190'}), required=False)
 
     def __init__(self, request, record=None, document_type=None, *args, **kwargs):
         super(SignDocument, self).__init__(*args, **kwargs)
@@ -679,6 +684,7 @@ class SignDocument(forms.Form):
             self.record.signed_date = utils.timezone.now()
             self.record.signature_method = self.cleaned_data['signature_method']
             self.record.is_signed = True
+            self.record.comments = self.cleaned_data['comments']
 
             self.record.document.delete()
 
@@ -692,6 +698,7 @@ class SignDocument(forms.Form):
             self.record.witness_signature = self.cleaned_data['other_signature'] if self.cleaned_data['refused_to_sign'] else ''
             self.record.initials = self.cleaned_data['initials']
             self.record.is_signed = True
+            self.record.comments = self.cleaned_data['comments']
 
             self.record.document.delete()
             self.request.user.set_signature(self.cleaned_data['manager_signature'])
