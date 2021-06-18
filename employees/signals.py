@@ -106,13 +106,16 @@ def post_save_counseling(sender, instance, created, update_fields, **kwargs):
         instance.create_counseling_document()
 
         if created:
-            if instance.employee.primary_phone and not instance.is_signed:
-                body = f'Hello {instance.employee.get_full_name()}, please see operations next time you are at base.'
-                send_text(str(instance.employee.primary_phone), body, instance.id, 'Counseling')
-            else:
-                instance.status_update_date = timezone.now()
-                instance.message_status = 'Unsent'
-                instance.save()
+            # This needs to be commented out until corporate gives us a Twilio API Key
+            # if instance.employee.primary_phone and not instance.is_signed:
+            #     body = f'Hello {instance.employee.get_full_name()}, please see operations next time you are at base.'
+            #     send_text(str(instance.employee.primary_phone), body, instance.id, 'Counseling')
+            # else:
+            #     instance.status_update_date = timezone.now()
+            #     instance.message_status = 'Unsent'
+            #     instance.save()
+            instance.status_update_date = timezone.now()
+            instance.message_status = 'Unsent'
 
             if instance.action_type == '2':
                 verb = f'{instance.employee.get_full_name()} has received a written warning' if instance.attendance is None else f'{instance.employee.get_full_name()} has received a written warning for reaching 7 Attendance Points'
@@ -171,16 +174,20 @@ def post_save_attendance(sender, instance, created, **kwargs):
             instance.employee.attendance_written(counseling, latest_attendance, instance.assigned_by)
 
         if created:
-            if instance.employee.primary_phone and not instance.is_signed:
-                domain = Site.objects.get_current().domain
-                body = f'Hello {instance.employee.get_full_name()}, you have received an attendance point. Please see a ' \
-                       f'manager to sign the document or go to the link below.\n' \
-                       f'https://{domain}{reverse("employee-sign-document", args=["Self Service", instance.id, "Attendance"])}'
-                send_text(str(instance.employee.primary_phone), body, instance.id, 'Attendance')
-            else:
-                instance.status_update_date = timezone.now()
-                instance.message_status = 'Unsent'
-                instance.save()
+            # This needs to be commented out until corporate gives us a Twilio API Key
+            # if instance.employee.primary_phone and not instance.is_signed:
+            #     domain = Site.objects.get_current().domain
+            #     body = f'Hello {instance.employee.get_full_name()}, you have received an attendance point. Please see a ' \
+            #            f'manager to sign the document or go to the link below.\n' \
+            #            f'https://{domain}{reverse("employee-sign-document", args=["Self Service", instance.id, "Attendance"])}'
+            #     send_text(str(instance.employee.primary_phone), body, instance.id, 'Attendance')
+            # else:
+            #     instance.status_update_date = timezone.now()
+            #     instance.message_status = 'Unsent'
+            #     instance.save()
+            instance.status_update_date = timezone.now()
+            instance.message_status = 'Unsent'
+            instance.save()
     else:
         total_points = instance.employee.get_total_attendance_points()
         if total_points < 7:
@@ -207,13 +214,17 @@ def post_save_safety_point(sender, instance, created, **kwargs):
         instance.create_safety_point_document()
 
         if created:
-            if instance.employee.primary_phone and not instance.is_signed:
-                body = f'Hello {instance.employee.get_full_name()}, please see safety next time you are at base.'
-                send_text(str(instance.employee.primary_phone), body, instance.id, 'SafetyPoint')
-            else:
-                instance.status_update_date = timezone.now()
-                instance.message_status = 'Unsent'
-                instance.save()
+            # This needs to be commented out until corporate gives us a Twilio API Key
+            # if instance.employee.primary_phone and not instance.is_signed:
+            #     body = f'Hello {instance.employee.get_full_name()}, please see safety next time you are at base.'
+            #     send_text(str(instance.employee.primary_phone), body, instance.id, 'SafetyPoint')
+            # else:
+            #     instance.status_update_date = timezone.now()
+            #     instance.message_status = 'Unsent'
+            #     instance.save()
+            instance.status_update_date = timezone.now()
+            instance.message_status = 'Unsent'
+            instance.save()
             removal = instance.employee.safety_point_removal_required(instance)
 
             verb = f'{instance.employee.get_full_name()} has received a Safety Point' if not removal else f'{instance.employee.get_full_name()} has received a Safety Point and been removed from service'
