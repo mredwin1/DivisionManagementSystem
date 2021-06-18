@@ -1298,6 +1298,16 @@ class Attendance(models.Model):
         p.line(.5 * inch, 2.3 * inch, 8 * inch, 2.3 * inch)
         p.line(.5 * inch, 2.0 * inch, 8 * inch, 2.0 * inch)
 
+        y = 2.3
+        if self.signature:
+            if p.stringWidth(self.comments, 'Helvetica', 10) > 435:
+                wrapped_text = wrap_text(self.comments, 'Helvetica', 10, 435)
+                for line in wrapped_text:
+                    p.drawString(.5625 * inch, (y + .02) * inch, line)
+                    y -= .3
+            else:
+                p.drawString(.5625 * inch, (y + .02) * inch, self.comments)
+
         # Signatures & Date
         p.setFontSize(12)
         p.drawString(0.50 * inch, 1.50 * inch, 'Employee Signature:')
@@ -1901,6 +1911,16 @@ class Counseling(models.Model):
 
         p.line(.5 * inch, 2.375 * inch, 8 * inch, 2.375 * inch)
         p.line(.5 * inch, 2.125 * inch, 8 * inch, 2.125 * inch)
+
+        y = 2.375
+        if self.employee_signature:
+            if p.stringWidth(self.comments, 'Helvetica', 10) > 435:
+                wrapped_text = wrap_text(self.comments, 'Helvetica', 10, 435)
+                for line in wrapped_text:
+                    p.drawString(.5625 * inch, (y + .02) * inch, line)
+                    y -= .25
+            else:
+                p.drawString(.5625 * inch, (y + .02) * inch, self.comments)
 
         p.drawString(.5 * inch, 1.750 * inch, 'Employee Signature:')
         p.line(2.125 * inch, 1.750 * inch, 4.5 * inch, 1.750 * inch)
