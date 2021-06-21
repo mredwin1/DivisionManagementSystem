@@ -224,6 +224,8 @@ $(document).ready(function () {
             let union_modal = $('#secondaryModal')
             let union_field = $('#id_union_representation')
 
+            console.log($(this).text())
+
             if ($(this).text() === 'Yes') {
                 union_field.val(true)
             } else {
