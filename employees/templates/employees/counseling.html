@@ -124,7 +124,9 @@
                             Cancel
                         </div>
                     </a>
-                    <button class="btn btn-secondary mr-2" type="button" id="comments_btn">Employee Comments</button>
+                    {% if request.resolver_match.url_name == 'employee-assign-attendance' %}
+                        <button class="btn btn-secondary mr-2" type="button" id="comments_btn">Employee Comments</button>
+                    {% endif %}
                     <button class="btn btn-primary" type="button" id="submit_button">{% if request.resolver_match.url_name == 'employee-assign-counseling' %}Assign{% else %}Save{% endif %}</button>
                 </div>
             </form>

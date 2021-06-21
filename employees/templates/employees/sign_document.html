@@ -202,7 +202,7 @@
                             </div>
                         </a>
                     {% endif %}
-                    {% if document_type != 'SafetyPoint' and not simple_sign %}
+                    {% if document_type != 'SafetyPoint' and not simple_sign and signature_method != 'QR' %}
                         <button class="btn btn-secondary mr-2" type="button" id="comments_btn">Employee Comments</button>
                     {% endif %}
                     <button class="btn btn-primary" type="{% if request.resolver_match.url_name != 'Attendance' %}button{% else %}submit{% endif %}" value="Submit" id="submit_button">Submit</button>
