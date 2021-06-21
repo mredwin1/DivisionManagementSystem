@@ -434,6 +434,7 @@ def edit_hold(request, hold_id):
 @permission_required('employees.can_remove_hold', raise_exception=True)
 def remove_hold(request, employee_id, hold_id):
     hold = Hold.objects.get(id=hold_id)
+    hold.removed_by = request.user.get_full_name()
 
     if hold.reason == 'Pending Termination':
         hold.employee.removal_date = None
