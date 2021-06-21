@@ -7,8 +7,8 @@
 {% block modal-footer %}
     <button type="submit" class="btn btn-primary" id="done" form="qrCode" data-dismiss="modal">Done</button>
 {% endblock modal-footer %}
-{% if request.resolver_match.url_name == 'employee-assign-safety-point' %}
-    {% block secondary-modal %}
+{% block secondary-modal %}
+    {% if request.resolver_match.url_name == 'employee-assign-safety-point' %}
         <div class="modal fade" id="secondaryModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
@@ -35,8 +35,8 @@
                 </div>
             </div>
         </div>
-    {% endblock %}
-{% endif %}
+    {% endif %}
+{% endblock %}
 {% block content %}
     <script src="{% static 'JS/form_preloader.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
