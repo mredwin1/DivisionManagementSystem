@@ -145,7 +145,7 @@ $(document).ready(function () {
 
         other_signature_pad.clear()
 
-        if (resolver) {
+        if (resolver !== undefined) {
             if (refused_to_sign.prop('checked')) {
                 other_signature_title.text('Witness Signature*')
                 form.data('other-required', 'true')
