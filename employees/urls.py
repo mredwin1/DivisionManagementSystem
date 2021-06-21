@@ -35,4 +35,5 @@ urlpatterns = [
     path('clear-signature/<int:employee_id>/', employee_views.clear_signature, name='employee-clear-signature'),
     path('sign-document/<str:signature_method>/<int:record_id>/', employee_views.sign_document, name='employee-sign-document'),
     path('sign-document/<str:signature_method>/<int:record_id>/<str:document_type>/', employee_views.sign_document, name='employee-sign-document'),
+    path('sign-document/<str:signature_method>/<int:record_id>/<str:document_type>/<str:simple_sign>/', employee_views.sign_document, name='employee-sign-document'),
 ]
