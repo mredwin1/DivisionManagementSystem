@@ -9,7 +9,7 @@
     <button type="submit" class="btn btn-primary" id="done" form="qrCode" data-dismiss="modal">Done</button>
 {% endblock modal-footer %}
 {% block secondary-modal %}
-    {% if document_type != 'Attendance' and signature_method != 'QR' %}
+    {% if document_type != 'Attendance' and signature_method != 'QR' and not simple_sign %}
         <div class="modal fade" id="secondaryModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
@@ -140,13 +140,15 @@
     </script>
     <div class="row mt-3">
         <div class="col">
-            <form method="POST" role="form" action="{% if document_type %}{% url 'employee-sign-document' signature_method=signature_method record_id=record.id document_type=document_type %}{% else %}{% url 'employee-sign-document' signature_method=signature_method record_id=record.employee_id %}{% endif %}" data-manager-required="{% if signature_method == 'In Person' %}true{% else %}false{% endif %}" data-other-required="True" data-signature-method="{{ signature_method }}" data-resolver="sign-document">
+            <form method="POST" role="form" action="{% if simple_sign %}{% url 'employee-sign-document' signature_method=signature_method record_id=record.id document_type=document_type simple_sign=simple_sign %}{% else %}{% if document_type %}{% url 'employee-sign-document' signature_method=signature_method record_id=record.id document_type=document_type %}{% else %}{% url 'employee-sign-document' signature_method=signature_method record_id=record.employee_id %}{% endif %}{% endif %}" data-manager-required="{% if signature_method == 'In Person' and not simple_sign %}true{% else %}false{% endif %}" data-other-required="True" data-signature-method="{{ signature_method }}" data-resolver="sign-document">
                 {% csrf_token %}
-                <div class="form-row" style="display: none" id="comments_container">
-                    <div class="form-group col-12">
-                        {{ form.comments|as_crispy_field }}
+                {% if document_type != 'SafetyPoint' and not simple_sign %}
+                    <div class="form-row" style="display: none" id="comments_container">
+                        <div class="form-group col-12">
+                            {{ form.comments|as_crispy_field }}
+                        </div>
                     </div>
-                </div>
+                {% endif %}
                 <div class="form-row">
                     <input type="hidden" value="{{ signature_method }}" name="signature_method">
                     <div class="form-group col-lg-6 col-12 pr-lg-3">
@@ -168,7 +170,7 @@
                         </div>
                         <canvas class="border border-dark" id="other_canvas"></canvas>
                     </div>
-                    {% if signature_method == 'In Person' %}
+                    {% if signature_method == 'In Person' and not simple_sign %}
                         <div class="form-group col-lg-6 col-12 pl-lg-3" id="manager_container">
                             <div class="row justify-content-between">
                                 <div class="col-md-4 col-12 mb-md-3 mb-0">
@@ -184,11 +186,11 @@
                             <canvas class="border border-dark" id="manager_canvas"></canvas>
                         </div>
                     {% endif %}
-                    {% if document_type != 'Attendance' %}
+                    {% if document_type != 'Attendance' and not simple_sign %}
                         <input type="hidden" value="" name="union_representation" id="id_union_representation">
                     {% endif %}
                 </div>
-                {% if signature_method == 'In Person' %}
+                {% if signature_method == 'In Person' and not simple_sign %}
                     {{ form.refused_to_sign|as_crispy_field }}
                 {% endif %}
                 <input type="hidden" value="{{ signature_method }}" id="id_signature_method" name="signature_method">
@@ -200,7 +202,7 @@
                             </div>
                         </a>
                     {% endif %}
-                    {% if document_type != 'SafetyPoint' %}
+                    {% if document_type != 'SafetyPoint' and not simple_sign %}
                         <button class="btn btn-secondary mr-2" type="button" id="comments_btn">Employee Comments</button>
                     {% endif %}
                     <button class="btn btn-primary" type="{% if request.resolver_match.url_name != 'Attendance' %}button{% else %}submit{% endif %}" value="Submit" id="submit_button">Submit</button>
