@@ -454,6 +454,7 @@ def remove_hold(request, employee_id, hold_id):
 
         hold.employee.save()
 
+    hold.save()
     hold.delete()
 
     return redirect('employee-account', employee_id)
