@@ -116,6 +116,7 @@ def post_save_counseling(sender, instance, created, update_fields, **kwargs):
             #     instance.save()
             instance.status_update_date = timezone.now()
             instance.message_status = 'Unsent'
+            instance.save()
 
             if instance.action_type == '2':
                 verb = f'{instance.employee.get_full_name()} has received a written warning' if instance.attendance is None else f'{instance.employee.get_full_name()} has received a written warning for reaching 7 Attendance Points'
