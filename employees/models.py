@@ -2004,6 +2004,7 @@ class Hold(models.Model):
     reason = models.CharField(max_length=30)
     assigned_by = models.IntegerField()
     employee = models.OneToOneField(Employee, on_delete=models.CASCADE)
+    removed_by = models.CharField(max_length=40, default='', blank=True)
 
     def get_assignee(self):
         """Will return the Employee object of the assignee"""

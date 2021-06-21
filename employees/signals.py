@@ -45,7 +45,7 @@ def safety_point_delete(sender, instance, **kwargs):
 
 @receiver(post_delete, sender=Hold)
 def hold_delete(sender, instance, **kwargs):
-    verb = f'{instance.employee.get_full_name()}\'s hold has been removed'
+    verb = f'{instance.employee.get_full_name()}\'s hold has been removed by {instance.removed_by}'
     notification_type = 'email_rem_hold'
 
     group = Employee.objects.filter(groups__name=notification_type).exclude(employee_id=instance.assigned_by)
