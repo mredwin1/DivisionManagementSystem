@@ -702,7 +702,7 @@ def clear_signature(request, employee_id):
 
 
 @login_required
-def sign_document(request, signature_method, record_id, document_type=None):
+def sign_document(request, signature_method, record_id, document_type=None, simple_sign=None):
     if signature_method == 'QR':
         employee = Employee.objects.get(employee_id=record_id)
         if request.user == employee:
@@ -741,21 +741,22 @@ def sign_document(request, signature_method, record_id, document_type=None):
 
         record = record_types[document_type].objects.get(id=record_id)
 
-        if request.user == record.employee or request.user.has_perm('employees.can_sign_documents') and not record.is_signed:
+        if request.user == record.employee or request.user.has_perm('employees.can_sign_documents') and (not record.is_signed and not simple_sign):
             if request.method == 'GET':
-                form = SignDocument(request, record, document_type)
+                form = SignDocument(request, record, document_type, simple_sign)
 
                 data = {
                     'form': form,
                     'document_type': document_type,
                     'signature_method': signature_method,
                     'record': record,
-                    'domain': Site.objects.get_current().domain
+                    'domain': Site.objects.get_current().domain,
+                    'simple_sign': simple_sign
                 }
 
                 return render(request, 'employees/sign_document.html', data)
             else:
-                form = SignDocument(request, record, document_type, data=request.POST)
+                form = SignDocument(request, record, document_type, simple_sign,data=request.POST)
                 if form.is_valid():
                     form.save()
 
