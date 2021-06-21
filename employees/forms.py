@@ -305,7 +305,7 @@ class EditCounseling(AssignCounseling):
             self.counseling.override_by = self.request.user.employee_id if self.cleaned_data[
                 'pd_check_override'] else None
 
-        self.safety_point.document.delete()
+        self.counseling.document.delete()
 
 
 class AssignSafetyPoint(forms.Form):
