@@ -6,8 +6,8 @@ from notifications.signals import notify
 
 
 class Command(BaseCommand):
-    help = 'This command goes through all the Counseling Records and checks if there are any signed documents that' \
-           'have not been uploaded. Dependant on the amount of days it has been since the creation of the record it' \
+    help = 'This command goes through all the Counseling Records and checks if there are any that have not been ' \
+           'signed. Dependant on the amount of days it has been since the creation of the record it' \
            'will send a notification.'
 
     def handle(self, *args, **options):
@@ -17,10 +17,10 @@ class Command(BaseCommand):
         today = datetime.datetime.today().date()
 
         for counseling_record in counseling_records:
-            if not counseling_record.uploaded:
+            if not counseling_record.is_signed:
                 days_passed = (today - counseling_record.issued_date).days
                 verb = f'A counseling was given to {counseling_record.employee.get_full_name()} {days_passed} days ' \
-                       f'ago and no signed document has been uploaded yet.'
+                       f'ago and it has not been signed yet.'
                 notification_types = []
 
                 if days_passed >= 10:

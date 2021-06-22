@@ -6,8 +6,8 @@ from notifications.signals import notify
 
 
 class Command(BaseCommand):
-    help = 'This command goes through all the Safety Point Records and checks if there are any signed documents that' \
-           'have not been uploaded. Dependant on the amount of days it has been since the creation of the record it' \
+    help = 'This command goes through all the Safety Point Records and checks if there are any that have not been ' \
+           'signed yet. Dependant on the amount of days it has been since the creation of the record it' \
            'will send a notification'
 
     def handle(self, *args, **options):
@@ -17,10 +17,10 @@ class Command(BaseCommand):
         today = datetime.datetime.today().date()
 
         for safety_point_record in safety_point_records:
-            if not safety_point_record.uploaded:
+            if not safety_point_record.is_signed:
                 days_passed = (today - safety_point_record.issued_date).days
                 verb = f'A safety point point was given to {safety_point_record.employee.get_full_name()} ' \
-                       f' {days_passed} days ago and no signed document has been uploaded yet.'
+                       f' {days_passed} days ago and it has not been signed yet.'
                 notification_types = []
 
                 if days_passed >= 10:
