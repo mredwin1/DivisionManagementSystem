@@ -9,13 +9,13 @@
     <div data-document-url="{{ record|document_full_url_return }}" id="document_url"></div>
     <div class="row mt-3">
         <div class="col text-center">
-            <i class="fas fa-arrow-left fa-lg icon-link" data-toggle="tooltip" title="Previous Page"></i>
+            <i class="fas fa-arrow-left fa-lg icon-link cursor-pointer" data-toggle="tooltip" title="Previous Page"></i>
         </div>
         <div class="col text-center">
             <i class="fas fa-print fa-lg icon-link cursor-pointer" data-toggle="tooltip" title="Print Document" id="print" onclick="printJS('{{ record.document.url }}')"></i>
         </div>
         <div class="col text-center">
-            <i class="fas fa-arrow-right fa-lg icon-link" data-toggle="tooltip" title="Next Page"></i>
+            <i class="fas fa-arrow-right fa-lg icon-link cursor-pointer" data-toggle="tooltip" title="Next Page"></i>
         </div>
     </div>
     <canvas class="border border-dark" id="document_container"></canvas>
