@@ -148,21 +148,21 @@ $(document).ready(function () {
         if (resolver !== undefined) {
             if (refused_to_sign.prop('checked')) {
                 other_signature_title.text('Witness Signature*')
-                form.data('other-required', 'true')
+                form.data('other-required', true)
                 other_qr.hide()
             } else {
                 other_signature_title.text('Employee Signature*')
-                form.data('other-required', 'true')
+                form.data('other-required', true)
                 other_qr.show()
             }
         } else {
             if (refused_to_sign.prop('checked')) {
                 other_signature_title.text('Witness Signature*')
-                form.data('other-required', 'true')
+                form.data('other-required', true)
                 other_qr.hide()
             } else {
                 other_signature_title.text('Employee Signature')
-                form.data('other-required', 'false')
+                form.data('other-required', false)
                 other_qr.show()
             }
         }
