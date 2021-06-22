@@ -355,9 +355,6 @@ class AssignSafetyPoint(forms.Form):
         super(AssignSafetyPoint, self).__init__(*args, **kwargs)
 
     def save(self):
-        import logging
-        logging.info(self.cleaned_data['union_representation'])
-        logging.info(type(self.cleaned_data['union_representation']))
         safety_point = SafetyPoint(
             employee=self.employee,
             incident_date=self.cleaned_data['incident_date'],
