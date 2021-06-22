@@ -1624,8 +1624,6 @@ class SafetyPoint(models.Model):
 
         if self.employee_signature or self.refused_to_sign:
             p.drawString(1.55 * inch, (y + 0.02) * inch, datetime.datetime.today().strftime('%m-%d-%Y'))
-
-        if self.employee_signature:
             p.drawString(4.77 * inch, (y + 0.02) * inch, datetime.datetime.today().strftime('%m-%d-%Y'))
 
         y -= .5
@@ -1644,7 +1642,7 @@ class SafetyPoint(models.Model):
         # Union Things
         p.setLineWidth(1)
         p.setFont('Helvetica', 10)
-        union_no_fill = 1 if self.refused_to_sign is False and self.initials else 0
+        union_no_fill = 1 if self.union_representation is False and self.initials else 0
         p.rect(1.625 * inch, y * inch, .1875 * inch, .1875 * inch, fill=union_no_fill)
         p.drawString(1.875 * inch, y * inch, 'By checking this box, you acknowledge that you do not want Union representation.')
 
@@ -1655,7 +1653,7 @@ class SafetyPoint(models.Model):
                      'Failure to do so will result in the point(s) and related discipline being issued without ' \
                      'representation from the Union. '
 
-        union_yes_fill = 1 if self.refused_to_sign and self.initials else 0
+        union_yes_fill = 1 if self.union_representation and self.initials else 0
         p.rect(1.625 * inch, y * inch, .1875 * inch, .1875 * inch, fill=union_yes_fill)
         wrapped_text = wrap_text(paragraph3, 'Helvetica', 10, 450)
         line_num = 1
