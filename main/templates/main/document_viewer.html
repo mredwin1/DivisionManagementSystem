@@ -19,7 +19,7 @@
         </div>
     </div>
     <canvas class="border border-dark" id="document_container"></canvas>
-    <a href="{% url 'employee-account' record.employee.employee_id %}">Back</a>
+    <a class="btn btn-secondary mb-2" href="{% url 'employee-account' record.employee.employee_id %}">Back</a>
     <script>
         let pdf_document = null
         let page_num = 1
