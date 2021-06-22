@@ -56,7 +56,8 @@ def log_in(request):
             else:
                 return redirect('employee-account', user.employee_id)
         else:
-            return render(request, 'main/login.html', {'form': form})
+            next_url = request.POST.get('next', '')
+            return render(request, 'main/login.html', {'form': form, 'next': next_url})
 
 
 @login_required
