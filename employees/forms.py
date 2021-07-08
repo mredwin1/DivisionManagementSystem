@@ -131,8 +131,9 @@ class AssignAttendance(forms.Form):
         elif self.cleaned_data['exemption'] == '2':
             self.employee.unpaid_sick -= 1
 
-        self.employee.save()
         self.request.user.set_signature(self.cleaned_data['manager_signature'])
+
+        self.employee.save()
 
 
 class EditAttendance(AssignAttendance):
@@ -279,9 +280,10 @@ class AssignCounseling(forms.Form):
         else:
             counseling.employee_signature = self.cleaned_data['other_signature']
 
+        self.request.user.set_signature(self.cleaned_data['manager_signature'])
+
         counseling.save()
 
-        self.request.user.set_signature(self.cleaned_data['manager_signature'])
 
 
 class EditCounseling(AssignCounseling):
@@ -377,8 +379,9 @@ class AssignSafetyPoint(forms.Form):
         else:
             safety_point.employee_signature = self.cleaned_data['other_signature']
 
-        safety_point.save()
         self.request.user.set_signature(self.cleaned_data['manager_signature'])
+
+        safety_point.save()
 
 
 class EditSafetyPoint(AssignSafetyPoint):
@@ -692,9 +695,11 @@ class SignDocument(forms.Form):
                 self.record.is_signed = True
                 self.record.comments = self.cleaned_data['comments']
 
+                self.request.user.set_signature(self.cleaned_data['manager_signature'])
+
                 self.record.document.delete()
 
-                self.request.user.set_signature(self.cleaned_data['manager_signature'])
+
             else:
                 self.record.union_representation = self.cleaned_data['union_representation']
                 self.record.refused_to_sign = self.cleaned_data['refused_to_sign']
@@ -706,5 +711,6 @@ class SignDocument(forms.Form):
                 self.record.is_signed = True
                 self.record.comments = self.cleaned_data['comments']
 
-                self.record.document.delete()
                 self.request.user.set_signature(self.cleaned_data['manager_signature'])
+
+                self.record.document.delete()
