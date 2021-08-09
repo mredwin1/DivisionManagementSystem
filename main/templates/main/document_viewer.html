@@ -20,7 +20,9 @@
                     <i class="fas fa-arrow-right fa-lg icon-link cursor-pointer" data-toggle="tooltip" title="Next Page"></i>
                 </div>
             </div>
-            <canvas class="border border-dark" id="document_container"></canvas>
+            <div id="canvas_container">
+                <canvas class="border border-dark" id="document_container"></canvas>
+            </div>
             <a class="btn btn-secondary mb-2" href="{% url 'employee-account' record.employee.employee_id %}">Back</a>
         </div>
     </div>
@@ -29,20 +31,22 @@
         let page_num = 1
         let page_rendering = false
         let page_num_pending = null
-        let scale = 1.75
         let page_number = document.getElementById('page_num')
         let page_count = document.getElementById('page_count')
         let prev_page = document.getElementById('prev_page')
         let next_page = document.getElementById('next_page')
         let print = document.getElementById('print')
         let canvas = document.getElementById('document_container')
+        let container = document.getElementById('canvas_container');
         let ctx = canvas.getContext('2d')
         let document_url = document.getElementById('document_url').dataset.documentUrl
 
         function renderPage(num){
             page_rendering = true
             pdf_document.getPage(num).then(page=>{
-                let viewport = page.getViewport({scale:scale})
+                let viewport = page.getViewport(1)
+                let scale = container.clientWidth / viewport.width;
+                viewport = page.getViewport({scale:scale})
                 canvas.height = viewport.height
                 canvas.width = viewport.width
 
