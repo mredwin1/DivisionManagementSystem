@@ -450,7 +450,7 @@ def time_off_status(request, time_off_id, status):
 
 
 @login_required
-@permission_required('employees.can_remove_time_off', raise_exception=True)
+@permission_required('employees.can_delete_time_off_request', raise_exception=True)
 def remove_time_off(request, time_off_id):
     time_off_request = TimeOffRequest.objects.get(id=time_off_id)
 
