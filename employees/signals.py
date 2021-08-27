@@ -3,7 +3,7 @@ import datetime
 from django.contrib.auth import settings
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import post_delete, post_save, pre_delete
 from django.dispatch import receiver
 from django.template.loader import render_to_string
 from django.urls import reverse, NoReverseMatch
@@ -42,7 +42,7 @@ def safety_point_delete(sender, instance, **kwargs):
         pass
 
 
-@receiver(post_delete, sender=Hold)
+@receiver(pre_delete, sender=Hold)
 def hold_delete(sender, instance, **kwargs):
     verb = f'{instance.employee.get_full_name()}\'s hold has been removed by {instance.removed_by}'
     notification_type = 'email_rem_hold'
