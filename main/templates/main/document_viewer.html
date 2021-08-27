@@ -29,6 +29,7 @@
     <script>
         let pdf_document = null
         let page_num = 1
+        let scale = 3
         let page_rendering = false
         let page_num_pending = null
         let page_number = document.getElementById('page_num')
@@ -44,9 +45,7 @@
         function renderPage(num){
             page_rendering = true
             pdf_document.getPage(num).then(page=>{
-                let viewport = page.getViewport(1)
-                let scale = container.clientWidth / viewport.width;
-                viewport = page.getViewport({scale:scale})
+                let viewport = page.getViewport({scale:scale})
                 canvas.height = viewport.height
                 canvas.width = viewport.width
 
