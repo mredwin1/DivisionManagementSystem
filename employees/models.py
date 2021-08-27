@@ -1,3 +1,4 @@
+import base64
 import datetime
 import io
 import requests
@@ -13,6 +14,7 @@ from imagekit.models import ProcessedImageField
 from imagekit.processors import ResizeToFill
 from notifications.models import Notification
 from phonenumber_field.modelfields import PhoneNumberField
+from PIL import Image
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
 from reportlab.pdfbase.pdfmetrics import stringWidth
@@ -111,22 +113,18 @@ class Employee(AbstractBaseUser, PermissionsMixin):
                                                        'pending')
     email_new_employee = models.BooleanField(default=True, verbose_name='New Employee',
                                              help_text='Receive an email when a new employee is added')
-    email_attendance_doc_day3 = models.BooleanField(default=True, verbose_name='3 Days Past Due Attendance',
-                                                    help_text='Receive an email when it has been 3 days since '
-                                                              'an attendance point was given but a signed document '
-                                                              'has not been uploaded')
     email_attendance_doc_day5 = models.BooleanField(default=True, verbose_name='5 Days Past Due Attendance',
                                                     help_text='Receive an email when it has been 5 days since '
-                                                              'an attendance point was given but a signed document '
-                                                              'has not been uploaded')
+                                                              'an attendance point was given but not signed')
     email_attendance_doc_day7 = models.BooleanField(default=True, verbose_name='7 Days Past Due Attendance',
                                                     help_text='Receive an email when it has been 7 days since '
-                                                              'an attendance point was given but a signed document '
-                                                              'has not been uploaded')
+                                                              'an attendance point was given but not signed')
     email_attendance_doc_day10 = models.BooleanField(default=True, verbose_name='10 Days Past Due Attendance',
-                                                     help_text='Receive an email when it has been 10 or more days since'
-                                                               ' an attendance point was given but a signed document'
-                                                               ' has not been uploaded')
+                                                     help_text='Receive an email when it has been 10 days since'
+                                                               ' an attendance point was given but not signed')
+    email_attendance_doc_day14 = models.BooleanField(default=True, verbose_name='3 Days Past Due Attendance',
+                                                     help_text='Receive an email when it has been 14 or more days since'
+                                                               ' an attendance point was given but not signed')
     email_safety_doc_day3 = models.BooleanField(default=True, verbose_name='3 Days Past Due Safety Point',
                                                 help_text='Receive an email when it has been 3 days since '
                                                           'a safety point was given but a signed document '
@@ -179,6 +177,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
                                         verbose_name='Termination Type')
 
     termination_comments = models.TextField(default='', verbose_name='Comments', blank=True)
+    signature = models.TextField(default='', blank=True)
 
     hire_date = models.DateField(null=True, verbose_name='Hire Date')
     application_date = models.DateField(null=True, verbose_name='Application Date')
@@ -239,6 +238,8 @@ class Employee(AbstractBaseUser, PermissionsMixin):
             ('can_view_safety_details', 'Can view safety details in account'),
             ('can_view_counseling_details', 'Can view counseling details in account'),
             ('can_override_progressive_discipline_lock', 'Can override progressive discipline lock'),
+            ('can_view_account_action_bar', 'Can view account action bar'),
+            ('can_sign_documents', 'Can sign documents'),
 
             # Main's Views Permissions
             ('can_view_employee_info', 'Can view employee info'),
@@ -263,6 +264,14 @@ class Employee(AbstractBaseUser, PermissionsMixin):
             ('can_view_time_off_reports', 'Can view time off reports'),
             ('can_view_termination_reports', 'Can view termination reports'),
         ]
+
+    def get_signature_png(self):
+        image_data = self.signature.split(',')[1]
+        image_buffer = io.BytesIO(base64.b64decode(image_data))
+        image = Image.open(image_buffer, mode='r')
+        cropped_image = image.crop(image.getbbox())
+
+        return cropped_image
 
     def get_last_warnings(self):
         """Returns the dates for the last written warning and removal from service"""
@@ -385,6 +394,10 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         tenure = (datetime.date.today() - self.hire_date).days
 
         return False if tenure > 89 else True
+
+    def set_signature(self, signature):
+        self.signature = signature
+        self.save()
 
     def has_attendance_in_6_months(self):
         attendance_records = Attendance.objects.filter(employee=self, incident_date__gte=timezone.now() - datetime.timedelta(days=180))
@@ -1038,20 +1051,32 @@ class Attendance(models.Model):
     ]
 
     is_active = models.BooleanField(default=True)
+    is_signed = models.BooleanField(default=False)
+    refused_to_sign = models.BooleanField(default=False)
 
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+
     incident_date = models.DateField()
     issued_date = models.DateField(null=True)
+    edited_date = models.DateField(null=True, blank=True)
+    signed_date = models.DateField(null=True, blank=True)
+    status_update_date = models.DateField(null=True, blank=True)
+
     points = models.DecimalField(max_digits=2, decimal_places=1)
-    document = models.FileField(validators=[pdf_extension], upload_to='attendance_forms')
+
+    document = models.FileField(validators=[pdf_extension], upload_to='attendance_forms', null=True)
+
     reason = models.CharField(max_length=30, choices=REASON_CHOICES)
     assigned_by = models.CharField(max_length=50)
-    exemption = models.CharField(max_length=30, choices=EXEMPTION_CHOICES, blank=True, null=True)
-    edited_date = models.DateField(null=True, blank=True)
+    exemption = models.CharField(max_length=30, choices=EXEMPTION_CHOICES, blank=True, default='')
     edited_by = models.CharField(max_length=30, blank=True, default='')
-    uploaded = models.BooleanField(default=False)
+    signature_method = models.CharField(max_length=30, default='', blank=True)
+    message_status = models.CharField(max_length=20, default='', blank=True)
 
-    def create_attendance_point_document(self):
+    signature = models.TextField(default='', blank=True)
+    comments = models.TextField(default='', blank=True)
+
+    def create_document(self):
         """Will create a PDF for the Attendance and assign it to the Attendance Object"""
         buffer = io.BytesIO()
 
@@ -1261,29 +1286,65 @@ class Attendance(models.Model):
         disclaimer4 = 'Please see the Employee Handbook for more information.'
 
         p.setFontSize(8)
-        p.drawString(.5 * inch, 3 * inch, disclaimer1)
-        p.drawString(.5 * inch, 2.8 * inch, disclaimer2)
-        p.drawString(.5 * inch, 2.6 * inch, disclaimer3)
-        p.drawString(.5 * inch, 2.4 * inch, disclaimer4)
+        p.drawString(.5 * inch, 3.5 * inch, disclaimer1)
+        p.drawString(.5 * inch, 3.3 * inch, disclaimer2)
+        p.drawString(.5 * inch, 3.1 * inch, disclaimer3)
+        p.drawString(.5 * inch, 2.9 * inch, disclaimer4)
 
         # Comments
         p.setFontSize(12)
-        p.drawString(.5 * inch, 2.1 * inch, 'Comments:')
+        p.drawString(.5 * inch, 2.6 * inch, 'Comments:')
 
-        p.line(.5 * inch, 1.8 * inch, 8 * inch, 1.8 * inch)
-        p.line(.5 * inch, 1.5 * inch, 8 * inch, 1.5 * inch)
+        p.line(.5 * inch, 2.3 * inch, 8 * inch, 2.3 * inch)
+        p.line(.5 * inch, 2.0 * inch, 8 * inch, 2.0 * inch)
+
+        y = 2.3
+        if self.signature:
+            if p.stringWidth(self.comments, 'Helvetica', 10) > 435:
+                wrapped_text = wrap_text(self.comments, 'Helvetica', 10, 435)
+                for line in wrapped_text:
+                    p.drawString(.5625 * inch, (y + .02) * inch, line)
+                    y -= .3
+            else:
+                p.drawString(.5625 * inch, (y + .02) * inch, self.comments)
 
         # Signatures & Date
         p.setFontSize(12)
-        p.drawString(.5 * inch, 1 * inch, 'Employee Signature:')
-        p.drawString(5.75 * inch, 1 * inch, 'Date:')
-        p.drawString(.5 * inch, .5 * inch, 'Supervisor Signature:')
-        p.drawString(5.75 * inch, .5 * inch, 'Date:')
+        p.drawString(0.50 * inch, 1.50 * inch, 'Employee Signature:')
+        p.drawString(5.75 * inch, 1.50 * inch, 'Date:')
 
-        p.line(2.2 * inch, .5 * inch, 5.5 * inch, .5 * inch)
-        p.line(2.2 * inch, 1 * inch, 5.5 * inch, 1 * inch)
-        p.line(6.2 * inch, .5 * inch, 8 * inch, .5 * inch)
-        p.line(6.2 * inch, 1 * inch, 8 * inch, 1 * inch)
+        p.rect(0.62 * inch, 1.28 * inch, .125 * inch, .125 * inch, fill=int(self.refused_to_sign))
+
+        p.setFontSize(8)
+        p.drawString(.77 * inch, 1.30 * inch, 'Employee refused to sign')
+
+        p.setFontSize(12)
+        p.drawString(0.50 * inch, 1.00 * inch, 'Witness Signature:')
+        p.drawString(5.75 * inch, 1.00 * inch, 'Date:')
+        p.drawString(0.50 * inch, 0.50 * inch, 'Supervisor Signature:')
+        p.drawString(5.75 * inch, 0.50 * inch, 'Date:')
+
+        p.line(2.2 * inch, 1.5 * inch, 5.5 * inch, 1.5 * inch)
+        p.line(6.2 * inch, 1.5 * inch, 8.0 * inch, 1.5 * inch)
+        p.line(2.2 * inch, 1.0 * inch, 5.5 * inch, 1.0 * inch)
+        p.line(6.2 * inch, 1.0 * inch, 8.0 * inch, 1.0 * inch)
+        p.line(2.2 * inch, 0.5 * inch, 5.5 * inch, 0.5 * inch)
+        p.line(6.2 * inch, 0.5 * inch, 8.0 * inch, 0.5 * inch)
+
+        if self.signature:
+            signature_y = 1.02 if self.refused_to_sign else 1.52
+
+            p.drawString(6.25 * inch, signature_y * inch, datetime.datetime.today().strftime('%m-%d-%Y'))
+            p.drawString(6.25 * inch, 0.52 * inch, datetime.datetime.today().strftime('%m-%d-%Y'))
+
+            other_signature = ImageReader(self.get_signature_png())
+            p.drawImage(other_signature, 2.2 * inch, signature_y * inch, 3.3 * inch, .45 * inch, mask='auto')
+            manager_signature = ImageReader(self.get_assignee().get_signature_png())
+            p.drawImage(manager_signature, 2.2 * inch, .52 * inch, 3.3 * inch, .45 * inch, mask='auto')
+
+            if self.refused_to_sign:
+                p.drawString(6.25 * inch, 1.52 * inch, datetime.datetime.today().strftime('%m-%d-%Y'))
+                p.drawString(2.20 * inch, 1.52 * inch, 'Employee Refused to Sign')
 
         p.showPage()
         p.save()
@@ -1295,6 +1356,14 @@ class Attendance(models.Model):
         """Will return the Employee Object of the assignee"""
 
         return Employee.objects.get(employee_id=self.assigned_by)
+
+    def get_signature_png(self):
+        image_data = self.signature.split(',')[1]
+        image_buffer = io.BytesIO(base64.b64decode(image_data))
+        image = Image.open(image_buffer, mode='r')
+        cropped_image = image.crop(image.getbbox())
+
+        return cropped_image
 
     def __str__(self):
         return f"{self.employee.get_full_name()}'s Attendance Point"
@@ -1320,17 +1389,33 @@ class SafetyPoint(models.Model):
     ]
 
     is_active = models.BooleanField(default=True)
+    is_signed = models.BooleanField(default=False)
+    refused_to_sign = models.BooleanField(default=False)
+    union_representation = models.BooleanField(default=False)
 
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+
     incident_date = models.DateField()
     issued_date = models.DateField(null=True)
+    edited_date = models.DateField(null=True, blank=True)
+    signed_date = models.DateField(null=True, blank=True)
+    status_update_date = models.DateField(null=True, blank=True)
+
     points = models.IntegerField()
-    document = models.FileField(validators=[pdf_extension], upload_to='safety_point_forms')
-    reason = models.CharField(max_length=30, choices=REASON_CHOICES)
-    unsafe_act = models.CharField(max_length=100, blank=True)
-    details = models.TextField(default='')
     assigned_by = models.IntegerField()
-    uploaded = models.BooleanField(default=False)
+
+    document = models.FileField(validators=[pdf_extension], upload_to='safety_point_forms', null=True)
+
+    reason = models.CharField(max_length=30, choices=REASON_CHOICES)
+    unsafe_act = models.CharField(max_length=100, blank=True, default='')
+    edited_by = models.CharField(max_length=30, blank=True, default='')
+    signature_method = models.CharField(max_length=30, default='', blank=True)
+    message_status = models.CharField(max_length=20, default='', blank=True)
+
+    details = models.TextField(default='')
+    employee_signature = models.TextField(default='', blank=True)
+    witness_signature = models.TextField(default='', blank=True)
+    initials = models.TextField(default='', blank=True)
 
     def create_safety_point_document(self):
         """Will create a PDF for the Counseling and assign it to the Counseling Object"""
@@ -1510,34 +1595,55 @@ class SafetyPoint(models.Model):
         # Signatures
         p.drawString(1 * inch, y * inch, 'Authorization')
 
-        y -= .35
+        y -= .5
 
-        p.line(1 * inch, y * inch, 3.75 * inch, y * inch)
-        p.line(4.125 * inch, y * inch, 6.50 * inch, y * inch)
+        p.line(1.00 * inch, y * inch, 3.75 * inch, y * inch)
+        p.line(4.25 * inch, y * inch, 7.00 * inch, y * inch)
+
+        if self.employee_signature:
+            employee_signature = ImageReader(self.get_signature_png('Employee'))
+            p.drawImage(employee_signature, 4.25 * inch, (y + 0.02) * inch, 2.75 * inch, .45 * inch, mask='auto')
+        elif self.refused_to_sign:
+            p.drawString(4.25 * inch, (y + 0.02) * inch, 'Employee Refused to Sign')
+
+        if self.employee_signature or self.witness_signature:
+            manager_signature = ImageReader(self.get_assignee().get_signature_png())
+            p.drawImage(manager_signature, 1 * inch, (y + 0.02) * inch, 2.75 * inch, .45 * inch, mask='auto')
 
         y -= .2
 
         p.drawString(1 * inch, y * inch, 'Safety Manager')
-        p.drawString(4.125 * inch, y * inch, 'Employee')
+        p.drawString(4.25 * inch, y * inch, 'Employee')
 
         y -= .4
 
         p.drawString(1 * inch, y * inch, 'Date:')
         p.line(1.5 * inch, y * inch, 3 * inch, y * inch)
-        p.drawString(4.125 * inch, y * inch, 'Date:')
-        p.line(4.625 * inch, y * inch, 6.125 * inch, y * inch)
+        p.drawString(4.25 * inch, y * inch, 'Date:')
+        p.line(4.75 * inch, y * inch, 6.125 * inch, y * inch)
 
-        y -= .4
+        if self.employee_signature or self.refused_to_sign:
+            p.drawString(1.55 * inch, (y + 0.02) * inch, datetime.datetime.today().strftime('%m-%d-%Y'))
+            p.drawString(4.77 * inch, (y + 0.02) * inch, datetime.datetime.today().strftime('%m-%d-%Y'))
 
-        p.drawString(1 * inch, y * inch, 'Witness:')
-        p.line(1.75 * inch, y * inch, 3.75 * inch, y * inch)
+        y -= .5
+
+        p.line(1 * inch, y * inch, 3.75 * inch, y * inch)
+        if self.witness_signature:
+            witness_signature = ImageReader(self.get_signature_png())
+            p.drawImage(witness_signature, 1 * inch, (y + 0.02) * inch, 2.75 * inch, .45 * inch, mask='auto')
+
+        y -= .2
+
+        p.drawString(1 * inch, y * inch, 'Witness')
 
         y -= .5
 
         # Union Things
         p.setLineWidth(1)
         p.setFont('Helvetica', 10)
-        p.rect(1.625 * inch, y * inch, .1875 * inch, .1875 * inch)
+        union_no_fill = 1 if self.union_representation is False and self.initials else 0
+        p.rect(1.625 * inch, y * inch, .1875 * inch, .1875 * inch, fill=union_no_fill)
         p.drawString(1.875 * inch, y * inch, 'By checking this box, you acknowledge that you do not want Union representation.')
 
         y -= .4
@@ -1547,7 +1653,8 @@ class SafetyPoint(models.Model):
                      'Failure to do so will result in the point(s) and related discipline being issued without ' \
                      'representation from the Union. '
 
-        p.rect(1.625 * inch, y * inch, .1875 * inch, .1875 * inch)
+        union_yes_fill = 1 if self.union_representation and self.initials else 0
+        p.rect(1.625 * inch, y * inch, .1875 * inch, .1875 * inch, fill=union_yes_fill)
         wrapped_text = wrap_text(paragraph3, 'Helvetica', 10, 450)
         line_num = 1
         x = 1.875
@@ -1562,8 +1669,15 @@ class SafetyPoint(models.Model):
 
         p.setFont('Helvetica-Bold', 12)
         p.drawString(3.125 * inch, y * inch, 'Your Initials:')
-        p.line(4.1875 * inch, y * inch, 5.1875 * inch,y * inch)
+        p.line(4.1875 * inch, y * inch, 5.1875 * inch, y * inch)
+
+        if self.initials:
+            initials = ImageReader(self.get_initials_png())
+            p.drawImage(initials, 4.1875 * inch, (y + 0.02) * inch, 1 * inch, .45 * inch, mask='auto')
+            p.drawString(5.75 * inch, (y + .02) * inch, timezone.now().strftime('%m-%d-%Y'))
+
         p.drawString(5.25 * inch, y * inch, 'Date:')
+        p.setFont('Helvetica', 12)
         p.line(5.6875 * inch, y * inch, 7 * inch, y * inch)
 
         p.setFillColor('gray')
@@ -1586,6 +1700,24 @@ class SafetyPoint(models.Model):
     def get_pretty_unsafe_act(self):
         return titlecase(self.unsafe_act)
 
+    def get_signature_png(self, signature_type=None):
+        signature = self.employee_signature if signature_type == 'Employee' else self.witness_signature
+        image_data = signature.split(',')[1]
+        image_buffer = io.BytesIO(base64.b64decode(image_data))
+        image = Image.open(image_buffer, mode='r')
+        cropped_image = image.crop(image.getbbox())
+
+        return cropped_image
+
+    def get_initials_png(self):
+        signature = self.initials
+        image_data = signature.split(',')[1]
+        image_buffer = io.BytesIO(base64.b64decode(image_data))
+        image = Image.open(image_buffer, mode='r')
+        cropped_image = image.crop(image.getbbox())
+
+        return cropped_image
+
     def __str__(self):
         return f"{self.employee.get_full_name()}'s Safety Point"
 
@@ -1602,19 +1734,37 @@ class Counseling(models.Model):
     ]
 
     is_active = models.BooleanField(default=True)
+    is_signed = models.BooleanField(default=False)
+    refused_to_sign = models.BooleanField(default=False)
+    union_representation = models.BooleanField(default=False)
 
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
-    assigned_by = models.IntegerField()
-    issued_date = models.DateField()
-    action_type = models.CharField(max_length=40, choices=ACTION_CHOICES)
-    document = models.FileField(validators=[pdf_extension], upload_to='counseling_forms')
-    hearing_datetime = models.DateTimeField(null=True)
-    conduct = models.TextField()
-    conversation = models.TextField()
     attendance = models.OneToOneField(Attendance, on_delete=models.CASCADE, null=True, blank=True)
     safety_point = models.OneToOneField(SafetyPoint, on_delete=models.CASCADE, null=True, blank=True)
-    uploaded = models.BooleanField(default=False)
+
+    issued_date = models.DateField()
+    edited_date = models.DateField(null=True, blank=True)
+    signed_date = models.DateField(null=True, blank=True)
+    status_update_date = models.DateField(null=True, blank=True)
+
+    hearing_datetime = models.DateTimeField(null=True)
+
+    assigned_by = models.IntegerField()
     override_by = models.IntegerField(null=True)
+
+    document = models.FileField(validators=[pdf_extension], upload_to='counseling_forms')
+
+    action_type = models.CharField(max_length=40, choices=ACTION_CHOICES)
+    edited_by = models.CharField(max_length=30, blank=True, default='')
+    signature_method = models.CharField(max_length=30, default='', blank=True)
+    message_status = models.CharField(max_length=20, default='', blank=True)
+
+    conduct = models.TextField()
+    conversation = models.TextField()
+    employee_signature = models.TextField(default='', blank=True)
+    witness_signature = models.TextField(default='', blank=True)
+    initials = models.TextField(default='', blank=True)
+    comments = models.TextField(default='', blank=True)
 
     def get_hearing_datetime(self):
         """If there is a hearing datetime it will return the properly formatted string for it otherwise returns a
@@ -1656,7 +1806,7 @@ class Counseling(models.Model):
 
         # Type of Action
         p.setFontSize(9)
-        p.drawString(.5 * inch, 8.500 * inch, 'TYPE OF ACTION:')
+        p.drawString(.5 * inch, 8.75 * inch, 'TYPE OF ACTION:')
 
         fill = {
             '0': 0,
@@ -1670,48 +1820,48 @@ class Counseling(models.Model):
 
         fill[self.action_type] += 1
 
-        p.rect(.875 * inch, 8.2425 * inch, .125 * inch, .125 * inch, fill=fill['0'])
-        p.drawString(1.125 * inch, 8.2525 * inch, 'Verbal Counseling')
+        p.rect(.875 * inch, 8.4925 * inch, .125 * inch, .125 * inch, fill=fill['0'])
+        p.drawString(1.125 * inch, 8.5025 * inch, 'Verbal Counseling')
 
-        p.rect(.875 * inch, 8.0425 * inch, .125 * inch, .125 * inch, fill=fill['1'])
-        p.drawString(1.125 * inch, 8.0525 * inch, 'Verbal Warning')
+        p.rect(.875 * inch, 8.2925 * inch, .125 * inch, .125 * inch, fill=fill['1'])
+        p.drawString(1.125 * inch, 8.3025 * inch, 'Verbal Warning')
 
-        p.rect(.875 * inch, 7.8425 * inch, .125 * inch, .125 * inch, fill=fill['2'])
-        p.drawString(1.125 * inch, 7.8525 * inch, 'First Written Warning Notice')
+        p.rect(.875 * inch, 8.0925 * inch, .125 * inch, .125 * inch, fill=fill['2'])
+        p.drawString(1.125 * inch, 8.1025 * inch, 'First Written Warning Notice')
 
-        p.rect(.875 * inch, 7.6425 * inch, .125 * inch, .125 * inch, fill=fill['3'])
-        p.drawString(1.125 * inch, 7.6525 * inch, 'First Written Warning Notice & 3 Day Suspension')
+        p.rect(.875 * inch, 7.8925 * inch, .125 * inch, .125 * inch, fill=fill['3'])
+        p.drawString(1.125 * inch, 7.9025 * inch, 'First Written Warning Notice & 3 Day Suspension')
 
-        p.rect(.875 * inch, 7.4425 * inch, .125 * inch, .125 * inch, fill=fill['4'])
-        p.drawString(1.125 * inch, 7.4525 * inch, 'Last & Final Warning')
+        p.rect(.875 * inch, 7.6925 * inch, .125 * inch, .125 * inch, fill=fill['4'])
+        p.drawString(1.125 * inch, 7.7025 * inch, 'Last & Final Warning')
 
-        p.rect(.875 * inch, 7.2425 * inch, .125 * inch, .125 * inch, fill=fill['5'])
-        p.drawString(1.125 * inch, 7.2525 * inch, 'Discharge for \"Just Cause\"')
+        p.rect(.875 * inch, 7.4925 * inch, .125 * inch, .125 * inch, fill=fill['5'])
+        p.drawString(1.125 * inch, 7.5025 * inch, 'Discharge for \"Just Cause\"')
 
-        p.rect(.875 * inch, 6.9525 * inch, .125 * inch, .125 * inch, fill=fill['6'])
-        p.drawString(1.125 * inch, 6.9625 * inch,
+        p.rect(.875 * inch, 7.2025 * inch, .125 * inch, .125 * inch, fill=fill['6'])
+        p.drawString(1.125 * inch, 7.2125 * inch,
                      'Administrative Removal from Service Pending Investigation. A hearing is scheduled')
-        p.drawString(1.125 * inch, 6.7625 * inch,
+        p.drawString(1.125 * inch, 7.0125 * inch,
                      f'for {self.get_hearing_datetime()} at which time you may make any statement or produce')
-        p.drawString(1.125 * inch, 6.5625 * inch, 'any evidence in regard to the facts of the matter.')
+        p.drawString(1.125 * inch, 6.8125 * inch, 'any evidence in regard to the facts of the matter.')
 
         p.setFont('Helvetica-Bold', 9)
-        p.drawString(1.125 * inch, 6.3125 * inch,
+        p.drawString(1.125 * inch, 6.5625 * inch,
                      'If you fail to appear at the scheduled hearing, the company will assume that you have')
-        p.drawString(1.125 * inch, 6.125 * inch, 'resigned your employment.')
+        p.drawString(1.125 * inch, 6.375 * inch, 'resigned your employment.')
 
         p.setFont('Helvetica-Bold', 11)
-        p.drawString(.5 * inch, 5.75 * inch, 'Explanation of Employee Conduct:')
+        p.drawString(.5 * inch, 6 * inch, 'Explanation of Employee Conduct:')
 
         p.setFont('Helvetica', 9)
 
         # Conduct Paragraph Lines
+        p.line(.5 * inch, 5.75 * inch, 8 * inch, 5.75 * inch)
         p.line(.5 * inch, 5.50 * inch, 8 * inch, 5.50 * inch)
         p.line(.5 * inch, 5.25 * inch, 8 * inch, 5.25 * inch)
         p.line(.5 * inch, 5.00 * inch, 8 * inch, 5.00 * inch)
-        p.line(.5 * inch, 4.75 * inch, 8 * inch, 4.75 * inch)
 
-        y = 5.50
+        y = 5.75
         if p.stringWidth(self.conduct, 'Helvetica', 10) > 595:
             wrapped_text = wrap_text(self.conduct, 'Helvetica', 10, 595)
             for line in wrapped_text:
@@ -1721,17 +1871,17 @@ class Counseling(models.Model):
             p.drawString(.5625 * inch, (y + .02) * inch, self.conduct)
 
         p.setFont('Helvetica-Bold', 11)
-        p.drawString(.5 * inch, 4.50 * inch, 'Record of Conversation:')
+        p.drawString(.5 * inch, 4.75 * inch, 'Record of Conversation:')
 
         p.setFont('Helvetica', 9)
 
         # Conversation Paragraph Lines
+        p.line(.5 * inch, 4.50 * inch, 8 * inch, 4.50 * inch)
         p.line(.5 * inch, 4.25 * inch, 8 * inch, 4.25 * inch)
         p.line(.5 * inch, 4.00 * inch, 8 * inch, 4.00 * inch)
         p.line(.5 * inch, 3.75 * inch, 8 * inch, 3.75 * inch)
-        p.line(.5 * inch, 3.50 * inch, 8 * inch, 3.50 * inch)
 
-        y = 4.25
+        y = 4.50
         if p.stringWidth(self.conversation, 'Helvetica', 10) > 595:
             wrapped_text = wrap_text(self.conversation, 'Helvetica', 10, 595)
             for line in wrapped_text:
@@ -1741,12 +1891,13 @@ class Counseling(models.Model):
             p.drawString(.5625 * inch, (y + .02) * inch, self.conversation)
 
         p.setFontSize(7)
-        p.rect(.875 * inch, 3.245 * inch, .120 * inch, .120 * inch)
+        p.rect(.875 * inch, 3.245 * inch, .120 * inch, .120 * inch, fill=int(not self.union_representation))
         p.drawString(1.0625 * inch, 3.270 * inch, 'Employee Waives the right to Union Representation:')
-        p.line(3.70 * inch, 3.270 * inch, 4.0625 * inch, 3.270 * inch)
+        p.line(3.50 * inch, 3.27 * inch, 4.50 * inch, 3.27 * inch)
 
-        p.drawString(4.25 * inch, 3.270 * inch, 'Witness:')
-        p.line(4.75 * inch, 3.270 * inch, 7.00 * inch, 3.270 * inch)
+        if self.initials:
+            initials = ImageReader(self.get_initials_png())
+            p.drawImage(initials, 3.50 * inch, 3.29 * inch, 1 * inch, .45 * inch, mask='auto')
 
         p.setFont('Helvetica-Bold', 7)
         p.drawString(.5 * inch, 3.000 * inch,
@@ -1759,33 +1910,85 @@ class Counseling(models.Model):
         p.line(.5 * inch, 2.375 * inch, 8 * inch, 2.375 * inch)
         p.line(.5 * inch, 2.125 * inch, 8 * inch, 2.125 * inch)
 
+        y = 2.375
+        if self.employee_signature:
+            if p.stringWidth(self.comments, 'Helvetica', 10) > 435:
+                wrapped_text = wrap_text(self.comments, 'Helvetica', 10, 435)
+                for line in wrapped_text:
+                    p.drawString(.5625 * inch, (y + .02) * inch, line)
+                    y -= .25
+            else:
+                p.drawString(.5625 * inch, (y + .02) * inch, self.comments)
+
         p.drawString(.5 * inch, 1.750 * inch, 'Employee Signature:')
         p.line(2.125 * inch, 1.750 * inch, 4.5 * inch, 1.750 * inch)
 
         p.drawString(5.5 * inch, 1.750 * inch, 'Date:')
         p.line(6 * inch, 1.750 * inch, 8 * inch, 1.750 * inch)
 
+        if self.employee_signature:
+            witness_signature = ImageReader(self.get_signature_png('Employee'))
+            p.drawImage(witness_signature, 2.125 * inch, 1.752 * inch, 2.375 * inch, .45 * inch, mask='auto')
+            p.drawString(6 * inch, 1.752 * inch, timezone.now().strftime('%m-%d-%Y'))
+
         p.setFontSize(7)
 
         p.drawString(.5 * inch, 1.625 * inch,
                      'Employee\'s signature does not indicate agreement or consent to discipline.')
 
-        p.rect(.64 * inch, 1.4325 * inch, .1 * inch, .1 * inch)
-        p.drawString(.8125 * inch, 1.44 * inch, 'Employee refused to sign')
+        p.rect(.64 * inch, 1.4325 * inch, .125 * inch, .125 * inch, fill=int(self.refused_to_sign))
+
+        p.setFontSize(8)
+
+        p.drawString(.77 * inch, 1.4525 * inch, 'Employee refused to sign')
 
         p.setFontSize(11)
 
-        p.drawString(.5 * inch, 1 * inch, 'Supervisor Signature:')
+        p.drawString(.5 * inch, 1 * inch, 'Witness Signature:')
         p.line(2.125 * inch, 1 * inch, 4.5 * inch, 1 * inch)
 
         p.drawString(5.5 * inch, 1 * inch, 'Date:')
         p.line(6 * inch, 1 * inch, 8 * inch, 1 * inch)
+
+        if self.witness_signature:
+            witness_signature = ImageReader(self.get_signature_png())
+            p.drawImage(witness_signature, 2.125 * inch, 1.02 * inch, 2.375 * inch, .45 * inch, mask='auto')
+            p.drawString(6 * inch, 1.02 * inch, timezone.now().strftime('%m-%d-%Y'))
+
+        p.drawString(.5 * inch, .5 * inch, 'Supervisor Signature:')
+        p.line(2.125 * inch, .5 * inch, 4.5 * inch, .5 * inch)
+
+        p.drawString(5.5 * inch, .5 * inch, 'Date:')
+        p.line(6 * inch, .5 * inch, 8 * inch, .5 * inch)
+
+        if self.employee_signature or self.witness_signature:
+            witness_signature = ImageReader(self.get_assignee().get_signature_png())
+            p.drawImage(witness_signature, 2.125 * inch, .52 * inch, 2.375 * inch, .45 * inch, mask='auto')
+            p.drawString(6 * inch, .52 * inch, timezone.now().strftime('%m-%d-%Y'))
 
         p.showPage()
         p.save()
 
         self.document.save(f'{self.employee.get_full_name()} Counseling.pdf', ContentFile(buffer.getbuffer()), save=False)
         self.save(update_fields=['document'])
+
+    def get_signature_png(self, signature_type=None):
+        signature = self.employee_signature if signature_type == 'Employee' else self.witness_signature
+        image_data = signature.split(',')[1]
+        image_buffer = io.BytesIO(base64.b64decode(image_data))
+        image = Image.open(image_buffer, mode='r')
+        cropped_image = image.crop(image.getbbox())
+
+        return cropped_image
+
+    def get_initials_png(self):
+        signature = self.initials
+        image_data = signature.split(',')[1]
+        image_buffer = io.BytesIO(base64.b64decode(image_data))
+        image = Image.open(image_buffer, mode='r')
+        cropped_image = image.crop(image.getbbox())
+
+        return cropped_image
 
     def __str__(self):
         return f"{self.employee.get_full_name()}'s Counseling"
@@ -1799,6 +2002,7 @@ class Hold(models.Model):
     reason = models.CharField(max_length=30)
     assigned_by = models.IntegerField()
     employee = models.OneToOneField(Employee, on_delete=models.CASCADE)
+    removed_by = models.CharField(max_length=40, default='', blank=True)
 
     def get_assignee(self):
         """Will return the Employee object of the assignee"""

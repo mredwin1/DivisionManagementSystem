@@ -24,11 +24,6 @@ $(document).ready(function () {
         form.attr('action', form_url)
         account_button.attr('href', employee_url)
 
-        console.log(reason)
-        console.log(incident_date)
-        console.log(release_date)
-        console.log(training_datetime)
-
         if (reason in reason_options) {
             reason_field.val(reason)
             other_reason_field.prop('required', false)
@@ -59,9 +54,6 @@ $(document).ready(function () {
             let index = training_datetime.indexOf('@')
             let training_date = training_datetime.substring(0, index - 1)
             let training_time = training_datetime.substring(index + 2, training_datetime.length)
-            console.log(training_date.substring(training_date.indexOf('-'), training_date.lastIndexOf('-')))
-            console.log(training_date.substring(training_date.indexOf('-') + 1, training_date.lastIndexOf('-')))
-            console.log(training_date.substring(training_date.lastIndexOf('-') + 1, training_date.length))
             let training_month = training_date.substring(0, training_date.indexOf('-'))
             let training_day = training_date.substring(training_date.indexOf('-') + 1, training_date.lastIndexOf('-'))
             let training_year = training_date.substring(training_date.lastIndexOf('-') + 1, training_date.length)
@@ -119,7 +111,6 @@ $(document).ready(function () {
             other_reason_container.style.display = 'block';
             other_reason_field.required = true;
         } else {
-            console.log(other_reason_field)
             other_reason_field.value = ''
             other_reason_field.required = false;
             other_reason_container.style.display = 'none';

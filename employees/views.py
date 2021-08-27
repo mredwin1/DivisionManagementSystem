@@ -1,7 +1,9 @@
+from django import utils
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.sites.models import Site
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, Http404
 from django.shortcuts import render, redirect
 from notifications.models import Notification
 from django.urls import reverse
@@ -11,7 +13,7 @@ from .models import Employee, SafetyPoint, TimeOffRequest
 
 
 @login_required
-def account(request, employee_id, download=None, download_id=None, notification_id=None):
+def account(request, employee_id, notification_id=None):
     if employee_id == request.user.employee_id or request.user.has_perm('employees.can_view_all_accounts'):
         employee = Employee.objects.get(employee_id=employee_id)
         attendance = Attendance.objects.filter(employee=employee, is_active=True).order_by('-incident_date')
@@ -20,24 +22,6 @@ def account(request, employee_id, download=None, download_id=None, notification_
         time_off = TimeOffRequest.objects.filter(employee=employee, is_active=True).order_by('-request_date')
         settlements = Settlement.objects.filter(employee=employee, is_active=True).order_by('-created_date')
 
-        if download == 'Attendance':
-            download_object = attendance.get(id=download_id)
-        elif download == 'Counseling':
-            download_object = counseling.get(id=download_id)
-        elif download == 'Safety Point':
-            download_object = safety_point.get(id=download_id)
-        else:
-            download_object = None
-
-        if download_object:
-            download_urls = [request.build_absolute_uri(download_object.document.url)]
-            try:
-                download_urls.append(request.build_absolute_uri(download_object.counseling.document.url))
-            except (Counseling.DoesNotExist, AttributeError):
-                pass
-        else:
-            download_urls = []
-
         data = {
             'employee': employee,
             'attendance': attendance,
@@ -45,7 +29,6 @@ def account(request, employee_id, download=None, download_id=None, notification_
             'safety_point': safety_point,
             'time_off': time_off,
             'settlements': settlements,
-            'download_urls': download_urls,
         }
 
         if notification_id:
@@ -140,46 +123,46 @@ def assign_attendance(request, employee_id):
     employee = Employee.objects.get(employee_id=employee_id)
     if request.method == 'GET':
 
-        a_form = AssignAttendance(employee=employee, request=request)
+        form = AssignAttendance(employee=employee, request=request)
 
         data = {
-            'a_form': a_form,
-            'employee': employee
+            'form': form,
+            'employee': employee,
+            'domain': Site.objects.get_current().domain
         }
 
-        return render(request, 'employees/assign_attendance.html', data)
+        return render(request, 'employees/attendance.html', data)
     else:
-        a_form = AssignAttendance(data=request.POST, employee=employee, request=request)
-
-        if a_form.is_valid():
-            attendance_id = a_form.save()
+        form = AssignAttendance(data=request.POST, employee=employee, request=request)
+        if form.is_valid():
+            form.save()
 
             messages.add_message(request, messages.SUCCESS, 'Attendance Point Successfully Assigned')
 
-            data = {'url': reverse('employee-account', args=[employee.employee_id, 'Attendance', attendance_id])}
+            data = {'url': reverse('employee-account', args=[employee.employee_id])}
 
             return JsonResponse(data, status=200)
         else:
 
-            return JsonResponse(a_form.errors, status=400)
+            return JsonResponse(form.errors, status=400)
 
 
 @login_required
 @permission_required('employees.can_delete_attendance', raise_exception=True)
-def delete_attendance(request, employee_id, attendance_id):
-    attendance_point = Attendance.objects.get(id=attendance_id)
-    exemption = attendance_point.exemption
-    employee = attendance_point.employee
+def delete_attendance(request, attendance_id):
+    attendance = Attendance.objects.get(id=attendance_id)
+    exemption = attendance.exemption
+    employee = attendance.employee
 
-    attendance_point.is_active = False
+    attendance.is_active = False
 
     try:
-        attendance_point.counseling.is_active = False
-        attendance_point.counseling.save(update_fields=['is_active', 'document'])
+        attendance.counseling.is_active = False
+        attendance.counseling.save(update_fields=['is_active'])
     except Counseling.DoesNotExist:
         pass
 
-    attendance_point.save(update_fields=['is_active', 'document'])
+    attendance.save(update_fields=['is_active'])
 
     if exemption == '1':
         employee.paid_sick += 1
@@ -190,44 +173,45 @@ def delete_attendance(request, employee_id, attendance_id):
 
     messages.add_message(request, messages.SUCCESS, 'Attendance Point Deleted Successfully')
 
-    return redirect('employee-account', employee_id)
+    return redirect('employee-account', attendance.employee.employee_id)
 
 
 @login_required
 @permission_required('employees.can_edit_attendance', raise_exception=True)
-def edit_attendance(request, employee_id, attendance_id):
+def edit_attendance(request, attendance_id):
     attendance = Attendance.objects.get(id=attendance_id)
-    employee = Employee.objects.get(employee_id=employee_id)
+    employee = attendance.employee
+    initial = {
+        'incident_date': attendance.incident_date,
+        'reason': attendance.reason,
+        'exemption': attendance.exemption,
+        'issued_date': attendance.issued_date,
+    }
 
     if request.method == 'POST':
-        a_form = EditAttendance(data=request.POST, files=request.FILES, employee=employee,
-                                attendance=attendance, request=request)
+        form = EditAttendance(data=request.POST, employee=employee, attendance=attendance, request=request,
+                              initial=initial)
 
-        if a_form.is_valid():
-            a_form.save()
+        if form.is_valid():
+            form.save()
 
-            data = {'url': reverse('employee-account', args=[employee_id, 'Attendance', attendance_id])}
+            data = {'url': reverse('employee-account', args=[employee.employee_id])}
 
             return JsonResponse(data, status=200)
         else:
 
-            return JsonResponse(a_form.errors, status=400)
+            return JsonResponse(form.errors, status=400)
     else:
-        initial = {
-            'incident_date': attendance.incident_date,
-            'reason': attendance.reason,
-            'exemption': attendance.exemption,
-            'issued_date': attendance.issued_date,
-        }
-
-        a_form = EditAttendance(initial=initial, employee=employee)
+        form = EditAttendance(initial=initial, employee=employee)
 
         data = {
             'employee': employee,
-            'a_form': a_form
+            'form': form,
+            'attendance': attendance,
+            'domain': Site.objects.get_current().domain
         }
 
-        return render(request, 'employees/edit_attendance.html', data)
+        return render(request, 'employees/attendance.html', data)
 
 
 @login_required
@@ -236,64 +220,65 @@ def assign_counseling(request, employee_id):
     employee = Employee.objects.get(employee_id=employee_id)
 
     if request.method == 'POST':
-        c_form = AssignCounseling(data=request.POST, employee=employee, request=request)
+        form = AssignCounseling(data=request.POST, employee=employee, request=request)
 
-        if c_form.is_valid():
-            counseling_id = c_form.save()
+        if form.is_valid():
+            form.save()
 
             messages.add_message(request, messages.SUCCESS, 'Counseling Successfully Added')
 
             data = {
-                'url': reverse('employee-account', args=[employee_id, 'Counseling', counseling_id])
+                'url': reverse('employee-account', args=[employee_id])
             }
 
             return JsonResponse(data, status=200)
         else:
 
-            return JsonResponse(c_form.errors, status=400)
+            return JsonResponse(form.errors, status=400)
     else:
-        c_form = AssignCounseling(employee=employee)
+        form = AssignCounseling(employee=employee)
 
         data = {
             'employee': employee,
-            'c_form': c_form
+            'form': form,
+            'domain': Site.objects.get_current().domain
         }
 
-        return render(request, 'employees/assign_counseling.html', data)
+        return render(request, 'employees/counseling.html', data)
 
 
 @login_required
 @permission_required('employees.can_delete_attendance', raise_exception=True)
-def delete_counseling(request, employee_id, counseling_id):
+def delete_counseling(request, counseling_id):
     counseling = Counseling.objects.get(id=counseling_id)
 
     counseling.is_active = False
 
-    counseling.save(update_fields=['is_active', 'document'])
+    counseling.save(update_fields=['is_active'])
 
     messages.add_message(request, messages.SUCCESS, 'Counseling Successfully Deleted')
 
-    return redirect('employee-account', employee_id)
+    return redirect('employee-account', counseling.employee.employee_id)
 
 
 @login_required
 @permission_required('employees.can_edit_counseling', raise_exception=True)
-def edit_counseling(request, employee_id, counseling_id):
+def edit_counseling(request, counseling_id):
     counseling = Counseling.objects.get(id=counseling_id)
 
     if request.method == 'POST':
-        c_form = EditCounseling(data=request.POST, files=request.FILES, request=request, counseling=counseling)
+        form = EditCounseling(data=request.POST, files=request.FILES, request=request, counseling=counseling)
 
-        if c_form.is_valid():
-            c_form.save()
+        if form.is_valid():
+            form.save()
 
             messages.add_message(request, messages.SUCCESS, 'Counseling Edited Successfully')
 
-            data = {'url': reverse('employee-account', args=[employee_id, 'Counseling', counseling_id])}
+            data = {'url': reverse('employee-account', args=[counseling.employee.employee_id])}
 
             return JsonResponse(data, status=200)
         else:
-            return JsonResponse(c_form.errors, status=400)
+            return JsonResponse(form.errors, status=400)
     else:
         initial = {
             'issued_date': counseling.issued_date,
@@ -304,14 +289,15 @@ def edit_counseling(request, employee_id, counseling_id):
             'conversation': counseling.conversation
         }
 
-        c_form = EditCounseling(initial=initial, counseling=counseling)
+        form = EditCounseling(initial=initial, counseling=counseling)
 
         data = {
             'counseling': counseling,
-            'c_form': c_form,
+            'form': form,
+            'employee': counseling.employee,
         }
 
-        return render(request, 'employees/edit_counseling.html', data)
+        return render(request, 'employees/counseling.html', data)
 
 
 @login_required
@@ -320,71 +306,71 @@ def assign_safety_point(request, employee_id):
     employee = Employee.objects.get(employee_id=employee_id)
 
     if request.method == 'POST':
-        s_form = AssignSafetyPoint(request.POST, employee=employee, request=request)
+        form = AssignSafetyPoint(request.POST, employee=employee, request=request)
 
-        if s_form.is_valid():
-            safety_point_id = s_form.save()
+        if form.is_valid():
+            form.save()
 
             messages.add_message(request, messages.SUCCESS, 'Safety Point Successfully Assigned')
 
-            data = {'url': reverse('employee-account', args=[employee_id, 'Safety Point', safety_point_id])}
+            data = {'url': reverse('employee-account', args=[employee_id])}
 
             return JsonResponse(data, status=200)
         else:
 
-            return JsonResponse(s_form.errors, status=400)
+            return JsonResponse(form.errors, status=400)
 
     else:
-        s_form = AssignSafetyPoint(initial={'issued_date': datetime.date.today()})
+        form = AssignSafetyPoint(initial={'issued_date': datetime.date.today()})
 
         data = {
             'employee': employee,
-            's_form': s_form
+            'form': form,
+            'domain': Site.objects.get_current().domain
         }
 
-        return render(request, 'employees/assign_safety_point.html', data)
+        return render(request, 'employees/safety_point.html', data)
 
 
 @login_required
 @permission_required('employees.can_delete_attendance', raise_exception=True)
-def delete_safety_point(request, employee_id, safety_point_id):
+def delete_safety_point(request, safety_point_id):
     safety_point = SafetyPoint.objects.get(id=safety_point_id)
 
     safety_point.is_active = False
 
     try:
         safety_point.counseling.is_active = False
-        safety_point.counseling.save(update_fields=['document', 'is_active'])
+        safety_point.counseling.save(update_fields=['is_active'])
     except Counseling.DoesNotExist:
         pass
 
-    safety_point.save(update_fields=['is_active', 'document'])
+    safety_point.save(update_fields=['is_active'])
 
     messages.add_message(request, messages.SUCCESS, 'Safety Point Successfully Deleted')
 
-    return redirect('employee-account', employee_id)
+    return redirect('employee-account', safety_point.employee.employee_id)
 
 
 @login_required
 @permission_required('employees.can_edit_safety_point', raise_exception=True)
-def edit_safety_point(request, employee_id, safety_point_id):
+def edit_safety_point(request, safety_point_id):
     safety_point = SafetyPoint.objects.get(id=safety_point_id)
-    employee = Employee.objects.get(employee_id=employee_id)
 
     if request.method == 'POST':
-        s_form = EditSafetyPoint(data=request.POST, files=request.FILES)
+        form = EditSafetyPoint(data=request.POST, safety_point=safety_point, request=request)
 
-        if s_form.is_valid():
-            s_form.save(safety_point, request)
+        if form.is_valid():
+            form.save()
 
             messages.add_message(request, messages.SUCCESS, 'Safety Point Edited Successfully')
 
-            data = {'url': reverse('employee-account', args=[employee_id, 'Safety Point', safety_point_id])}
+            data = {'url': reverse('employee-account', args=[safety_point.employee.employee_id])}
 
             return JsonResponse(data, status=200)
 
         else:
-            return JsonResponse(s_form.errors, status=400)
+            return JsonResponse(form.errors, status=400)
     else:
         initial = {
             'incident_date': safety_point.incident_date,
@@ -394,14 +380,15 @@ def edit_safety_point(request, employee_id, safety_point_id):
             'details': safety_point.details
         }
 
-        s_form = EditSafetyPoint(initial=initial)
+        form = EditSafetyPoint(initial=initial, safety_point=safety_point)
 
         data = {
-            'employee': employee,
-            's_form': s_form,
+            'safety_point': safety_point,
+            'employee': safety_point.employee,
+            'form': form,
         }
 
-        return render(request, 'employees/edit_safety_point.html', data)
+        return render(request, 'employees/safety_point.html', data)
 
 
 @login_required
@@ -447,12 +434,14 @@ def edit_hold(request, hold_id):
 @permission_required('employees.can_remove_hold', raise_exception=True)
 def remove_hold(request, employee_id, hold_id):
     hold = Hold.objects.get(id=hold_id)
+    hold.removed_by = request.user.get_full_name()
 
     if hold.reason == 'Pending Termination':
         hold.employee.removal_date = None
 
         hold.employee.save()
 
+    hold.save()
     hold.delete()
 
     return redirect('employee-account', employee_id)
@@ -634,7 +623,7 @@ def export_counseling_history(request, employee_id):
 
 
 @login_required
-@permission_required('employees.can_export_safety_point_history', raise_exception=True)
+@permission_required('employees.can_export_safety_history', raise_exception=True)
 def export_safety_point_history(request, employee_id):
     employee = Employee.objects.get(employee_id=employee_id)
 
@@ -694,3 +683,90 @@ def upload_profile_picture(request, employee_id):
         }
 
         return render(request, 'employees/upload_profile_picture.html', data)
+
+
+@login_required
+def get_signature(request, employee_id=None):
+    employee = Employee.objects.get(employee_id=employee_id) if employee_id else request.user
+
+    data = {
+        'signature': employee.signature
+    }
+    return JsonResponse(data, status=200)
+
+
+def clear_signature(request, employee_id):
+    employee = Employee.objects.get(employee_id=employee_id)
+    employee.set_signature('')
+
+    return JsonResponse({'message': 'success'}, status=200)
+
+
+@login_required
+def sign_document(request, signature_method, record_id, document_type=None, simple_sign=None):
+    if signature_method == 'QR':
+        employee = Employee.objects.get(employee_id=record_id)
+        if request.user == employee:
+            if request.method == 'GET':
+                form = SignDocument(request, employee)
+                data = {
+                    'form': form,
+                    'signature_method': signature_method,
+                    'record': employee,
+                    'document_type': None,
+                    'domain': Site.objects.get_current().domain
+                }
+
+                return render(request, 'employees/sign_document.html', data)
+            else:
+                form = SignDocument(request, employee, data=request.POST)
+
+                if form.is_valid():
+                    form.save()
+
+                    data = {
+                        'url': reverse('employee-account', args=[employee.employee_id])
+                    }
+
+                    return JsonResponse(data, status=200)
+                else:
+                    return JsonResponse(form.errors, status=400)
+        else:
+            raise Http404
+    else:
+        record_types = {
+            'Attendance': Attendance,
+            'SafetyPoint': SafetyPoint,
+            'Counseling': Counseling
+        }
+
+        record = record_types[document_type].objects.get(id=record_id)
+
+        if request.user == record.employee or request.user.has_perm('employees.can_sign_documents') and (not record.is_signed and not simple_sign):
+            if request.method == 'GET':
+                form = SignDocument(request, record, document_type, simple_sign)
+
+                data = {
+                    'form': form,
+                    'document_type': document_type,
+                    'signature_method': signature_method,
+                    'record': record,
+                    'domain': Site.objects.get_current().domain,
+                    'simple_sign': simple_sign
+                }
+
+                return render(request, 'employees/sign_document.html', data)
+            else:
+                form = SignDocument(request, record, document_type, simple_sign,data=request.POST)
+                if form.is_valid():
+                    form.save()
+
+                    data = {
+                        'url': reverse('employee-account', args=[record.employee.employee_id])
+                    }
+
+                    return JsonResponse(data, status=200)
+                else:
+                    return JsonResponse(form.errors, status=400)
+        else:
+            raise Http404

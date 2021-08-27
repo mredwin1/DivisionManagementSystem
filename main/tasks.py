@@ -7,14 +7,45 @@ from zipfile import ZipFile
 from celery import shared_task
 from django.core.mail import send_mail
 from django.core.management import call_command
+from django.contrib.sites.models import Site
+from django.urls import reverse
+from django.utils import timezone
 from openpyxl import load_workbook
+from twilio.rest import Client
 
-from employees.models import Company, Employee, Attendance, SafetyPoint
+from employees.models import Company, Employee, Attendance, SafetyPoint, Counseling
 
 
 @shared_task
 def send_email(subject, plain_message, to, html_message):
     send_mail(subject=subject, from_email=None, message=plain_message, recipient_list=[to], html_message=html_message)
+
+
+@shared_task
+def send_text(to, body, sender_id, sender_type):
+    client = Client(os.environ['TWILIO_ACCOUNT_SID'], os.environ['TWILIO_AUTH_TOKEN'])
+    domain = Site.objects.get_current().domain
+
+    message = client.messages.create(
+        to=to,
+        from_=os.environ['TWILIO_PHONE_NUMBER'],
+        body=body,
+        status_callback=f'https://{domain}{reverse("main-update-msg-status", args=[sender_id, sender_type])}'
+    )
+
+    message_status = message.status
+
+    record_types = {
+        'Attendance': Attendance,
+        'SafetyPoint': SafetyPoint,
+        'Counseling': Counseling
+    }
+
+    record = record_types[sender_type].objects.get(id=sender_id)
+
+    record.message_status = f'{message_status[0].upper()}{message_status[1:]}'
+    record.status_update_date = timezone.now()
+    record.save()
 
 
 @shared_task

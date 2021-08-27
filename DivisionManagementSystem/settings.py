@@ -29,9 +29,9 @@ SECRET_KEY = os.environ['SECRET_KEY']
 DEBUG = bool(int(os.environ['DEBUG']))
 
 if DEBUG:
-    ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', 'localhost', 'dms.localhost']
+    ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', 'localhost', 'dms.localhost', 'testmvbachman.com', 'www.testmvbachman.com']
 else:
-    ALLOWED_HOSTS = ['mvbachman.com', 'www.mvbachman.com']
+    ALLOWED_HOSTS = [os.environ.get('DOMAIN'), f'www.{os.environ.get("DOMAIN")}']
 
 # Application definition
 INSTALLED_APPS = [
@@ -157,8 +157,8 @@ if USE_S3:
     AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
     AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
-    AWS_DEFAULT_ACL = None
-    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+    AWS_DEFAULT_ACL = 'private'
+    AWS_S3_CUSTOM_DOMAIN = os.getenv('AWS_S3_CUSTOM_DOMAIN')
     AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
     # S3 static settings
     AWS_LOCATION = 'static'

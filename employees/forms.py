@@ -1,6 +1,7 @@
 import datetime
 
 from django import forms
+from django import utils
 from phonenumber_field.formfields import PhoneNumberField
 from pytz import timezone
 
@@ -64,10 +65,27 @@ class EditEmployeeInfo(forms.Form):
 
 
 class AssignAttendance(forms.Form):
+    POINTS = {
+        '0': 1,
+        '1': 0,
+        '2': 1.5,
+        '3': 4,
+        '4': 1,
+        '5': 1,
+        '6': .5,
+        '7': 1,
+        '8': .5,
+    }
+
     incident_date = forms.DateField(label='Incident Date', widget=forms.TextInput(attrs={'type': 'date'}),
                                     required=True)
     reason = forms.CharField(label='Reason', widget=forms.Select(choices=Attendance.REASON_CHOICES), required=True)
     exemption = forms.CharField(label='Exemption', widget=forms.Select(choices=Attendance.EXEMPTION_CHOICES), required=False)
+    other_signature = forms.CharField(required=False)
+    manager_signature = forms.CharField(required=False)
+    signature_method = forms.CharField(required=False)
+    refused_to_sign = forms.BooleanField(required=False)
+    comments = forms.CharField(label='Employee Comments', widget=forms.Textarea(attrs={'maxlength': '190'}), required=False)
 
     def __init__(self, *args, **kwargs):
         self.employee = kwargs.pop('employee', None)
@@ -76,100 +94,78 @@ class AssignAttendance(forms.Form):
         super(AssignAttendance, self).__init__(*args, **kwargs)
 
     def clean(self):
-        super().clean()
-
         exception_field_name = 'exemption'
         exemption = self.cleaned_data[exception_field_name]
-
-        if exemption == '1' and self.employee.paid_sick <= 0:
-            self.add_error(exception_field_name, f'{self.employee.get_full_name()} does not have Paid Sick days '
-                                                 f'available')
-        elif exemption == '2' and self.employee.unpaid_sick <= 0:
-            self.add_error(exception_field_name, f'{self.employee.get_full_name()} does not have Unpaid Sick days '
-                                                 f'available')
+        if exception_field_name in self.changed_data:
+            self.cleaned_data['points'] = 0
+            if exemption == '1' and self.employee.paid_sick <= 0:
+                self.add_error(exception_field_name, f'{self.employee.get_full_name()} does not have Paid Sick days '
+                                                     f'available')
+            elif exemption == '2' and self.employee.unpaid_sick <= 0:
+                self.add_error(exception_field_name, f'{self.employee.get_full_name()} does not have Unpaid Sick days '
+                                                     f'available')
+        else:
+            self.cleaned_data['points'] = self.POINTS[self.cleaned_data['reason']]
 
     def save(self):
-        points = {
-            '0': 1,
-            '1': 0,
-            '2': 1.5,
-            '3': 4,
-            '4': 1,
-            '5': 1,
-            '6': .5,
-            '7': 1,
-            '8': .5,
-        }
-
         attendance = Attendance(
             employee=self.employee,
             incident_date=self.cleaned_data['incident_date'],
             issued_date=datetime.date.today(),
-            points=0 if self.cleaned_data['exemption'] else points[self.cleaned_data['reason']],
+            points=self.cleaned_data['points'],
             reason=self.cleaned_data['reason'],
             assigned_by=self.request.user.employee_id,
             exemption=self.cleaned_data['exemption'],
+            signature=self.cleaned_data['other_signature'],
+            signature_method=self.cleaned_data['signature_method'] if self.cleaned_data['other_signature'] else '',
+            is_signed=True if self.cleaned_data['other_signature'] else False,
+            signed_date=utils.timezone.now() if self.cleaned_data['other_signature'] else None,
+            refused_to_sign=self.cleaned_data['refused_to_sign'],
+            comments=self.cleaned_data['comments']
         )
 
         attendance.save()
 
-        self.employee.save()
+        if self.cleaned_data['exemption'] == '1':
+            self.employee.paid_sick -= 1
+        elif self.cleaned_data['exemption'] == '2':
+            self.employee.unpaid_sick -= 1
 
-        return attendance.id
+        self.request.user.set_signature(self.cleaned_data['manager_signature'])
+
+        self.employee.save()
 
 
 class EditAttendance(AssignAttendance):
     issued_date = forms.DateField(label='Issued Date', widget=forms.TextInput(attrs={'type': 'date'}),
                                   required=False)
-    document = forms.FileField(label='Document', required=False)
 
     def save(self):
-        update_fields = ['incident_date', 'issued_date', 'reason', 'exemption', 'edited_date', 'edited_by', 'points']
-        points = {
-            '0': 1,
-            '1': 0,
-            '2': 1.5,
-            '3': 4,
-            '4': 1,
-            '5': 1,
-            '6': .5,
-            '7': 1,
-            '8': .5,
-        }
-
-        if self.cleaned_data['exemption']:
-            self.attendance.points = 0
-            if self.cleaned_data['exemption'] == '1' and self.attendance.exemption != '1':
-                self.employee.paid_sick -= 1
-            elif self.cleaned_data['exemption'] == '2' and self.attendance.exemption != '2':
-                self.employee.unpaid_sick -= 1
-        else:
-            self.attendance.points = points[self.cleaned_data['reason']]
+        if self.cleaned_data['exemption'] == '1' and self.attendance.exemption != '1':
+            self.employee.paid_sick -= 1
+        elif self.cleaned_data['exemption'] == '2' and self.attendance.exemption != '2':
+            self.employee.unpaid_sick -= 1
 
         if self.attendance.exemption == '1' and self.cleaned_data['exemption'] != '1':
             self.employee.paid_sick += 1
         elif self.attendance.exemption == '2' and self.cleaned_data['exemption'] != '2':
             self.employee.unpaid_sick += 1
 
+        self.attendance.points = self.cleaned_data['points']
         self.attendance.incident_date = self.cleaned_data['incident_date']
         self.attendance.issued_date = self.cleaned_data['issued_date']
         self.attendance.reason = self.cleaned_data['reason']
         self.attendance.exemption = self.cleaned_data['exemption']
         self.attendance.edited_date = datetime.datetime.today()
         self.attendance.edited_by = f'{self.request.user.first_name} {self.request.user.last_name}'
+        self.attendance.signature_method = ''
+        self.attendance.signed_date = None
+        self.attendance.is_signed = False
+        self.attendance.signature = ''
+        self.attendance.refused_to_sign = False
 
-        try:
-            self.attendance.document = self.request.FILES['document']
-            self.attendance.uploaded = True
-            update_fields.append('document')
-            update_fields.append('uploaded')
-        except KeyError:
-            pass
-
+        self.attendance.document.delete()
         self.employee.save()
-        self.attendance.save(update_fields=update_fields)
-
-        return self.attendance.id
 
 
 class AssignCounseling(forms.Form):
@@ -183,6 +179,13 @@ class AssignCounseling(forms.Form):
     conduct = forms.CharField(label='Explanation of Employee Conduct', widget=forms.Textarea(), required=True)
     conversation = forms.CharField(label='Record of Conversation', widget=forms.Textarea(), required=True)
     pd_check_override = forms.BooleanField(label='Override Progressive Discipline Check', required=False)
+    other_signature = forms.CharField(required=False)
+    manager_signature = forms.CharField(required=False)
+    initials = forms.CharField(required=False)
+    signature_method = forms.CharField(required=False)
+    refused_to_sign = forms.BooleanField(required=False)
+    union_representation = forms.BooleanField(required=False)
+    comments = forms.CharField(label='Employee Comments', widget=forms.Textarea(attrs={'maxlength': '190'}), required=False)
 
     def __init__(self, *args, **kwargs):
         self.employee = kwargs.pop('employee', None)
@@ -247,54 +250,64 @@ class AssignCounseling(forms.Form):
                 if action_type != next_step:
                     self.add_error(action_type_field, f'The next step in progressive discipline would be {actions[next_step]}.')
 
-    def save(self):
         if self.cleaned_data['hearing_date']:
-            hearing_date = datetime.datetime.combine(self.cleaned_data['hearing_date'],
+            self.cleaned_data['hearing_date'] = datetime.datetime.combine(self.cleaned_data['hearing_date'],
                                                      self.cleaned_data['hearing_time'])
         else:
-            hearing_date = None
+            self.cleaned_data['hearing_date'] = None
 
+    def save(self):
         counseling = Counseling(
             employee=self.employee,
             assigned_by=self.request.user.employee_id,
             issued_date=datetime.datetime.today(),
             action_type=self.cleaned_data['action_type'],
-            hearing_datetime=hearing_date,
+            hearing_datetime=self.cleaned_data['hearing_date'],
             conduct=self.cleaned_data['conduct'],
             conversation=self.cleaned_data['conversation'],
-            override_by=self.request.user.employee_id if self.cleaned_data['pd_check_override'] else None
+            override_by=self.request.user.employee_id if self.cleaned_data['pd_check_override'] else None,
+            signature_method=self.cleaned_data['signature_method'] if self.cleaned_data['other_signature'] else '',
+            is_signed=True if self.cleaned_data['other_signature'] else False,
+            signed_date=utils.timezone.now() if self.cleaned_data['other_signature'] else None,
+            refused_to_sign=self.cleaned_data['refused_to_sign'],
+            initials=self.cleaned_data['initials'],
+            union_representation=self.cleaned_data['union_representation'],
+            comments=self.cleaned_data['comments']
         )
+
+        if self.cleaned_data['refused_to_sign']:
+            counseling.witness_signature = self.cleaned_data['other_signature']
+        else:
+            counseling.employee_signature = self.cleaned_data['other_signature']
+
+        self.request.user.set_signature(self.cleaned_data['manager_signature'])
 
         counseling.save()
 
-        return counseling.id
 
 
 class EditCounseling(AssignCounseling):
-    document = forms.FileField(label='Document', required=False)
-
     def save(self):
-        update_fields = ['issued_date', 'action_type', 'conduct', 'hearing_datetime', 'conversation']
-        try:
-            self.counseling.document = self.request.FILES['document']
-            self.counseling.uploaded = True
-            update_fields.append('document')
-            update_fields.append('uploaded')
-        except KeyError:
-            pass
-
-        if self.cleaned_data['hearing_date']:
-            hearing_datetime = datetime.datetime.combine(self.cleaned_data['hearing_date'], self.cleaned_data['hearing_time'], timezone('UTC'))
-        else:
-            hearing_datetime = None
-
         self.counseling.issued_date = self.cleaned_data['issued_date']
         self.counseling.action_type = self.cleaned_data['action_type']
-        self.counseling.hearing_datetime = hearing_datetime
+        self.counseling.hearing_datetime = self.cleaned_data['hearing_date']
         self.counseling.conduct = self.cleaned_data['conduct']
         self.counseling.conversation = self.cleaned_data['conversation']
+        self.counseling.edited_date = datetime.datetime.today()
+        self.counseling.edited_by = f'{self.request.user.first_name} {self.request.user.last_name}'
+        self.counseling.signature_method = ''
+        self.counseling.signed_date = None
+        self.counseling.is_signed = False
+        self.counseling.employee_signature = ''
+        self.counseling.witness_signature = ''
+        self.counseling.initials = ''
+        self.counseling.refused_to_sign = False
 
-        self.counseling.save(update_fields=update_fields)
+        if 'pd_check_override' in self.changed_data:
+            self.counseling.override_by = self.request.user.employee_id if self.cleaned_data[
+                'pd_check_override'] else None
+
+        self.counseling.document.delete()
 
 
 class AssignSafetyPoint(forms.Form):
@@ -319,13 +332,28 @@ class AssignSafetyPoint(forms.Form):
     issued_date = forms.DateField(label='Issued Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
     reason = forms.CharField(label='Reason', required=True, widget=forms.Select(
         choices=SafetyPoint.REASON_CHOICES, attrs={'onchange': 'unsafe_act_change()'}))
-    unsafe_act = forms.CharField(label='Type of Unsafe Act', widget=forms.TextInput(attrs={'class':'textinput textInput form-control', 'required':''}),required=False, help_text='Write the type of unsafe act')
-    details = forms.CharField(label='Details', widget=forms.Textarea(attrs={'class': 'textarea form-control', 'required':''}), required=False)
+    unsafe_act = forms.CharField(label='Type of Unsafe Act',
+                                 widget=forms.TextInput(
+                                     attrs={'class': 'textinput textInput form-control', 'required': ''}
+                                 ),
+                                 required=False,
+                                 help_text='Write the type of unsafe act'
+                                 )
+    details = forms.CharField(label='Details',
+                              widget=forms.Textarea(attrs={'class': 'textarea form-control', 'required': ''}),
+                              required=False
+                              )
+    other_signature = forms.CharField(required=False)
+    manager_signature = forms.CharField(required=False)
+    initials = forms.CharField(required=False)
+    signature_method = forms.CharField(required=False)
+    refused_to_sign = forms.BooleanField(required=False)
+    union_representation = forms.BooleanField(required=False)
 
     def __init__(self, *args, **kwargs):
         self.employee = kwargs.pop('employee', None)
         self.request = kwargs.pop('request', None)
-        self.counseling = kwargs.pop('counseling', None)
+        self.safety_point = kwargs.pop('safety_point', None)
         super(AssignSafetyPoint, self).__init__(*args, **kwargs)
 
     def save(self):
@@ -338,32 +366,43 @@ class AssignSafetyPoint(forms.Form):
             unsafe_act=self.cleaned_data['unsafe_act'],
             details=self.cleaned_data['details'],
             assigned_by=self.request.user.employee_id,
+            signature_method=self.cleaned_data['signature_method'] if self.cleaned_data['other_signature'] else '',
+            is_signed=True if self.cleaned_data['other_signature'] else False,
+            signed_date=utils.timezone.now() if self.cleaned_data['other_signature'] else None,
+            refused_to_sign=self.cleaned_data['refused_to_sign'],
+            initials=self.cleaned_data['initials'],
+            union_representation=self.cleaned_data['union_representation']
         )
 
+        if self.cleaned_data['refused_to_sign']:
+            safety_point.witness_signature = self.cleaned_data['other_signature']
+        else:
+            safety_point.employee_signature = self.cleaned_data['other_signature']
+
+        self.request.user.set_signature(self.cleaned_data['manager_signature'])
+
         safety_point.save()
-        return safety_point.id
 
 
 class EditSafetyPoint(AssignSafetyPoint):
-    document = forms.FileField(label='Document', required=False)
+    def save(self):
+        self.safety_point.incident_date = self.cleaned_data['incident_date']
+        self.safety_point.issued_date = self.cleaned_data['issued_date']
+        self.safety_point.points = self.POINTS[self.cleaned_data['reason']]
+        self.safety_point.reason = self.cleaned_data['reason']
+        self.safety_point.unsafe_act = self.cleaned_data['unsafe_act']
+        self.safety_point.details = self.cleaned_data['details']
+        self.safety_point.edited_date = datetime.datetime.today()
+        self.safety_point.edited_by = f'{self.request.user.first_name} {self.request.user.last_name}'
+        self.safety_point.signature_method = ''
+        self.safety_point.signed_date = None
+        self.safety_point.is_signed = False
+        self.safety_point.employee_signature = ''
+        self.safety_point.witness_signature = ''
+        self.safety_point.initials = ''
+        self.safety_point.refused_to_sign = False
 
-    def save(self, safety_point, request):
-        update_fields = ['incident_date', 'issued_date', 'points', 'reason', 'unsafe_act', 'details']
-        try:
-            safety_point.document = self.files['document']
-            safety_point.uploaded = True
-            update_fields.append('document')
-            update_fields.append('uploaded')
-        except KeyError:
-            pass
-        safety_point.incident_date = self.cleaned_data['incident_date']
-        safety_point.issued_date = self.cleaned_data['issued_date']
-        safety_point.points = self.POINTS[self.cleaned_data['reason']]
-        safety_point.reason = self.cleaned_data['reason']
-        safety_point.unsafe_act = self.cleaned_data['unsafe_act']
-        safety_point.details = self.cleaned_data['details']
-
-        safety_point.save(update_fields=update_fields)
+        self.safety_point.document.delete()
 
 
 class PlaceHold(forms.Form):
@@ -583,7 +622,7 @@ class NotificationSettings(forms.ModelForm):
         model = Employee
         fields = ['email_7attendance', 'email_10attendance', 'email_written', 'email_last_final', 'email_removal',
                   'email_safety_point', 'email_termination', 'email_add_hold', 'email_rem_hold', 'email_add_settlement',
-                  'email_new_time_off', 'email_new_employee', 'email_attendance_doc_day3', 'email_attendance_doc_day5',
+                  'email_new_time_off', 'email_new_employee', 'email_attendance_doc_day14', 'email_attendance_doc_day5',
                   'email_attendance_doc_day7', 'email_attendance_doc_day10', 'email_safety_doc_day3',
                   'email_safety_doc_day5', 'email_safety_doc_day7', 'email_safety_doc_day10',
                   'email_counseling_doc_day3', 'email_counseling_doc_day5', 'email_counseling_doc_day7',
@@ -622,3 +661,56 @@ class ViewSettlement(forms.ModelForm):
         widgets = {
             'created_date': forms.TextInput(attrs={'type': 'date'})
         }
+
+
+class SignDocument(forms.Form):
+    other_signature = forms.CharField(required=False)
+    manager_signature = forms.CharField(required=False)
+    initials = forms.CharField(required=False)
+    refused_to_sign = forms.BooleanField(required=False)
+    signature_method = forms.CharField()
+    union_representation = forms.BooleanField(required=False)
+    comments = forms.CharField(label='Employee Comments', widget=forms.Textarea(attrs={'maxlength': '190'}), required=False)
+
+    def __init__(self, request, record=None, document_type=None, simple_sign=None, *args, **kwargs):
+        super(SignDocument, self).__init__(*args, **kwargs)
+        self.request = request
+        self.record = record
+        self.document_type = document_type
+        self.simple_sign = simple_sign
+
+    def save(self):
+        if self.simple_sign:
+            self.record.employee_signature = self.cleaned_data['other_signature']
+
+            self.record.document.delete()
+        else:
+            if not self.document_type:
+                self.request.user.set_signature(self.cleaned_data['other_signature'])
+            elif self.document_type == 'Attendance':
+                self.record.signature = self.cleaned_data['other_signature']
+                self.record.refused_to_sign = self.cleaned_data['refused_to_sign']
+                self.record.signed_date = utils.timezone.now()
+                self.record.signature_method = self.cleaned_data['signature_method']
+                self.record.is_signed = True
+                self.record.comments = self.cleaned_data['comments']
+
+                self.request.user.set_signature(self.cleaned_data['manager_signature'])
+
+                self.record.document.delete()
+
+
+            else:
+                self.record.union_representation = self.cleaned_data['union_representation']
+                self.record.refused_to_sign = self.cleaned_data['refused_to_sign']
+                self.record.signed_date = utils.timezone.now()
+                self.record.signature_method = self.cleaned_data['signature_method']
+                self.record.employee_signature = self.cleaned_data['other_signature'] if not self.cleaned_data['refused_to_sign'] else ''
+                self.record.witness_signature = self.cleaned_data['other_signature'] if self.cleaned_data['refused_to_sign'] else ''
+                self.record.initials = self.cleaned_data['initials']
+                self.record.is_signed = True
+                self.record.comments = self.cleaned_data['comments']
+
+                self.request.user.set_signature(self.cleaned_data['manager_signature'])
+
+                self.record.document.delete()

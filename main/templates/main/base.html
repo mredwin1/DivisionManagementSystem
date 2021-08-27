@@ -4,6 +4,13 @@
 {% block scripts %}
     <script src="{% static 'notifications/notify.js' %}" type="text/javascript"></script>
     <script>
+        $(document).ready(function(){
+            setTimeout(fade_out, 3000);
+
+            function fade_out() {
+                $("#message").fadeOut().empty();
+            }
+        });
         function mark_all_as_read(url) {
             let xhttp = new XMLHttpRequest();
             xhttp.open("GET", url, true);

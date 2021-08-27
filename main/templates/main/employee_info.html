@@ -21,24 +21,24 @@
             <div class="col-md-2 col-12 mb-md-0 mb-1">
                 {{ f_form.search|as_crispy_field }}
             </div>
-            <input type=submit hidden>
+            <input type=submit formmethod="GET" formaction="{% url 'main-employee-info' %}" hidden>
         </div>
     </form>
     <div class="row justify-content-center">
         <div class="col-md-2 col-6 mb-md-0 mb-1">
-            <a class="btn btn-primary btn-block" href="{% url 'main-export-safety-meeting-attendance' %}" title="Downloads Driver Phone List">Meeting Attendance</a>
+            <a class="btn btn-primary btn-block" href="{% url 'main-export-safety-meeting-attendance' %}" data-toggle="tooltip" title="Downloads Driver Phone List">Meeting Attendance</a>
         </div>
         <div class="col-md-2 col-6 mb-md-0 mb-1">
-            <a class="btn btn-primary btn-block" href="{% url 'main-export-phone-list' %}" title="Downloads Driver Phone List">Phone List</a>
+            <a class="btn btn-primary btn-block" href="{% url 'main-export-phone-list' %}" data-toggle="tooltip" title="Downloads Driver Phone List">Phone List</a>
         </div>
         <div class="col-md-2 col-6 mb-md-0 mb-1">
-            <a class="btn btn-primary btn-block" href="{% url 'main-export-seniority-list' %}" title="Downloads Driver Seniority List">Seniority List</a>
+            <a class="btn btn-primary btn-block" href="{% url 'main-export-seniority-list' %}" data-toggle="tooltip" title="Downloads Driver Seniority List">Seniority List</a>
         </div>
         <div class="col-md-2 col-6 mb-md-0 mb-1">
-            <a class="btn btn-primary btn-block" href="{% url 'main-export-driver-list' %}" title="Downloads Driver Driver List">Driver List</a>
+            <a class="btn btn-primary btn-block" href="{% url 'main-export-driver-list' %}" data-toggle="tooltip" title="Downloads Driver Driver List">Driver List</a>
         </div>
         <div class="col-md-2 col-6 mb-md-0 mb-1">
-            <button class="btn btn-primary btn-block" formmethod="POST" formaction="{% url 'main-export-custom-list' %}" type="submit" form="filter-form" title="Downloads The List Below">Custom List</button>
+            <button class="btn btn-primary btn-block" formmethod="POST" formaction="{% url 'main-export-custom-list' %}" type="submit" form="filter-form" data-toggle="tooltip" title="Downloads The List Below">Custom List</button>
         </div>
     </div>
     <div class="row mt-2 align-items-end justify-content-center">

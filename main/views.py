@@ -1,4 +1,3 @@
-import datetime
 import uuid
 import os
 
@@ -12,10 +11,12 @@ from django.db.models.functions import Concat
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 
 from employees.helper_functions import create_phone_list, create_seniority_list, create_driver_list, create_custom_list,\
     create_safety_meeting_attendance
-from employees.models import Employee
+from employees.models import Employee, Attendance, SafetyPoint, Counseling
 from .forms import DriverFilterForm, DriverImportForm, AttendanceImportForm, SafetyPointImportForm
 from .tasks import import_drivers, import_attendance, import_safety_points
 
@@ -28,7 +29,12 @@ def log_in(request):
     if request.method == 'GET':
         form = AuthenticationForm()
 
-        return render(request, 'main/login.html', {'form': form})
+        data = {
+            'form': form,
+            'next': request.GET.get('next', '')
+        }
+
+        return render(request, 'main/login.html', data)
     else:
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
@@ -36,17 +42,23 @@ def log_in(request):
             password = form.cleaned_data['password']
             user = authenticate(request, username=username, password=password)
 
-            user.last_login = datetime.datetime.today()
+            user.last_login = timezone.now()
             user.save(update_fields=['last_login'])
 
             login(request, user)
+
+            next_url = request.POST.get('next', '')
+
+            if next_url:
+                return redirect(next_url)
 
             if user.has_perm('employees.can_view_employee_info'):
                 return redirect('main-employee-info')
             else:
                 return redirect('employee-account', user.employee_id)
         else:
-            return render(request, 'main/login.html', {'form': form})
+            next_url = request.POST.get('next', '')
+            return render(request, 'main/login.html', {'form': form, 'next': next_url})
 
 
 @login_required
@@ -272,3 +284,39 @@ def import_safety_point_data(request):
         return JsonResponse(data, status=200)
     else:
         return JsonResponse(s_form.errors, status=400)
+
+
+@csrf_exempt
+def update_msg_status(request, record_id, record_type):
+    record_types = {
+        'Attendance': Attendance,
+        'SafetyPoint': SafetyPoint,
+        'Counseling': Counseling
+    }
+
+    record = record_types[record_type].objects.get(id=record_id)
+    message_status = request.POST.get('SmsStatus')
+
+    if message_status:
+        record.message_status = f'{message_status[0].upper()}{message_status[1:]}'
+        record.status_update_date = timezone.now()
+        record.save()
+
+    return HttpResponse(status=200)
+
+
+@login_required
+def view_document(request, record_id, record_type):
+    record_types = {
+        'Attendance': Attendance,
+        'SafetyPoint': SafetyPoint,
+        'Counseling': Counseling
+    }
+
+    record = record_types[record_type].objects.get(id=record_id)
+
+    data = {
+        'record': record
+    }
+
+    return render(request, 'main/document_viewer.html', data)

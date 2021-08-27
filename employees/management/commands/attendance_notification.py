@@ -17,22 +17,22 @@ class Command(BaseCommand):
         today = datetime.datetime.today().date()
 
         for attendance_record in attendance_records:
-            if not attendance_record.uploaded:
+            if not attendance_record.is_signed:
                 days_passed = (today - attendance_record.issued_date).days
                 verb = f'An attendance point was given to {attendance_record.employee.get_full_name()} {days_passed} ' \
-                       f'days ago and no signed document has been uploaded yet.'
+                       f'days ago and has not been signed yet.'
                 notification_types = []
 
-                if days_passed >= 10:
-                    notification_types = ['email_attendance_doc_day3', 'email_attendance_doc_day5',
-                                          'email_attendance_doc_day7', 'email_attendance_doc_day10']
+                if days_passed >= 14:
+                    notification_types = ['email_attendance_doc_day5', 'email_attendance_doc_day7',
+                                          'email_attendance_doc_day10', 'email_attendance_doc_day14']
+                elif days_passed == 10:
+                    notification_types = ['email_attendance_doc_day5', 'email_attendance_doc_day7',
+                                          'email_attendance_doc_day10']
                 elif days_passed == 7:
-                    notification_types = ['email_attendance_doc_day3', 'email_attendance_doc_day5',
-                                          'email_attendance_doc_day7']
+                    notification_types = ['email_attendance_doc_day5', 'email_attendance_doc_day7']
                 elif days_passed == 5:
-                    notification_types = ['email_attendance_doc_day3', 'email_attendance_doc_day5']
-                elif days_passed == 3:
-                    notification_types = ['email_attendance_doc_day3']
+                    notification_types = ['email_attendance_doc_day5']
 
                 if notification_types:
                     self.send_notification(attendance_record, notification_types, verb)

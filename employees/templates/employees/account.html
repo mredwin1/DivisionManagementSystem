@@ -3,6 +3,7 @@
 {% load crispy_forms_tags %}
 {% load employee_filters %}
 {% block content %}
+    <script src="{% static 'JS/account_utilities.js' %}"></script>
     <div class="row py-2 justify-content-center">
         <div class="col-xl-3 col-lg-4 col-md-6 col-12 mb-lg-0 mb-3">
             <div class="row px-3">
@@ -50,13 +51,13 @@
                             </div>
                         </div>
                     </div>
-                    {% if user.position != "driver" %}
+                    {% if perms.employees.can_view_account_action_bar %}
                         <div class="row">
                             <div class="col px-3 border-top border-dark">
                                 <div class="d-flex justify-content-between p-3">
                                     {% if employee.hold %}
                                         <a class="cursor-default" href="{% if perms.employees.can_place_hold %}{% url 'employee-remove-hold' employee_id=employee.employee_id hold_id=employee.hold.id %}{% endif %}">
-                                            <i class="far fa-play-circle fa-lg{% if perms.employees.can_place_hold %} cursor-pointer{% endif %} icon-link" title="Remove Hold"></i>
+                                            <i class="far fa-play-circle fa-lg{% if perms.employees.can_place_hold %} cursor-pointer delete{% endif %} icon-link" title="Remove Hold" data-delete-message="You about to remove {{ employee.get_full_name }}'s hold"></i>
                                         </a>
                                     {% else %}
                                         <a href="{% if perms.employees.can_place_hold %}{% url 'employee-place-hold' employee_id=employee.employee_id %}{% else %}#{% endif %}">
@@ -90,7 +91,7 @@
                         <div class="card scroll1 my-3">
                             <ul class="list-group list-group-flush h-100">
                                 {% for record in attendance %}
-                                    <li {% if perms.employees.can_view_all_details or perms.can_view_attendance_details %}class="list-group-item cursor-pointer" data-toggle="modal" data-target="#mainModal" data-title="Attendance Point" data-document-href="{% if record.document %}{{ record.document.url }}{% endif %}" data-secondary-href="{% url 'employee-remove-attendance' employee_id=employee.employee_id attendance_id=record.id %}" data-primary-href="{% url 'employee-edit-attendance' employee_id=employee.employee_id attendance_id=record.id %}" data-row1col1="Incident Date" data-row1col2="Issued Date" data-row2col1="{{ record.incident_date|pretty_date }}" data-row2col2="{{ record.issued_date|pretty_date }}" data-row3col1="Document" data-row3col2="Assigned By" data-row4col1="Attendace PDF File" data-row4col2="{{ record|assignee_return }}" data-row5col1="Reason" data-row5col2="Points" data-row6col1="{{ record.reason|attendance_reason_return }}" data-row6col2="{{ record.points|points_return }}" data-row6col3="" data-row7col1="Exemption" data-row7col2="Counseling" data-row8col1="{{ record.exemption|exemption_return }}" data-row8col2="{% if record.counseling.is_active %}{{ record.counseling.action_type|action_type_return }}{% else %}None{% endif %}" data-row8col3="" data-row9col1="{% if record.edited_date %}Edited Date{% endif %}" data-row9col2="{% if record.edited_by %}Edited By{% endif %}" data-row10col1="{% if record.edited_date %}{{ record.edited_date|pretty_date }}{% endif %}" data-row10col2="{% if record.edited_by %}{{ record.edited_by }}{% endif %}" data-row10col3="" {% else %}class="list-group-item"{% endif %}>
+                                    <li {% if perms.employees.can_view_all_details or perms.can_view_attendance_details %}class="list-group-item cursor-pointer" data-toggle="modal" data-target="#mainModal" data-main-modal-title="Attendance Point" data-document-href="{% if record.document %}{% url 'main-view-document' record.id 'Attendance' %}{% endif %}" data-secondary-href="{% url 'employee-remove-attendance' attendance_id=record.id %}" data-primary-href="{% url 'employee-edit-attendance' attendance_id=record.id %}" data-signature-href="{% if perms.can_sign_documents %}{% if not record.signature %}{% url 'employee-sign-document' signature_method='In Person' record_id=record.id document_type='Attendance' %}{% endif %}{% endif %}" data-delete-message="You are about to delete an Attendance Record" data-row1col1="Incident Date" data-row1col2="Issued Date" data-row2col1="{{ record.incident_date|pretty_date }}" data-row2col2="{{ record.issued_date|pretty_date }}" data-row3col1="Document" data-row3col2="Assigned By" data-row4col1="Attendace PDF File" data-row4col2="{{ record|assignee_return }}" data-row5col1="Reason" data-row5col2="Points" data-row6col1="{{ record.reason|attendance_reason_return }}" data-row6col2="{{ record.points|points_return }}" data-row7col1="Exemption" data-row7col2="Counseling" data-row8col1="{{ record.exemption|exemption_return }}" data-row8col2="{% if record.counseling.is_active %}{{ record.counseling.action_type|action_type_return }}{% else %}None{% endif %}" data-row9col1="Signature Method" data-row9col2="Signed Date" data-row10col1="{% if record.signature_method %}{{ record.signature_method }}{% else %}N/A{% endif %}" data-row10col2="{{ record.signed_date|pretty_date }}" data-row11col1="Update Date" data-row11col2="Message Status" data-row12col1="{{ record.status_update_date|pretty_date }}" data-row12col2="{{ record.message_status }}" {% if record.edited_date %}data-row13col1="Edited Date" data-row13col2="Edited By" data-row14col1="{{ record.edited_date|pretty_date }}" data-row14col2="{{ record.edited_by }}"{% endif %} {% else %}class="list-group-item"{% endif %}>
                                         <div class="row">
                                             <div class="col-sm-6 col-12">
                                                 <small><b>Incident Date:</b> {{ record.incident_date|pretty_date }}</small>
@@ -130,7 +131,7 @@
                         <div class="card scroll1 my-3">
                             <ul class="list-group list-group-flush h-100">
                                 {% for record in safety_point %}
-                                    <li {% if perms.employees.can_view_all_details or perms.can_view_safety_details %}class="list-group-item cursor-pointer" data-toggle="modal" data-target="#mainModal" data-title="Safety Point" data-document-href="{% if record.document %}{{ record.document.url }}{% endif %}" data-secondary-href="{% url 'employee-remove-safety-point' employee_id=employee.employee_id safety_point_id=record.id %}" data-primary-href="{% url 'employee-edit-safety-point' employee_id=employee.employee_id safety_point_id=record.id %}" data-row1col1="Incident Date" data-row1col2="Issued Date" data-row2col1="{{ record.incident_date|pretty_date }}" data-row2col2="{{ record.issued_date|pretty_date }}" data-row3col1="Document" data-row3col2="Points" data-row4col1="Safety Point PDF File" data-row4col2="{{ record.points }}" data-row5col1="Reason" data-row5col2="Assigned By" data-row6col1="{{ record.reason|safety_point_reason_return }}" data-row6col2="{{ record|assignee_return }}" data-row6col3="" data-row7col1="" data-row7col2="" data-row8col1="" data-row8col2="" data-row8col3="" data-row9col1="" data-row9col2="" data-row10col1="" data-row10col2="" data-row10col3="" {% else %}class="list-group-item"{% endif %}>
+                                    <li {% if perms.employees.can_view_all_details or perms.can_view_safety_details %}class="list-group-item cursor-pointer" data-toggle="modal" data-target="#mainModal" data-main-modal-title="Safety Point" data-document-href="{% if record.document %}{% url 'main-view-document' record.id 'SafetyPoint' %}{% endif %}" data-secondary-href="{% url 'employee-remove-safety-point' safety_point_id=record.id %}" data-primary-href="{% url 'employee-edit-safety-point' safety_point_id=record.id %}" data-signature-href="{% if perms.can_sign_documents %}{% if not record.is_signed %}{% url 'employee-sign-document' signature_method='In Person' record_id=record.id document_type='SafetyPoint' %}{% endif %}{% endif %}" data-simple-signature-href="{% if perms.can_sign_documents and record.is_signed and not record.employee_signature %}{% url 'employee-sign-document' signature_method='In Person' record_id=record.id document_type='SafetyPoint' simple_sign='Sign' %}{% endif %}" data-delete-message="You are about to delete a Safety Point record" data-row1col1="Incident Date" data-row1col2="Issued Date" data-employee-signature="" data-row2col1="{{ record.incident_date|pretty_date }}" data-row2col2="{{ record.issued_date|pretty_date }}" data-row3col1="Document" data-row3col2="Points" data-row4col1="Safety Point PDF File" data-row4col2="{{ record.points }}" data-row5col1="Reason" data-row5col2="Assigned By" data-row6col1="{{ record.reason|safety_point_reason_return }}" data-row6col2="{{ record|assignee_return }}" data-row6col3="" data-row7col1="Signature Method" data-row7col2="Signed Date" data-row8col1="{% if record.signature_method %}{{ record.signature_method }}{% else %}N/A{% endif %}" data-row8col2="{{ record.signed_date|pretty_date }}" data-row9col1="Update Date" data-row9col2="Message Status" data-row10col1="{{ record.status_update_date|pretty_date }}" data-row10col2="{{ record.message_status }}" {% if record.edited_date %}data-row11col1="Edited Date" data-row11col2="Edited By" data-row12col1="{{ record.edited_date|pretty_date }}" data-row12col2="{{ record.edited_by }}"{% endif %} {% else %}class="list-group-item"{% endif %}>
                                         <div class="row">
                                             <div class="col-sm-6 col-12">
                                                 <small><b>Incident Date:</b> {{ record.incident_date|pretty_date }}</small>
@@ -172,7 +173,7 @@
                         <div class="card scroll1 my-3">
                             <ul class="list-group list-group-flush h-100">
                                 {% for record in counseling %}
-                                    <li {% if perms.employees.can_view_all_details or perms.can_view_counseling_details %}class="list-group-item cursor-pointer" data-toggle="modal" data-target="#mainModal" data-title="Counseling" data-document-href="{% if record.document %}{{ record.document.url }}{% endif %}" data-secondary-href="{% url 'employee-remove-counseling' employee_id=employee.employee_id counseling_id=record.id %}" data-primary-href="{% url 'employee-edit-counseling' employee_id=employee.employee_id counseling_id=record.id %}" data-row1col1="Assigned By" data-row1col2="Issued Date" data-row2col1="{{ record|assignee_return }}" data-row2col2="{{ record.issued_date|pretty_date }}" data-row3col1="Document" data-row3col2="Hearing Date" data-row4col1="Counseling PDF File" data-row4col2="{{ record.hearing_datetime|pretty_datetime }}" data-row5col1="Type of Action" data-row5col2="Override By" data-row6col1="{{ record.action_type|action_type_return }}" data-row6col2="{{ record|override_by_return }}" data-row6col3="" data-row7col1="Employee Conduct" data-row7col2="" data-row8col1="" data-row8col2="" data-row8col3="{{ record.conduct }}" data-row9col1="Conversation" data-row9col2="" data-row10col1="" data-row10col2="" data-row10col3="{{ record.conversation }}" {% else %}class="list-group-item"{% endif %}>
+                                    <li {% if perms.employees.can_view_all_details or perms.can_view_counseling_details %}class="list-group-item cursor-pointer" data-toggle="modal" data-target="#mainModal" data-main-modal-title="Counseling" data-document-href="{% if record.document %}{% url 'main-view-document' record.id 'Counseling' %}{% endif %}" data-secondary-href="{% url 'employee-remove-counseling' counseling_id=record.id %}" data-primary-href="{% url 'employee-edit-counseling' counseling_id=record.id %}" data-signature-href="{% if perms.can_sign_documents %}{% if not record.is_signed %}{% url 'employee-sign-document' signature_method='In Person' record_id=record.id document_type='Counseling' %}{% endif %}{% endif %}" data-simple-signature-href="{% if perms.can_sign_documents and record.is_signed and not record.employee_signature %}{% url 'employee-sign-document' signature_method='In Person' record_id=record.id document_type='Counseling' simple_sign='Sign' %}{% endif %}" data-delete-message="You are abbout to delete a Counseling record" data-row1col1="Assigned By" data-row1col2="Issued Date" data-row2col1="{{ record|assignee_return }}" data-row2col2="{{ record.issued_date|pretty_date }}" data-row3col1="Document" data-row3col2="Hearing Date" data-row4col1="Counseling PDF File" data-row4col2="{{ record.hearing_datetime|pretty_datetime }}" data-row5col1="Type of Action" data-row5col2="Override By" data-row6col1="{{ record.action_type|action_type_return }}" data-row6col2="{{ record|override_by_return }}" data-row7col1="Signature Method" data-row7col2="Signed Date" data-row8col1="{% if record.signature_method %}{{ record.signature_method }}{% else %}N/A{% endif %}" data-row8col2="{{ record.signed_date|pretty_date }}" data-row9col1="Update Date" data-row9col2="Message Status" data-row10col1="{{ record.status_update_date|pretty_date }}" data-row10col2="{{ record.message_status }}" {% if record.edited_date %}data-row11col1="Edited Date" data-row11col1="Edited By" data-row12col1="{{ record.edited_date|pretty_date }}" data-row12col2="{{ record.edited_by }}"{% endif %} data-row13col1="Employee Conduct" data-row14col3="{{ record.conduct }}" data-row15col1="Conversation" data-row16col3="{{ record.conversation }}" {% else %}class="list-group-item"{% endif %}>
                                         <div class="row">
                                             <div class="col-sm-5 col-12">
                                                 <small><b>Issued Date:</b> {{ record.issued_date|pretty_date }}</small>
@@ -212,7 +213,7 @@
                             <div class="card scroll2">
                                 <ul class="list-group list-group-flush h-100">
                                     {% for record in time_off %}
-                                        <li class="list-group-item cursor-pointer"  data-toggle="modal" data-target="#mainModal" data-title="Time Off Request" data-document-href="" data-secondary-href="{% if perms.employees.can_delete_time_off_request %}{% url 'operations-remove-time-off' record.id %}{% endif %}" data-primary-href="" data-row1col1="Requested Date" data-row1col2="Status" data-row2col1="{{ record.request_date|pretty_date }}" data-row2col2="{{ record.status|status_return }}" data-row3col1="" data-row3col2="" data-row3col3="Type" data-row4col1="" data-row4col2="" data-row4col3="{{ record.time_off_type|time_off_return }}" data-row5col1="Requested Dates" data-row5col2="" data-row6col1="" data-row6col2="" data-row6col3="{{ record|pretty_requested_dates }}" data-row7col1="{% if record.reason %}Reason{% endif %}" data-row7col2="" data-row8col1="" data-row8col2="" data-row8col3="{{ record.reason }}" data-row9col1="{% if record.comments %}Comments{% endif %}" data-row9col2="" data-row10col1="" data-row10col2="" data-row10col3="{{ record.comments }}">
+                                        <li class="list-group-item cursor-pointer"  data-toggle="modal" data-target="#mainModal" data-main-modal-title="Time Off Request" data-document-href="" data-secondary-href="{% if perms.employees.can_delete_time_off_request %}{% url 'operations-remove-time-off' record.id %}{% endif %}" data-primary-href="" data-delete-message="You are about to delete a Time Off Request" data-row1col1="Requested Date" data-row1col2="Status" data-row2col1="{{ record.request_date|pretty_date }}" data-row2col2="{{ record.status|status_return }}" data-row3col1="" data-row3col2="" data-row3col3="Type" data-row4col1="" data-row4col2="" data-row4col3="{{ record.time_off_type|time_off_return }}" data-row5col1="Requested Dates" data-row5col2="" data-row6col1="" data-row6col2="" data-row6col3="{{ record|pretty_requested_dates }}" data-row7col1="{% if record.reason %}Reason{% endif %}" data-row7col2="" data-row8col1="" data-row8col2="" data-row8col3="{{ record.reason }}" data-row9col1="{% if record.comments %}Comments{% endif %}" data-row9col2="" data-row10col1="" data-row10col2="" data-row10col3="{{ record.comments }}">
                                             <div class="row">
                                                 <div class="col-sm-6 col-12">
                                                     <small><b>Date Requested:</b> {{ record.request_date|pretty_date }}</small>
@@ -239,135 +240,6 @@
             </div>
         </div>
     </div>
-    <script>
-        $(document).ready(function(){
-            setTimeout(fade_out, 3000);
-
-            function fade_out() {
-              $("#message").fadeOut().empty();
-            }
-        });
-        {% if download_urls %}
-            {% for url in download_urls %}
-                window.open('{{ url }}');
-            {% endfor %}
-        {% endif %}
-        $(document).ready(function(){
-
-            $("#mainModal").on('show.bs.modal', function(event){
-                let button = $(event.relatedTarget); // Button that triggered the modal
-                let title = button.data('title');
-
-                let row1col1 = button.data('row1col1');
-                let row1col2 = button.data('row1col2');
-                let row2col1 = button.data('row2col1');
-                let row2col2 = button.data('row2col2');
-                let row3col1 = button.data('row3col1');
-                let row3col2 = button.data('row3col2');
-                let row4col1 = button.data('row4col1');
-                let row4col2 = button.data('row4col2');
-                let row5col1 = button.data('row5col1');
-                let row5col2 = button.data('row5col2');
-                let row6col1 = button.data('row6col1');
-                let row6col2 = button.data('row6col2');
-                let row7col1 = button.data('row7col1');
-                let row7col2 = button.data('row7col2');
-                let row8col1 = button.data('row8col1');
-                let row8col2 = button.data('row8col2');
-                let row9col1 = button.data('row9col1');
-                let row9col2 = button.data('row9col2');
-                let row10col1 = button.data('row10col1');
-                let row10col2 = button.data('row10col2');
-
-                let row3col3 = button.data('row3col3');
-                let row4col3 = button.data('row4col3');
-                let row6col3 = button.data('row6col3');
-                let row8col3 = button.data('row8col3');
-                let row10col3 = button.data('row10col3');
-
-                let primary_button_href = button.data('primary-href');
-                let secondary_button_href = button.data('secondary-href');
-                let document_href = button.data('document-href');
-
-                document.getElementById("primaryButton").innerText = "Edit";
-                document.getElementById("primaryButtonAnchor").href = primary_button_href;
-                document.getElementById("secondaryButton").innerText = "Delete";
-                document.getElementById("secondaryButtonForm").action = secondary_button_href;
-                document.getElementById("row4col1").href = document_href;
-
-                if (primary_button_href === "") {
-                    document.getElementById("primaryButtonAnchor").style.display = "none"
-                }else {
-                    document.getElementById("primaryButtonAnchor").style.display = "block"
-                }
-
-                if (secondary_button_href === "") {
-                    document.getElementById("secondaryButtonForm").style.display = "none"
-                }else {
-                    document.getElementById("secondaryButtonForm").style.display = "block"
-                }
-
-                modal = $(this);
-
-                modal.find('.modal-title').text('');
-                modal.find('#row1col1').text('');
-                modal.find('#row1col2').text('');
-                modal.find('#row2col1').text('');
-                modal.find('#row2col2').text('');
-                modal.find('#row3col1').text('');
-                modal.find('#row3col2').text('');
-                modal.find('#row4col1').text('');
-                modal.find('#row4col2').text('');
-                modal.find('#row5col1').text('');
-                modal.find('#row5col2').text('');
-                modal.find('#row6col1').text('');
-                modal.find('#row6col2').text('');
-                modal.find('#row7col1').text('');
-                modal.find('#row7col2').text('');
-                modal.find('#row8col1').text('');
-                modal.find('#row8col2').text('');
-                modal.find('#row9col1').text('');
-                modal.find('#row9col2').text('');
-                modal.find('#row10col1').text('');
-                modal.find('#row10col2').text('');
-
-                modal.find('#row3col3').text('');
-                modal.find('#row4col3').text('');
-                modal.find('#row8col3').text('');
-                modal.find('#row10col3').text('');
-                modal.find('#row6col3').text('');
-
-                modal.find('.modal-title').text(title);
-                modal.find('#row1col1').text(row1col1);
-                modal.find('#row1col2').text(row1col2);
-                modal.find('#row2col1').text(row2col1);
-                modal.find('#row2col2').text(row2col2);
-                modal.find('#row3col1').text(row3col1);
-                modal.find('#row3col2').text(row3col2);
-                modal.find('#row4col1').text(row4col1);
-                modal.find('#row4col2').text(row4col2);
-                modal.find('#row5col1').text(row5col1);
-                modal.find('#row5col2').text(row5col2);
-                modal.find('#row6col1').text(row6col1);
-                modal.find('#row6col2').text(row6col2);
-                modal.find('#row7col1').text(row7col1);
-                modal.find('#row7col2').text(row7col2);
-                modal.find('#row8col1').text(row8col1);
-                modal.find('#row8col2').text(row8col2);
-                modal.find('#row9col1').text(row9col1);
-                modal.find('#row9col2').text(row9col2);
-                modal.find('#row10col1').text(row10col1);
-                modal.find('#row10col2').text(row10col2);
-
-                modal.find('#row3col3').text(row3col3);
-                modal.find('#row4col3').text(row4col3);
-                modal.find('#row8col3').text(row8col3);
-                modal.find('#row10col3').text(row10col3);
-                modal.find('#row6col3').text(row6col3);
-
-            });
-        });
-    </script>
 {% endblock content %}
 {% block modal-body %}
     <div class="container-fluid">
@@ -392,7 +264,7 @@
             </div>
         </div>
         <div class="row justify-content-center" id="row4">
-            <div class="col-6 modal-body-content"><a class="account-content" href="" target="_blank" id="row4col1"></a></div>
+            <div class="col-6 modal-body-content"><a class="account-content" href="" id="row4col1"></a></div>
             <div class="col-6 modal-body-content"  id="row4col2">
             </div>
             <div class="col-12 modal-body-content" id="row4col3">
@@ -442,15 +314,66 @@
             <div class="col-12 modal-body-content" id="row10col3">
             </div>
         </div>
+        <div class="row justify-content-center mt-3" id="row11">
+            <div class="col-6 modal-body-header" id="row11col1">
+            </div>
+            <div class="col-6 modal-body-header" id="row11col2">
+            </div>
+            <div class="col-12 modal-body-header" id="row11col3">
+            </div>
+        </div>
+        <div class="row justify-content-center" id="row12">
+            <div class="col-6 modal-body-content" id="row12col1">
+            </div>
+            <div class="col-6 modal-body-content" id="row12col2">
+            </div>
+            <div class="col-12 modal-body-content" id="row12col3">
+            </div>
+        </div>
+        <div class="row justify-content-center mt-3" id="row13">
+            <div class="col-6 modal-body-header" id="row13col1">
+            </div>
+            <div class="col-6 modal-body-header" id="row13col2">
+            </div>
+            <div class="col-12 modal-body-header" id="row13col3">
+            </div>
+        </div>
+        <div class="row justify-content-center" id="row14">
+            <div class="col-6 modal-body-content" id="row14col1">
+            </div>
+            <div class="col-6 modal-body-content" id="row14col2">
+            </div>
+            <div class="col-12 modal-body-content" id="row14col3">
+            </div>
+        </div>
+        <div class="row justify-content-center mt-3" id="row15">
+            <div class="col-6 modal-body-header" id="row15col1">
+            </div>
+            <div class="col-6 modal-body-header" id="row15col2">
+            </div>
+            <div class="col-12 modal-body-header" id="row15col3">
+            </div>
+        </div>
+        <div class="row justify-content-center" id="row16">
+            <div class="col-6 modal-body-content" id="row16col1">
+            </div>
+            <div class="col-6 modal-body-content" id="row16col2">
+            </div>
+            <div class="col-12 modal-body-content" id="row16col3">
+            </div>
+        </div>
     </div>
 {% endblock %}
 {% block modal-footer %}
-    <button type="button" class="form-control btn btn-secondary ml-auto" data-dismiss="modal">Close</button>
-    <form action="" id="secondaryButtonForm" onsubmit="return confirm('Are you sure you would like to delete this record?');">
-        <button type="submit" class="btn btn-primary" id="secondaryButton"></button>
-    </form>
-    <a href="#" class="account-content mr-2" id="primaryButtonAnchor">
-        <div class="btn btn-primary" id="primaryButton"></div>
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    <button class="btn btn-primary delete" type="button" data-delete-url="" data-delete-message="Hello">
+        Delete
+    </button>
+    <a href="#" class="btn btn-primary" id="signature_button">
+        Sign Document
+    </a>
+    <a href="#" class="btn btn-primary" id="primary_button">
+        Edit
     </a>
 {% endblock modal-footer %}
 {% block secondary-modal %}

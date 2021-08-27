@@ -19,8 +19,9 @@ class EmployeeCreationForm(forms.Form):
                                required=True, max_length=30)
 
     employee_id = forms.IntegerField(label='Employee ID', required=True)
-    last4_ss = forms.IntegerField(label='Last 4 of SS', required=True, help_text='This is only used for password '
-                                                                                 'purposes and it is not stored.')
+    last4_ss = forms.IntegerField(label='Last 4 of SS', required=True,
+                                  widget=forms.PasswordInput(attrs={'maxlength': '4'}),
+                                  help_text='This is only used for password purposes and it is not stored.')
     primary_phone = PhoneNumberField(label='Primary Phone', required=True)
     secondary_phone = PhoneNumberField(label='Secondary Phone', required=False)
 

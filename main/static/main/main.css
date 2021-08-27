@@ -44,6 +44,11 @@ h6 {
     color: #414142;
 }
 
+canvas {
+    width: 100%;
+    height: auto;
+}
+
 #div_id_sort_by.form-group {
     margin-bottom: 0;
 }
@@ -364,6 +369,10 @@ a.account-content {
     font-size: 1.125rem;
     font-weight: normal;
     color: #414142;
+}
+
+.union-container {
+    min-height: 380px;
 }
 
 .notification {
