@@ -124,6 +124,7 @@ class EditAttendance(AssignAttendance):
     document = forms.FileField(label='Document', required=False)
 
     def save(self):
+        update_fields = ['incident_date', 'issued_date', 'reason', 'exemption', 'edited_date', 'edited_by', 'points']
         if self.cleaned_data['exemption'] == '1' and self.attendance.exemption != '1':
             self.employee.paid_sick -= 1
         elif self.cleaned_data['exemption'] == '2' and self.attendance.exemption != '2':
