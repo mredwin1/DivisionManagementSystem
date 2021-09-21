@@ -21,48 +21,19 @@ $(document).ready(function(){
         let primary_button_href = button.data('primary-href')
         let secondary_button_href = button.data('secondary-href')
         let document_href = button.data('document-href')
-        let signature_href = button.data('signature-href')
-        let simple_signature_href = button.data('simple-signature-href')
         let delete_message = button.data('delete-message')
-        let signature_button = $('#signature_button')
-        let values = []
 
         $.each(button_data, function (key, value) {
             let id = '#' + key
             let element = $(id)
             element.text(value)
-            values.push(value)
         })
-
-        if (values.includes('Time Off Request')) {
-            signature_button.hide()
-        } else {
-            signature_button.show()
-        }
 
         $('#primary_button').attr('href', primary_button_href)
         delete_button.attr('data-delete-url', secondary_button_href)
         delete_button.attr('data-delete-message', delete_message)
         $('#row4col1').attr('href', document_href)
 
-        if (signature_href === '' && (simple_signature_href === '' || simple_signature_href === undefined)) {
-            signature_button.text('Sign Document')
-            signature_button.removeClass('btn-primary')
-            signature_button.addClass('disabled')
-            signature_button.addClass('btn-secondary')
-        } else if (signature_href === '' && (simple_signature_href !== undefined && simple_signature_href !== '')) {
-            signature_button.text('Add Employee Signature')
-            signature_button.removeClass('disabled')
-            signature_button.removeClass('btn-secondary')
-            signature_button.addClass('btn-primary')
-            signature_button.attr('href', simple_signature_href)
-        } else {
-            signature_button.text('Sign Document')
-            signature_button.removeClass('disabled')
-            signature_button.removeClass('btn-secondary')
-            signature_button.addClass('btn-primary')
-            signature_button.attr('href', signature_href)
-        }
     });
     $('.delete').click(function () {
         let delete_button = $(this)
