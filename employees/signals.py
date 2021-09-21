@@ -98,11 +98,12 @@ def new_notification(sender, instance, created, **kwargs):
     except NoReverseMatch:
         pass
 
+
 @receiver(post_save, sender=Counseling)
 def add_counseling_document(sender, instance, created, update_fields, **kwargs):
     try:
         if created or 'document' not in update_fields:
-            instance.create_counseling_document()
+            instance.create_document()
 
             if created:
                 if instance.action_type == '2':
@@ -154,7 +155,7 @@ def add_counseling_document(sender, instance, created, update_fields, **kwargs):
 def add_attendance_document(sender, instance, created, update_fields, **kwargs):
     try:
         if created or 'document' not in update_fields:
-            instance.create_attendance_point_document()
+            instance.create_document()
             counseling = instance.employee.attendance_counseling_required(instance.reason, instance.exemption, instance.id)
 
             if counseling[0] == 2 and instance.points != 0:
@@ -194,7 +195,7 @@ def add_attendance_document(sender, instance, created, update_fields, **kwargs):
 def add_safety_document(sender, instance, created, update_fields, **kwargs):
     try:
         if created or 'document' not in update_fields:
-            instance.create_safety_point_document()
+            instance.create_document()
 
             removal = instance.employee.safety_point_removal_required(instance)
 

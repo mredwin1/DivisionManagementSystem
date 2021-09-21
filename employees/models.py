@@ -1329,7 +1329,7 @@ class SafetyPoint(models.Model):
     assigned_by = models.IntegerField()
     uploaded = models.BooleanField(default=False)
 
-    def create_safety_point_document(self):
+    def create_document(self):
         """Will create a PDF for the Counseling and assign it to the Counseling Object"""
         subject = {
             '0': 'Unsafe maneuver(s) or act',
@@ -1627,7 +1627,7 @@ class Counseling(models.Model):
     def get_override_by(self):
         return Employee.objects.get(employee_id=self.override_by) if self.override_by else None
 
-    def create_counseling_document(self):
+    def create_document(self):
         """Will create a PDF for the Counseling and assign it to the Counseling Object"""
         buffer = io.BytesIO()
 
