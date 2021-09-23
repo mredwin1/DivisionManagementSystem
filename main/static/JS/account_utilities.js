@@ -38,7 +38,6 @@ $(document).ready(function(){
     $('.delete').click(function () {
         let delete_button = $(this)
         let message = delete_button.data('delete-message')
-        console.log(message)
         if (confirm(message)) {
             let delete_url = delete_button.data('delete-url')
             $.ajax({

@@ -240,6 +240,20 @@
             </div>
         </div>
     </div>
+    <script>
+        $(document).ready(function(){
+            setTimeout(fade_out, 3000);
+
+            function fade_out() {
+                $("#message").fadeOut().empty();
+            }
+        });
+        {% if download_urls %}
+            {% for url in download_urls %}
+                window.open('{{ url }}');
+            {% endfor %}
+        {% endif %}
+    </script>
 {% endblock content %}
 {% block modal-body %}
     <div class="container-fluid">
