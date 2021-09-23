@@ -180,7 +180,7 @@ class AssignCounseling(forms.Form):
         counseling_records = Counseling.objects.filter(is_active=True, employee=self.employee).order_by('action_type')
         action_type_field = 'action_type'
         action_type = self.cleaned_data[action_type_field]
-        if not (self.cleaned_data['pd_check_override'] or (self.counseling and self.counseling.override_by and self.counseling.action_type == self.cleaned_data['action_type'])):
+        if action_type_field in self.changed_data and not (self.cleaned_data['pd_check_override'] or (self.counseling and self.counseling.override_by and self.counseling.action_type == self.cleaned_data['action_type'])):
             if action_type != '6' and action_type != '5':
                 history = {
                     '0': False,
