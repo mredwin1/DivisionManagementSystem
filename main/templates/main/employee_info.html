@@ -38,7 +38,7 @@
             <a class="btn btn-primary btn-block" href="{% url 'main-export-driver-list' %}" data-toggle="tooltip" title="Downloads Driver Driver List">Driver List</a>
         </div>
         <div class="col-md-2 col-6 mb-md-0 mb-1">
-            <button class="btn btn-primary btn-block" formmethod="POST" formaction="{% url 'main-export-custom-list' %}" type="submit" form="filter-form" data-toggle="tooltip" title="Downloads The List Below">Custom List</button>
+            <button class="btn btn-primary btn-block" data-formaction="{% url 'main-export-custom-list' %}" data-toggle="tooltip" title="Downloads The List Below">Custom List</button>
         </div>
     </div>
     <div class="row mt-2 align-items-end justify-content-center">
