@@ -1,7 +1,9 @@
 {% extends "main/base.html" %}
 {% load employee_filters %}
+{% load static %}
 {% load crispy_forms_filters %}
 {% block content%}
+    <script src="{% static 'JS/employee_info_utilites.js' %}"></script>
     <form method="GET" id="filter-form" autocomplete="off">
         {% csrf_token %}
         <div class="row align-items-center justify-content-center">
