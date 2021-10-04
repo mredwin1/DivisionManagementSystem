@@ -65,22 +65,24 @@
     </div>
     <hr class="my-0">
     {% for employee in page_obj %}
-        <div class="row py-2 justify-content-center attendance-row" >
-            <div class="col-lg-2 col-md-3 col-sm-4 col-6 pr-sm-3 pr-0">
-                <h4 class="m-0">{{ employee.get_full_name }}</h4>
+        <a class="employee-row" href="{% url 'employee-account' employee_id=employee.employee_id %}">
+            <div class="row py-2 justify-content-center attendance-row" >
+                <div class="col-lg-2 col-md-3 col-sm-4 col-6 pr-sm-3 pr-0">
+                    <h4 class="m-0">{{ employee.get_full_name }}</h4>
+                </div>
+                <div class="col-2 d-lg-block d-none">
+                    <h4 class="m-0 text-center">{{ employee.company }}</h4>
+                </div>
+                <div class="col-lg-2 col-md-3 col-sm-4 col-6 pl-sm-3 pl-0">
+                    <h4 class="m-0 text-center">{{ employee.termination_date|pretty_date }}</h4>
+                </div>
+                <div class="col-md-3 col-4 d-sm-block d-none">
+                    <h4 class="m-0 text-center">{{ employee.termination_type|termination_type_return }}</h4>
+                </div>
+                <div class="col-3 d-md-block d-none">
+                    <h4 class="m-0 text-center">{{ employee.termination_comments }}</h4>
+                </div>
             </div>
-            <div class="col-2 d-lg-block d-none">
-                <h4 class="m-0 text-center">{{ employee.company }}</h4>
-            </div>
-            <div class="col-lg-2 col-md-3 col-sm-4 col-6 pl-sm-3 pl-0">
-                <h4 class="m-0 text-center">{{ employee.termination_date|pretty_date }}</h4>
-            </div>
-            <div class="col-md-3 col-4 d-sm-block d-none">
-                <h4 class="m-0 text-center">{{ employee.termination_type|termination_type_return }}</h4>
-            </div>
-            <div class="col-3 d-md-block d-none">
-                <h4 class="m-0 text-center">{{ employee.termination_comments }}</h4>
-            </div>
-        </div>
+        </a>
     {% endfor %}
 {% endblock %}
