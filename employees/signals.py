@@ -26,22 +26,6 @@ def attendance_delete(sender, instance, **kwargs):
     instance.employee.save()
 
 
-@receiver(post_delete, sender=Counseling)
-def counseling_delete(sender, instance, **kwargs):
-    try:
-        instance.employee.hold.delete()
-    except Hold.DoesNotExist:
-        pass
-
-
-@receiver(post_delete, sender=SafetyPoint)
-def safety_point_delete(sender, instance, **kwargs):
-    try:
-        instance.employee.hold.delete()
-    except Hold.DoesNotExist:
-        pass
-
-
 @receiver(post_delete, sender=Hold)
 def hold_delete(sender, instance, **kwargs):
     verb = f'{instance.employee.get_full_name()}\'s hold has been removed'
@@ -97,6 +81,7 @@ def new_notification(sender, instance, created, **kwargs):
                 instance.save()
     except NoReverseMatch:
         pass
+
 
 @receiver(post_save, sender=Counseling)
 def add_counseling_document(sender, instance, created, update_fields, **kwargs):
