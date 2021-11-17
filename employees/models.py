@@ -111,22 +111,18 @@ class Employee(AbstractBaseUser, PermissionsMixin):
                                                        'pending')
     email_new_employee = models.BooleanField(default=True, verbose_name='New Employee',
                                              help_text='Receive an email when a new employee is added')
-    email_attendance_doc_day3 = models.BooleanField(default=True, verbose_name='3 Days Past Due Attendance',
-                                                    help_text='Receive an email when it has been 3 days since '
-                                                              'an attendance point was given but a signed document '
-                                                              'has not been uploaded')
     email_attendance_doc_day5 = models.BooleanField(default=True, verbose_name='5 Days Past Due Attendance',
                                                     help_text='Receive an email when it has been 5 days since '
-                                                              'an attendance point was given but a signed document '
-                                                              'has not been uploaded')
+                                                              'an attendance point was given but not signed')
     email_attendance_doc_day7 = models.BooleanField(default=True, verbose_name='7 Days Past Due Attendance',
                                                     help_text='Receive an email when it has been 7 days since '
-                                                              'an attendance point was given but a signed document '
-                                                              'has not been uploaded')
+                                                              'an attendance point was given but not signed')
     email_attendance_doc_day10 = models.BooleanField(default=True, verbose_name='10 Days Past Due Attendance',
-                                                     help_text='Receive an email when it has been 10 or more days since'
-                                                               ' an attendance point was given but a signed document'
-                                                               ' has not been uploaded')
+                                                     help_text='Receive an email when it has been 10 days since'
+                                                               ' an attendance point was given but not signed')
+    email_attendance_doc_day14 = models.BooleanField(default=True, verbose_name='3 Days Past Due Attendance',
+                                                     help_text='Receive an email when it has been 14 or more days since'
+                                                               ' an attendance point was given but not signed')
     email_safety_doc_day3 = models.BooleanField(default=True, verbose_name='3 Days Past Due Safety Point',
                                                 help_text='Receive an email when it has been 3 days since '
                                                           'a safety point was given but a signed document '
@@ -239,6 +235,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
             ('can_view_safety_details', 'Can view safety details in account'),
             ('can_view_counseling_details', 'Can view counseling details in account'),
             ('can_override_progressive_discipline_lock', 'Can override progressive discipline lock'),
+            ('can_view_account_action_bar', 'Can view account action bar'),
 
             # Main's Views Permissions
             ('can_view_employee_info', 'Can view employee info'),
@@ -1055,7 +1052,7 @@ class Attendance(models.Model):
     edited_by = models.CharField(max_length=30, blank=True, default='')
     uploaded = models.BooleanField(default=False)
 
-    def create_attendance_point_document(self):
+    def create_document(self):
         """Will create a PDF for the Attendance and assign it to the Attendance Object"""
         buffer = io.BytesIO()
 
@@ -1336,7 +1333,7 @@ class SafetyPoint(models.Model):
     assigned_by = models.IntegerField()
     uploaded = models.BooleanField(default=False)
 
-    def create_safety_point_document(self):
+    def create_document(self):
         """Will create a PDF for the Counseling and assign it to the Counseling Object"""
         subject = {
             '0': 'Unsafe maneuver(s) or act',
@@ -1634,7 +1631,7 @@ class Counseling(models.Model):
     def get_override_by(self):
         return Employee.objects.get(employee_id=self.override_by) if self.override_by else None
 
-    def create_counseling_document(self):
+    def create_document(self):
         """Will create a PDF for the Counseling and assign it to the Counseling Object"""
         buffer = io.BytesIO()
 
@@ -1803,6 +1800,7 @@ class Hold(models.Model):
     reason = models.CharField(max_length=30)
     assigned_by = models.IntegerField()
     employee = models.OneToOneField(Employee, on_delete=models.CASCADE)
+    removed_by = models.CharField(max_length=40, default='', blank=True)
 
     def get_assignee(self):
         """Will return the Employee object of the assignee"""

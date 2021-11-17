@@ -64,6 +64,18 @@ class EditEmployeeInfo(forms.Form):
 
 
 class AssignAttendance(forms.Form):
+    POINTS = {
+        '0': 1,
+        '1': 0,
+        '2': 1.5,
+        '3': 4,
+        '4': 1,
+        '5': 1,
+        '6': .5,
+        '7': 1,
+        '8': .5,
+    }
+
     incident_date = forms.DateField(label='Incident Date', widget=forms.TextInput(attrs={'type': 'date'}),
                                     required=True)
     reason = forms.CharField(label='Reason', widget=forms.Select(choices=Attendance.REASON_CHOICES), required=True)
@@ -76,43 +88,31 @@ class AssignAttendance(forms.Form):
         super(AssignAttendance, self).__init__(*args, **kwargs)
 
     def clean(self):
-        super().clean()
-
         exception_field_name = 'exemption'
         exemption = self.cleaned_data[exception_field_name]
-
-        if exemption == '1' and self.employee.paid_sick <= 0:
-            self.add_error(exception_field_name, f'{self.employee.get_full_name()} does not have Paid Sick days '
-                                                 f'available')
-        elif exemption == '2' and self.employee.unpaid_sick <= 0:
-            self.add_error(exception_field_name, f'{self.employee.get_full_name()} does not have Unpaid Sick days '
-                                                 f'available')
+        if exception_field_name in self.changed_data:
+            self.cleaned_data['points'] = 0
+            if exemption == '1' and self.employee.paid_sick <= 0:
+                self.add_error(exception_field_name, f'{self.employee.get_full_name()} does not have Paid Sick days '
+                                                     f'available')
+            elif exemption == '2' and self.employee.unpaid_sick <= 0:
+                self.add_error(exception_field_name, f'{self.employee.get_full_name()} does not have Unpaid Sick days '
+                                                     f'available')
+        else:
+            self.cleaned_data['points'] = self.POINTS[self.cleaned_data['reason']]
 
     def save(self):
-        points = {
-            '0': 1,
-            '1': 0,
-            '2': 1.5,
-            '3': 4,
-            '4': 1,
-            '5': 1,
-            '6': .5,
-            '7': 1,
-            '8': .5,
-        }
-
         attendance = Attendance(
             employee=self.employee,
             incident_date=self.cleaned_data['incident_date'],
             issued_date=datetime.date.today(),
-            points=0 if self.cleaned_data['exemption'] else points[self.cleaned_data['reason']],
+            points=self.cleaned_data['points'],
             reason=self.cleaned_data['reason'],
             assigned_by=self.request.user.employee_id,
             exemption=self.cleaned_data['exemption'],
         )
 
         attendance.save()
-
         self.employee.save()
 
         return attendance.id
@@ -125,32 +125,17 @@ class EditAttendance(AssignAttendance):
 
     def save(self):
         update_fields = ['incident_date', 'issued_date', 'reason', 'exemption', 'edited_date', 'edited_by', 'points']
-        points = {
-            '0': 1,
-            '1': 0,
-            '2': 1.5,
-            '3': 4,
-            '4': 1,
-            '5': 1,
-            '6': .5,
-            '7': 1,
-            '8': .5,
-        }
-
-        if self.cleaned_data['exemption']:
-            self.attendance.points = 0
-            if self.cleaned_data['exemption'] == '1' and self.attendance.exemption != '1':
-                self.employee.paid_sick -= 1
-            elif self.cleaned_data['exemption'] == '2' and self.attendance.exemption != '2':
-                self.employee.unpaid_sick -= 1
-        else:
-            self.attendance.points = points[self.cleaned_data['reason']]
+        if self.cleaned_data['exemption'] == '1' and self.attendance.exemption != '1':
+            self.employee.paid_sick -= 1
+        elif self.cleaned_data['exemption'] == '2' and self.attendance.exemption != '2':
+            self.employee.unpaid_sick -= 1
 
         if self.attendance.exemption == '1' and self.cleaned_data['exemption'] != '1':
             self.employee.paid_sick += 1
         elif self.attendance.exemption == '2' and self.cleaned_data['exemption'] != '2':
             self.employee.unpaid_sick += 1
 
+        self.attendance.points = self.cleaned_data['points']
         self.attendance.incident_date = self.cleaned_data['incident_date']
         self.attendance.issued_date = self.cleaned_data['issued_date']
         self.attendance.reason = self.cleaned_data['reason']
@@ -195,7 +180,8 @@ class AssignCounseling(forms.Form):
         counseling_records = Counseling.objects.filter(is_active=True, employee=self.employee).order_by('action_type')
         action_type_field = 'action_type'
         action_type = self.cleaned_data[action_type_field]
-        if not (self.cleaned_data['pd_check_override'] or (self.counseling and self.counseling.override_by and self.counseling.action_type == self.cleaned_data['action_type'])):
+
+        if self.counseling.action_type != self.cleaned_data[action_type_field] and not (self.cleaned_data['pd_check_override'] or (self.counseling and self.counseling.override_by and self.counseling.action_type == self.cleaned_data['action_type'])):
             if action_type != '6' and action_type != '5':
                 history = {
                     '0': False,
@@ -583,7 +569,7 @@ class NotificationSettings(forms.ModelForm):
         model = Employee
         fields = ['email_7attendance', 'email_10attendance', 'email_written', 'email_last_final', 'email_removal',
                   'email_safety_point', 'email_termination', 'email_add_hold', 'email_rem_hold', 'email_add_settlement',
-                  'email_new_time_off', 'email_new_employee', 'email_attendance_doc_day3', 'email_attendance_doc_day5',
+                  'email_new_time_off', 'email_new_employee', 'email_attendance_doc_day14', 'email_attendance_doc_day5',
                   'email_attendance_doc_day7', 'email_attendance_doc_day10', 'email_safety_doc_day3',
                   'email_safety_doc_day5', 'email_safety_doc_day7', 'email_safety_doc_day10',
                   'email_counseling_doc_day3', 'email_counseling_doc_day5', 'email_counseling_doc_day7',

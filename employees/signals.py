@@ -3,7 +3,7 @@ import datetime
 from django.contrib.auth import settings
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import post_delete, post_save, pre_delete
 from django.dispatch import receiver
 from django.template.loader import render_to_string
 from django.urls import reverse, NoReverseMatch
@@ -25,10 +25,10 @@ def attendance_delete(sender, instance, **kwargs):
 
     instance.employee.save()
 
-
-@receiver(post_delete, sender=Hold)
+   
+@receiver(pre_delete, sender=Hold)
 def hold_delete(sender, instance, **kwargs):
-    verb = f'{instance.employee.get_full_name()}\'s hold has been removed'
+    verb = f'{instance.employee.get_full_name()}\'s hold has been removed by {instance.removed_by}.'
     notification_type = 'email_rem_hold'
 
     group = Employee.objects.filter(groups__name=notification_type).exclude(employee_id=instance.assigned_by)
@@ -87,7 +87,7 @@ def new_notification(sender, instance, created, **kwargs):
 def add_counseling_document(sender, instance, created, update_fields, **kwargs):
     try:
         if created or 'document' not in update_fields:
-            instance.create_counseling_document()
+            instance.create_document()
 
             if created:
                 if instance.action_type == '2':
@@ -139,7 +139,7 @@ def add_counseling_document(sender, instance, created, update_fields, **kwargs):
 def add_attendance_document(sender, instance, created, update_fields, **kwargs):
     try:
         if created or 'document' not in update_fields:
-            instance.create_attendance_point_document()
+            instance.create_document()
             counseling = instance.employee.attendance_counseling_required(instance.reason, instance.exemption, instance.id)
 
             if counseling[0] == 2 and instance.points != 0:
@@ -179,7 +179,7 @@ def add_attendance_document(sender, instance, created, update_fields, **kwargs):
 def add_safety_document(sender, instance, created, update_fields, **kwargs):
     try:
         if created or 'document' not in update_fields:
-            instance.create_safety_point_document()
+            instance.create_document()
 
             removal = instance.employee.safety_point_removal_required(instance)
 
