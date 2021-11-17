@@ -657,13 +657,16 @@ class Employee(AbstractBaseUser, PermissionsMixin):
 
             total_pages = int(len(attendance_history) / 30) + 1
             page_num = 1
+            changed_page = False
             y = 8.25
 
             counter = 1
 
             # Adding attendance history to the cover page and setting the written warning removal dates
             for attendance in attendance_history:
-                y = 9.75 if page_num > 1 else y
+                if changed_page:
+                    y = 9.75 if page_num > 1 else y
+                    changed_page = False
                 p.setFont('Helvetica', 10)
 
                 incident_date = attendance.incident_date.strftime('%m-%d-%Y') if attendance.incident_date else ''
@@ -710,6 +713,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
                     p.showPage()
 
                     page_num += 1
+                    changed_page = True
 
                 counter += 1
                 y -= .25
