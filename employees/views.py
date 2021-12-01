@@ -446,14 +446,17 @@ def edit_hold(request, hold_id):
 @login_required
 @permission_required('employees.can_remove_hold', raise_exception=True)
 def remove_hold(request, employee_id, hold_id):
-    hold = Hold.objects.get(id=hold_id)
+    try:
+        hold = Hold.objects.get(id=hold_id)
 
-    if hold.reason == 'Pending Termination':
-        hold.employee.removal_date = None
+        if hold.reason == 'Pending Termination':
+            hold.employee.removal_date = None
 
-        hold.employee.save()
+            hold.employee.save()
 
-    hold.delete()
+        hold.delete()
+    except Hold.DoesNotExist:
+        pass
 
     return redirect('employee-account', employee_id)
 
