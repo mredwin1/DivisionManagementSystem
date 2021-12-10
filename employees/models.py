@@ -225,7 +225,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
             ('can_terminate_employee', 'Can remove employee'),
             ('can_export_profile', 'Can export profile'),
             ('can_export_attendance_history', 'Can export attendance history'),
-            ('can_export_safety_history', 'Can export safety history'),
+            ('can_export_safety_point_history', 'Can export safety history'),
             ('can_export_counseling_history', 'Can export counseling history'),
             ('can_view_settlement', 'Can view settlement'),
             ('can_create_settlement', 'Can create settlement'),
