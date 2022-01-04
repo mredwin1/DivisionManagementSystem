@@ -3,7 +3,7 @@ import datetime
 from django import template
 from django.contrib.auth import settings
 from django.contrib.sites.models import Site
-from employees.models import DayOff
+from employees.models import DayOff, SafetyPoint
 from pytz import utc
 
 register = template.Library()
@@ -68,23 +68,10 @@ def attendance_reason_return(value):
 # Inputs a value that corresponds to an safety point reason
 @register.filter()
 def safety_point_reason_return(value):
-    reasons = {
-        '0': 'Unsafe maneuver(s) or act',
-        '1': 'Failure to cycle wheelchair lift',
-        '2': 'Failure to do a proper vehicle inspection (DVI)',
-        '3': 'Improper following distance',
-        '4': 'Conviction of a minor traffic violation',
-        '5': 'Backing Accident',
-        '6': 'Minor Preventable incident',
-        '7': 'Any use of a cell phone or non company-issued electronic device while operating a vehicle',
-        '8': 'Major preventable incident that does not involve serious injury, death and/or property damage in excess of $25,000',
-        '9': 'Major preventable incident with serious injury, death and/or property damage in excess of $25,000',
-        '10': 'Any preventable roll-away incident',
-        '11': 'Failure to properly secure/transport a mobility device',
-        '12': 'Failure to immediately report a citation or incident in a company vehicle',
-        '13': 'Tampering with, disabling, or otherwise interfering with Drive Cam or other monitoring equipment',
-        '14': 'Conviction of a major traffic violation',
-    }
+    reasons = {}
+
+    for key, value in SafetyPoint.REASON_CHOICES:
+        reasons[key] = value
 
     value = reasons[value]
 
