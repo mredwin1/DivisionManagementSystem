@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from django import template
 from django.contrib.auth import settings
@@ -72,6 +73,8 @@ def safety_point_reason_return(value):
 
     for key, value in SafetyPoint.REASON_CHOICES:
         reasons[key] = value
+
+    logging.info(reasons)
 
     value = reasons[value]
 
