@@ -68,18 +68,15 @@ def attendance_reason_return(value):
 
 # Inputs a value that corresponds to an safety point reason
 @register.filter()
-def safety_point_reason_return(value):
+def safety_point_reason_return(reason):
     reasons = {}
 
     for key, value in SafetyPoint.REASON_CHOICES:
         reasons[key] = value
 
-    logging.info(reasons)
-    logging.info(value)
+    reason_str = reasons[reason]
 
-    value = reasons[value]
-
-    return value
+    return reason_str
 
 
 # Inputs a value that corresponds to a reason
