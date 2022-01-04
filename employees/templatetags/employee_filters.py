@@ -75,6 +75,7 @@ def safety_point_reason_return(value):
         reasons[key] = value
 
     logging.info(reasons)
+    logging.info(value)
 
     value = reasons[value]
 
