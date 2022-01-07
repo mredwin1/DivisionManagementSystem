@@ -286,14 +286,14 @@ class EditCounseling(AssignCounseling):
 
 class AssignSafetyPoint(forms.Form):
     POINTS = {
-            '0': 1,
+            '0': 2,
             '1': 1,
             '2': 1,
             '3': 2,
             '4': 2,
-            '5': 2,
+            '5': 3,
             '6': 2,
-            '7': 3,
+            '7': 6,
             '8': 4,
             '9': 6,
             '10': 6,
@@ -301,6 +301,13 @@ class AssignSafetyPoint(forms.Form):
             '12': 6,
             '13': 6,
             '14': 6,
+            '15': 1,
+            '16': 1,
+            '17': 3,
+            '18': 4,
+            '19': 5,
+            '20': 6,
+            '21': 6,
         }
     incident_date = forms.DateField(label='Incident Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
     issued_date = forms.DateField(label='Issued Date', widget=forms.TextInput(attrs={'type': 'date'}), required=True)
