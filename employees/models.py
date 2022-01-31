@@ -1386,7 +1386,7 @@ class SafetyPoint(models.Model):
             '15': 'Was unbelted or improperly belted when legally required.',
             '16': 'failed to stop at a Railroad Crossing.',
             '17': 'failed to provide door-to-door service or properly load/unload a passenger via the lift.',
-            '18': 'was involved in a preventable incident or collision up to $20,000 in injuries and/or property damage.',
+            '18': 'was involved in a preventable incident or collision up to $15,000 in injuries and/or property damage.',
             '19': 'was involved in a preventable incident or collision up to $20,000 in injuries and/or property damage.',
             '20': 'was involved in a preventable incident or collision in excess of $20,000 in injuries and/or property damage.',
             '21': 'failed to properly secure/transport a paratransit passenger.',
