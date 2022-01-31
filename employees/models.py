@@ -1358,6 +1358,13 @@ class SafetyPoint(models.Model):
             '12': 'Failure to immediately report a citation or incident in a company vehicle',
             '13': 'Tampering with, disabling, or otherwise interfering with Drive Cam or other monitoring equipment',
             '14': 'Conviction of a major traffic violation',
+            '15': 'Driver unbelted or improperly belted when legally required',
+            '16': 'Failure to stop at a Railroad Crossing',
+            '17': 'Failure to provide door-to-door service, to include failure to properly load/unload a passenger via the lift',
+            '18': 'Preventable incident and/or collision up to $15,000 in injuries or property damage',
+            '19': 'Preventable incident or collision up to $20,000 in injuries and/or property damage',
+            '20': 'Preventable incident or collision in excess of $20,000 in injuries and/or property damage',
+            '21': 'Failure to properly secure/transport a paratransit passenger'
         }
 
         paragraph1_return = {
@@ -1376,6 +1383,13 @@ class SafetyPoint(models.Model):
             '12': 'failed to immediately report a citation or incident in a company vehicle.',
             '13': 'was tampering with, disabling, or otherwise interfering with Drive Cam or other monitoring equipment.',
             '14': 'was convicted of a major traffic violation.',
+            '15': 'Was unbelted or improperly belted when legally required.',
+            '16': 'failed to stop at a Railroad Crossing.',
+            '17': 'failed to provide door-to-door service or properly load/unload a passenger via the lift.',
+            '18': 'was involved in a preventable incident or collision up to $20,000 in injuries and/or property damage.',
+            '19': 'was involved in a preventable incident or collision up to $20,000 in injuries and/or property damage.',
+            '20': 'was involved in a preventable incident or collision in excess of $20,000 in injuries and/or property damage.',
+            '21': 'failed to properly secure/transport a paratransit passenger.',
         }
 
         points_str_return = {
