@@ -1397,7 +1397,7 @@ class SafetyPoint(models.Model):
             2: 'two',
             3: 'three',
             4: 'four',
-            6: 'five',
+            6: 'six',
         }
 
         buffer = io.BytesIO()
